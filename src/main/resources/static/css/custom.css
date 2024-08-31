@@ -1,0 +1,13 @@
+#homeBody
+{
+    background-image:  url("/Image/home_bgr.jpg");
+    background-size: cover;
+    background-repeat: no-repeat;
+
+}
+.Title
+{
+    font-size: 30px;
+    color:white;
+    font-weight: bold;
+}

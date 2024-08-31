@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>LOGIN</title>
+    <link rel = "stylesheet" type = "text/css" th:href="@{/webjars/bootstrap/css/bootstrap.min.css}"/>
+    <link rel="stylesheet" type="text/css" th:href="@{/css/custom.css}"/>
+</head>
+<body id = "homeBody">
+<div class = "container-fluid text-center">
+    <div> <h2 >Login</h2> </div>
+    <div th:if="${error}" class="alert alert-danger text-center">
+        [[${error}]]
+    </div>
+    <form th:action="@{/users/validate}" method = "POST" th:object="${user}"
+          style = "max-width: 300px;margin: 0 auto;border-width: 30px">
+
+        <div class = "border border-secondary rounded p-3">
+            <div class="mb-3">
+                <label  class="form-label">Email address</label>
+                <input type ="email" th:field="*{email}" class = "form-control" required minlength="8"/>
+
+            </div>
+
+            <div class="mb-3 ">
+                <label  class="form-label">Password</label>
+                <input type ="password" th:field="*{password}" class = "form-control" required minlength="6"/>
+            </div>
+
+            <button type="submit" class="btn btn-primary">Submit</button>
+            <button type="button" class="btn btn-warning m-2" onclick="cancelForm()">Cancel</button>
+        </div>
+    </form>
+</div>
+<script type ="text/javascript">
+    function cancelForm()
+    {
+        window.location= "/users/login";
+    }
+</script>
+</body>
+</html>

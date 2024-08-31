@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Home Page</title>
+
+   <link rel = "stylesheet" type = "text/css" th:href="@{/webjars/bootstrap/css/bootstrap.min.css}"/>
+    <link rel="stylesheet" type="text/css" th:href="@{/css/custom.css}"/>
+</head>
+<body id = "homeBody">
+    <div class = "container-fluid text-center">
+        <h1 style="font-weight: bolder"> Welcome To Now Social Media!</h1>
+      <!--  <a class="h2" th:href = "@{/users}">Manage Users</a>
+        <br/>
+        <a class="h2" th:href = "@{ChatBox.html}">Chat Box</a>
+        <br/>
+        -->
+        <a class="Title" th:href = "@{/users/new}">Sign In</a>
+        <br/>
+        <a class="Title" th:href = "@{/users/login}">Login</a>
+
+
+    </div>
+
+</body>
+</html>

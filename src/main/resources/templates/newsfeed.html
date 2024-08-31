@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>News Feed</title>
+    <link rel="stylesheet" type="text/css" th:href="@{/css/newsfeed.css}"/>
+</head>
+<body>
+<!-- Sử dụng fragment header -->
+<div th:replace="~{fragments/header :: header}"></div>
+
+
+<div class="newsfeed-container">
+    <div th:each="post : ${posts}" class="post-card">
+        <p th:text="${post.content}">Post Content</p>
+        <div class="post-meta">
+            <span th:text="${post.user.username}">Author Name</span>
+            <span th:text="${#dates.format(post.createdAt, 'yyyy-MM-dd HH:mm')}">Date and Time</span>
+        </div>
+    </div>
+</div>
+</body>
+</html>

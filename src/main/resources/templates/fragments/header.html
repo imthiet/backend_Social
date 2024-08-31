@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" type="text/css" th:href="@{/css/header.css}"/>
+</head>
+<body>
+<header th:fragment="header">
+    <h3 style="color: black;">Now Feed</h3>
+
+    <div class="header-icons">
+        <a th:href="@{/newsfeed}" class="icon" id="home-icon">
+            <img src="#" th:src="@{/Image/home.png}" alt="Home">
+        </a>
+        <a th:href="@{/messages}" class="icon" id="messages-icon">
+            <img src="#" th:src="@{/Image/message.png}" alt="Messages">
+        </a>
+        <a th:href="@{/newsfeed}" class="icon" id="notifications-icon">
+            <img src="#" th:src="@{/Image/noti.png}" alt="Notifications">
+        </a>
+        <a th:href="@{/newsfeed}" class="icon" id="settings-icon">
+            <img src="#" th:src="@{/Image/setting.png}" alt="Settings">
+        </a>
+    </div>
+    <div class="header-username">
+        <img src="#" th:src="@{/Image/profile.png}" alt="User Avatar" class="avatar-img"/>
+        <span style="color: black;" th:text="${usn}"></span>
+        <div class="dropdown-content">
+            <a href="/profile">Profile</a>
+            <a href="#" onclick="confirmLogout(event)">Logout</a>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const usernameMenu = document.querySelector('.header-username');
+            const dropdownContent = usernameMenu.querySelector('.dropdown-content');
+
+            usernameMenu.addEventListener('click', function() {
+                const isVisible = dropdownContent.style.display === 'block';
+                dropdownContent.style.display = isVisible ? 'none' : 'block';
+            });
+
+            document.addEventListener('click', function(event) {
+                if (!usernameMenu.contains(event.target)) {
+                    dropdownContent.style.display = 'none';
+                }
+            });
+        });
+
+        function confirmLogout(event) {
+            var confirmed = confirm("Are you sure you want to logout?");
+            if (confirmed) {
+                window.location.href = "/users/logout";
+            } else {
+                event.preventDefault();
+            }
+        }
+    </script>
+</header>
+</body>
+</html>

@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Messages</title>
+
+    <link rel="stylesheet" type="text/css" th:href="@{/css/message.css}">
+</head>
+<body>
+<div th:replace="~{fragments/header :: header}"></div>
+
+<div class="container">
+    <ul class="user-list">
+        <li th:each="user : ${usersWithMessages}">
+            <p th:text="${user.username}">User</p>
+            <div class="details">
+
+                // them time
+            </div>
+        </li>
+    </ul>
+</div>
+<!--<footer>-->
+<!--    <p>&copy; 2024 Your Application Name. All Rights Reserved.</p>-->
+<!--</footer>-->
+</body>
+</html>
