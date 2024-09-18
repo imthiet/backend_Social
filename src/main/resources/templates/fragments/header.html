@@ -2,11 +2,40 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <link rel="stylesheet" type="text/css" th:href="@{/css/header.css}"/>
+<!--    <link rel="stylesheet" type="text/css" th:href="@{/css/header.css}"/>-->
+    <style>
+        /* Thêm CSS cho kết quả tìm kiếm */
+        #search-results {
+            position: absolute;
+            top: 40px; /* Điều chỉnh vị trí phù hợp với vị trí ô tìm kiếm */
+            left: 0;
+            background-color: white;
+            border: 1px solid #ddd;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            z-index: 1000;
+            width: 100%; /* Kéo dài theo chiều ngang của ô tìm kiếm */
+            display: none; /* Ẩn khi không có kết quả */
+        }
+
+        #search-results ul {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        #search-results li {
+            padding: 8px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        #search-results li:hover {
+            background-color: #f1f1f1;
+        }
+    </style>
 </head>
 <body>
 <header th:fragment="header">
-    <h3 style="color: black;">Now Feed</h3>
+    <h3 style="color: black;">Now Feeds</h3>
 
     <div class="header-icons">
         <a th:href="@{/newsfeed}" class="icon" id="home-icon">
@@ -21,10 +50,17 @@
         <a th:href="@{/newsfeed}" class="icon" id="settings-icon">
             <img src="#" th:src="@{/Image/setting.png}" alt="Settings">
         </a>
+        <!-- Search Icon -->
+        <a href="#" class="icon" id="search-icon">
+            <img src="#" th:src="@{/Image/search.png}" alt="Search">
+        </a>
+        <input type="text" class="search-bar" id="search-bar" placeholder="Search..." onkeydown="if(event.key === 'Enter') { performSearch() }">
+
     </div>
+
     <div class="header-username">
         <img src="#" th:src="@{/Image/profile.png}" alt="User Avatar" class="avatar-img"/>
-        <span style="color: black;" th:text="${usn}"></span>
+        <span style="color: black;padding-right: 20px" th:text="${usn}"></span>
         <div class="dropdown-content">
             <a href="/profile">Profile</a>
             <a href="#" onclick="confirmLogout(event)">Logout</a>
@@ -33,6 +69,21 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            const searchIcon = document.getElementById('search-icon');
+            const searchBar = document.getElementById('search-bar');
+
+            // Khi nhấn vào icon search, toggle hiển thị/ẩn textbox
+            searchIcon.addEventListener('click', function(event) {
+                event.preventDefault();
+                if (searchBar.style.display === 'none' || searchBar.style.display === '') {
+                    searchBar.style.display = 'block'; // Hiển thị ô tìm kiếm
+                    searchBar.focus(); // Đặt con trỏ vào ô tìm kiếm
+                } else {
+                    searchBar.style.display = 'none'; // Ẩn ô tìm kiếm
+                }
+            });
+
+            // Đóng dropdown menu khi click bên ngoài
             const usernameMenu = document.querySelector('.header-username');
             const dropdownContent = usernameMenu.querySelector('.dropdown-content');
 
@@ -55,6 +106,36 @@
             } else {
                 event.preventDefault();
             }
+        }
+
+        function performSearch() {
+            const query = document.getElementById('search-bar').value;
+
+            if (query.trim() === '') {
+                document.getElementById('search-results').style.display = 'none';
+                return;
+            }
+
+            fetch(`/search/users?query=${encodeURIComponent(query)}`)
+                .then(response => response.json())
+                .then(data => {
+                    let resultsDiv = document.getElementById('search-results');
+                    let htmlContent = '';
+
+                    if (data.length > 0) {
+                        htmlContent = '<ul>';
+                        data.forEach(user => {
+                            htmlContent += `<li>${user.username}</li>`;
+                        });
+                        htmlContent += '</ul>';
+                        resultsDiv.style.display = 'block'; // Hiển thị kết quả tìm kiếm
+                    } else {
+                        resultsDiv.style.display = 'none'; // Ẩn nếu không có kết quả
+                    }
+
+                    resultsDiv.innerHTML = htmlContent;
+                })
+                .catch(error => console.error('Error:', error));
         }
     </script>
 </header>

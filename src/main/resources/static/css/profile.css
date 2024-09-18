@@ -1,61 +1,78 @@
+/* profile.css */
+
 body {
-    font-family: Arial, sans-serif;
-    background-color: #f4f4f4;
+    font-family: 'Arial', sans-serif; /* Chọn font chữ đẹp */
+    background-color: #f4f4f4; /* Màu nền sáng */
+    color: #333; /* Màu chữ tối để dễ đọc */
     margin: 0;
-    padding: 0;
-    color: #333;
-}
-.container {
-    width: 80%;
-    margin: auto;
-    overflow: hidden;
-    padding: 20px;
-    padding-top:120px
-}
-header {
-    background-color: #333;
-    color: #fff;
-    padding: 10px 20px;
+    padding-top: 120px;
     text-align: center;
 }
-h1 {
-    color: #444;
+
+.profile-container {
+
+    max-width: 800px;
+    margin: 40px auto;
+    padding: 20px;
+    background-color: #ffffff; /* Nền trắng */
+    border-radius: 8px; /* Bo góc mềm mại */
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Hiệu ứng đổ bóng nhẹ */
 }
-.user-list {
-    list-style: none;
-    padding: 0;
-}
-.user-list li {
-    background: #fff;
-    margin: 10px 0;
-    padding: 15px;
-    border-radius: 5px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+
+.profile-header {
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    border-bottom: 2px solid #eeeeee;
+    padding-bottom: 20px;
+    margin-bottom: 20px;
 }
-.user-list p {
-    margin: 0;
-    font-size: 18px;
+
+.avatar-container {
+    flex: 1;
+    display: flex;
+    justify-content: center;
 }
-.user-list .details {
-    font-size: 14px;
-    color: #666;
+
+.avatar-img {
+    width: 120px; /* Kích thước ảnh đại diện */
+    height: 120px;
+    border-radius: 50%; /* Tạo hình tròn cho ảnh đại diện */
+    border: 3px solid #007bff; /* Đường viền màu xanh */
 }
-.user-list .details span {
-    display: block;
-    margin-top: 5px;
-}
-footer {
-    background: #333;
-    color: #fff;
+
+.user-info {
+    flex: 2;
     text-align: center;
-    padding: 10px 0;
-    position: fixed;
-    bottom: 0;
-    width: 100%;
 }
+
+.user-info p {
+    font-size: 18px;
+    margin: 10px 0;
+}
+
+.friends-section {
+    margin-top: 20px;
+}
+
+.friends-section h2 {
+    font-size: 24px;
+    margin-bottom: 10px;
+}
+
+.friend-list {
+    list-style-type: none;
+    padding: 0;
+}
+
+.friend-list li {
+    padding: 10px 0;
+    border-bottom: 1px solid #eeeeee;
+}
+
+.friend-list li:last-child {
+    border-bottom: none;
+}
+
 header {
 
     position: fixed;

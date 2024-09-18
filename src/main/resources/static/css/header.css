@@ -1,0 +1,39 @@
+
+
+.search-bar {
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    width: 200px;
+}
+
+/* Style for search results container */
+#search-results {
+    position: absolute; /* Đặt vị trí tuyệt đối */
+    top: 45px; /* Căn chỉnh dưới ô search bar */
+    left: 0; /* Có thể chỉnh để phù hợp với vị trí mong muốn */
+    width: 200px; /* Cùng kích thước với ô search */
+    background-color: white; /* Màu nền để dễ đọc */
+    border: 1px solid #ddd;
+    z-index: 1000; /* Đảm bảo nằm trên các phần tử khác */
+    max-height: 300px; /* Giới hạn chiều cao */
+    overflow-y: auto; /* Thêm thanh cuộn nếu có quá nhiều kết quả */
+    display: none; /* Mặc định ẩn, chỉ hiện khi có kết quả */
+}
+
+/* Style cho mỗi item trong kết quả tìm kiếm */
+#search-results ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+}
+
+#search-results li {
+    padding: 8px;
+    border-bottom: 1px solid #ddd;
+    cursor: pointer;
+}
+
+#search-results li:hover {
+    background-color: #f1f1f1;
+}

@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>User Profile</title>
+    <link rel="stylesheet" type="text/css" th:href="@{/css/profile.css}"/>
+</head>
+<body>
+<!-- Sử dụng fragment header -->
+<div th:replace="~{fragments/header :: header}"></div>
+
+<div class="profile-container">
+    <div class="profile-header">
+<!--        <div class="avatar-container">-->
+<!--            &lt;!&ndash; Hiển thị ảnh đại diện người dùng &ndash;&gt;-->
+<!--            <img th:src="@{${user.avatar}}" alt="User Avatar" class="avatar-img"/>-->
+<!--        </div>-->
+        <div class="user-info">
+            <p><strong>Username:</strong> <span th:text="${user.username}"></span></p>
+            <p><strong>Email:</strong> <span th:text="${user.email}"></span></p>
+        </div>
+    </div>
+
+    <div class="friends-section">
+        <h2>Friends</h2>
+        <ul class="friend-list">
+            <li th:each="friend : ${friends}">
+                <p th:text="${friend.username}">Friend Username</p>
+            </li>
+            <!-- Hiển thị thông báo nếu không có bạn bè -->
+            <li th:if="${#lists.isEmpty(friends)}">No friends found.</li>
+        </ul>
+    </div>
+</div>
+
+</body>
+</html>

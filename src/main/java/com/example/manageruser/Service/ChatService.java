@@ -38,6 +38,7 @@ public class ChatService {
                 }
             }
         }
+        System.out.println("Users found: " + users.size() +" _ " + users.toString());
 
         // Chuyển đổi Set sang List và trả về
         return new ArrayList<>(users);

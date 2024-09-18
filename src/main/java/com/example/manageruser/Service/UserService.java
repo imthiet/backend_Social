@@ -13,14 +13,20 @@ import java.util.Optional;
 public class UserService {
     @Autowired
     private UserRepository repo;
+    public User findByUsername(String username) {
+        return repo.findByUsername(username);
+    }
     public List<User> getAllUsers() {
+
         return (List<User>) repo.findAll();
     }
 
     public void save(User user) {
+
         repo.save(user);
     }
     public boolean emailExists(String email) {
+
         return repo.findByemail(email) != null;
     }
    public boolean usernameExists(String username) {

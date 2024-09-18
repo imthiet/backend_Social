@@ -54,9 +54,13 @@ public class MessageController {
 
 		List<User> usersWithMessages = chatService.getUsersWithMessages(username);
 		model.addAttribute("usersWithMessages", usersWithMessages);
+		model.addAttribute("usn", username);
+		for (User user : usersWithMessages) {
+			System.out.println("User: " + user.getUsername());
+		}
 
-		//return "messages"; // Tên của template Thymeleaf
-		return "redirect:/ChatBox.html";
+		return "messages"; // Tên của template Thymeleaf
+		//return "redirect:/ChatBox.html";
 	}
 
 }
