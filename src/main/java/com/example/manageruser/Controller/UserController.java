@@ -4,7 +4,9 @@ package com.example.manageruser.Controller;
 import com.example.manageruser.Model.User;
 import com.example.manageruser.Model.UserNotFoundException;
 import com.example.manageruser.Repository.UserRepository;
+import com.example.manageruser.Service.EmailService;
 import com.example.manageruser.Service.UserService;
+import jakarta.mail.MessagingException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -12,21 +14,30 @@ import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.io.UnsupportedEncodingException;
 import java.util.List;
+import java.util.UUID;
 
 
 @Controller
 public class UserController {
     @Autowired
     private UserService userService;
+
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private EmailService emailService;
+
+
+    private String getSiteURL(HttpServletRequest request) {
+        String siteURL = request.getRequestURL().toString();
+        return siteURL.replace(request.getServletPath(), "");
+    }
 
     @GetMapping("/users")
     public String showUserList(Model model) {
@@ -43,17 +54,24 @@ public class UserController {
 
     }
     @PostMapping("/users/save")
-    public String saveUser(@ModelAttribute("user") User user, RedirectAttributes ra, Model model) {
+    public String saveUser(@ModelAttribute("user") User user, RedirectAttributes ra, HttpServletRequest request) throws UnsupportedEncodingException, MessagingException {
 
-        if(userService.emailExists(user.getEmail()) || userService.usernameExists(user.getUsername()))
-        {
-           ra.addFlashAttribute("error", "This email or username already exists");
+        if(userService.emailExists(user.getEmail()) || userService.usernameExists(user.getUsername())) {
+            ra.addFlashAttribute("error", "Email hoặc tên người dùng đã tồn tại");
             return "redirect:/users/new";
         }
+        user.setEnabled(false);
+        user.setVerificationCode(UUID.randomUUID().toString());
         userService.save(user);
-        ra.addFlashAttribute("messages", "User Saved Successfull!");
+
+        emailService.sendVerificationEmail(user, getSiteURL(request));
+        // Gửi email xác minh
+
+
+        ra.addFlashAttribute("messages", "Đăng ký thành công! Vui lòng kiểm tra email để xác minh tài khoản.");
         return  "redirect:/users";
     }
+
     @PostMapping("/users/save_update")
     public String saveUserUpdate(@ModelAttribute("user") User user, RedirectAttributes ra, Model model) {
 
@@ -150,5 +168,17 @@ public class UserController {
         // Chuyển hướng đến trang đăng nhập
         return "redirect:/users/login";
     }
+
+    @GetMapping("/verify")
+    public String verifyUser(@RequestParam("code") String code, Model model) {
+        if (userService.verify(code)) {
+            // Nếu xác minh thành công, hiển thị trang xác minh thành công
+            return "verification_success"; // Đây là tên của file HTML bạn đã tạo
+        } else {
+            // Nếu xác minh thất bại, hiển thị trang thông báo thất bại
+            return "verification_failure"; // Đây là tên của file HTML bạn đã tạo
+        }
+    }
+
 
 }

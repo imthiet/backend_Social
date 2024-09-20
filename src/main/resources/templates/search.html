@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<title>Search Results</title>
+<link rel="stylesheet" type="text/css" th:href="@{/css/results.css}"/>
+</head>
+<body>
+<header th:replace="~{fragments/header :: header}"></header>
+
+<div class="results-container">
+<h2>Search Results for "<span th:text="${query}"></span>":</h2>
+
+<ul>
+<li th:each="user : ${searchResults}">
+<p><strong>Username:</strong> <span th:text="${user.username}"></span></p>
+<p><strong>Email:</strong> <span th:text="${user.email}"></span></p>
+</li>
+
+<!-- Hiển thị thông báo nếu không có kết quả -->
+<li th:if="${#lists.isEmpty(searchResults)}">
+                                            No results found for "<span th:text="${query}"></span>".
+</li>
+</ul>
+</div>
+</body>
+</html>

@@ -51,4 +51,19 @@ public class UserService {
         throw new UserNotFoundException("Could not found this user!");
 
     }
+
+    public boolean verify(String verificationCode) {
+        User user = repo.findByVerificationCode(verificationCode);
+
+        if (user == null || user.isEnabled()) {
+            return false;
+        } else {
+            user.setEnabled(true);
+            user.setVerificationCode(null);
+            repo.save(user);
+            return true;
+        }
+    }
+
+
 }

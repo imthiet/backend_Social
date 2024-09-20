@@ -51,10 +51,10 @@
             <img src="#" th:src="@{/Image/setting.png}" alt="Settings">
         </a>
         <!-- Search Icon -->
-        <a href="#" class="icon" id="search-icon">
+        <a th:href="@{/search}" class="icon" id="search-icon">
             <img src="#" th:src="@{/Image/search.png}" alt="Search">
         </a>
-        <input type="text" class="search-bar" id="search-bar" placeholder="Search..." onkeydown="if(event.key === 'Enter') { performSearch() }">
+
 
     </div>
 
@@ -68,20 +68,7 @@
     </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const searchIcon = document.getElementById('search-icon');
-            const searchBar = document.getElementById('search-bar');
 
-            // Khi nhấn vào icon search, toggle hiển thị/ẩn textbox
-            searchIcon.addEventListener('click', function(event) {
-                event.preventDefault();
-                if (searchBar.style.display === 'none' || searchBar.style.display === '') {
-                    searchBar.style.display = 'block'; // Hiển thị ô tìm kiếm
-                    searchBar.focus(); // Đặt con trỏ vào ô tìm kiếm
-                } else {
-                    searchBar.style.display = 'none'; // Ẩn ô tìm kiếm
-                }
-            });
 
             // Đóng dropdown menu khi click bên ngoài
             const usernameMenu = document.querySelector('.header-username');
@@ -97,7 +84,7 @@
                     dropdownContent.style.display = 'none';
                 }
             });
-        });
+
 
         function confirmLogout(event) {
             var confirmed = confirm("Are you sure you want to logout?");
@@ -108,35 +95,7 @@
             }
         }
 
-        function performSearch() {
-            const query = document.getElementById('search-bar').value;
 
-            if (query.trim() === '') {
-                document.getElementById('search-results').style.display = 'none';
-                return;
-            }
-
-            fetch(`/search/users?query=${encodeURIComponent(query)}`)
-                .then(response => response.json())
-                .then(data => {
-                    let resultsDiv = document.getElementById('search-results');
-                    let htmlContent = '';
-
-                    if (data.length > 0) {
-                        htmlContent = '<ul>';
-                        data.forEach(user => {
-                            htmlContent += `<li>${user.username}</li>`;
-                        });
-                        htmlContent += '</ul>';
-                        resultsDiv.style.display = 'block'; // Hiển thị kết quả tìm kiếm
-                    } else {
-                        resultsDiv.style.display = 'none'; // Ẩn nếu không có kết quả
-                    }
-
-                    resultsDiv.innerHTML = htmlContent;
-                })
-                .catch(error => console.error('Error:', error));
-        }
     </script>
 </header>
 </body>

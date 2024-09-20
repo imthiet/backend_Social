@@ -31,5 +31,6 @@ public class SearchController {
         // Trả về trang kết quả tìm kiếm
 
         return "search-results";
+//        return searchResults;
     }
 }

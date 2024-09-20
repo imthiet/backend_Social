@@ -35,6 +35,9 @@ public class User {
     @OneToMany(mappedBy = "friend")
     private List<FriendShip> friends;
 
+    private boolean enabled;
+    private String verificationCode;
+
     public int getId() {
         return id;
     }
@@ -43,20 +46,60 @@ public class User {
         this.id = id;
     }
 
-    public String getUsername() {
-        return username;
+    public String getVerificationCode() {
+        return verificationCode;
     }
 
-    public void setUsername(String username) {
-        this.username = username;
+    public void setVerificationCode(String verificationCode) {
+        this.verificationCode = verificationCode;
     }
 
-    public String getPassword() {
-        return password;
+    public boolean isEnabled() {
+        return enabled;
     }
 
-    public void setPassword(String password) {
-        this.password = password;
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
+    }
+
+    public List<FriendShip> getFriends() {
+        return friends;
+    }
+
+    public void setFriends(List<FriendShip> friends) {
+        this.friends = friends;
+    }
+
+    public List<FriendShip> getFriendships() {
+        return friendships;
+    }
+
+    public void setFriendships(List<FriendShip> friendships) {
+        this.friendships = friendships;
+    }
+
+    public List<Like> getLikes() {
+        return likes;
+    }
+
+    public void setLikes(List<Like> likes) {
+        this.likes = likes;
+    }
+
+    public List<Comment> getComments() {
+        return comments;
+    }
+
+    public void setComments(List<Comment> comments) {
+        this.comments = comments;
+    }
+
+    public List<Post> getPosts() {
+        return posts;
+    }
+
+    public void setPosts(List<Post> posts) {
+        this.posts = posts;
     }
 
     public String getEmail() {
@@ -67,13 +110,36 @@ public class User {
         this.email = email;
     }
 
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
     @Override
     public String toString() {
-        return "user{" +
-                "id=" + id +
-                ", username='" + username + '\'' +
-                ", password='" + password + '\'' +
-                ", email='" + email + '\'' +
-                '}';
+        return "User{" +
+            "id=" + id +
+            ", username='" + username + '\'' +
+            ", password='" + password + '\'' +
+            ", email='" + email + '\'' +
+            ", posts=" + posts +
+            ", comments=" + comments +
+            ", likes=" + likes +
+            ", friendships=" + friendships +
+            ", friends=" + friends +
+            ", enabled=" + enabled +
+            ", verificationCode='" + verificationCode + '\'' +
+            '}';
     }
 }
