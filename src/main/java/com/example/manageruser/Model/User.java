@@ -14,29 +14,57 @@ public class User {
     @Column(nullable = false,unique = true)
     private String username;
 
-    @Column(length = 15,nullable = false)
+    @Column(length = 60,nullable = false)
     private String password;
 
     @Column(nullable = false,unique = true)
     private String email;
 
-    @OneToMany(mappedBy = "user")
+    @OneToMany(mappedBy = "user", fetch = FetchType.EAGER)
     private List<Post> posts;
 
-    @OneToMany(mappedBy = "user")
+    @OneToMany(mappedBy = "user", fetch = FetchType.EAGER)
     private List<Comment> comments;
 
-    @OneToMany(mappedBy = "user")
+    @OneToMany(mappedBy = "user", fetch = FetchType.EAGER)
     private List<Like> likes;
 
-    @OneToMany(mappedBy = "user")
+    @OneToMany(mappedBy = "user", fetch = FetchType.EAGER)
     private List<FriendShip> friendships;
 
-    @OneToMany(mappedBy = "friend")
+    @OneToMany(mappedBy = "friend", fetch = FetchType.EAGER)
     private List<FriendShip> friends;
 
     private boolean enabled;
     private String verificationCode;
+
+    private boolean isAdmin = false;
+
+    public boolean isAdmin() {
+        return isAdmin;
+    }
+
+    public void setAdmin(boolean admin) {
+        isAdmin = admin;
+    }
+
+    @Override
+    public String toString() {
+        return "User{" +
+                "id=" + id +
+                ", username='" + username + '\'' +
+                ", password='" + password + '\'' +
+                ", email='" + email + '\'' +
+                ", posts=" + posts +
+                ", comments=" + comments +
+                ", likes=" + likes +
+                ", friendships=" + friendships +
+                ", friends=" + friends +
+                ", enabled=" + enabled +
+                ", verificationCode='" + verificationCode + '\'' +
+                ", isAdmin=" + isAdmin +
+                '}';
+    }
 
     public int getId() {
         return id;
@@ -126,20 +154,4 @@ public class User {
         this.username = username;
     }
 
-    @Override
-    public String toString() {
-        return "User{" +
-            "id=" + id +
-            ", username='" + username + '\'' +
-            ", password='" + password + '\'' +
-            ", email='" + email + '\'' +
-            ", posts=" + posts +
-            ", comments=" + comments +
-            ", likes=" + likes +
-            ", friendships=" + friendships +
-            ", friends=" + friends +
-            ", enabled=" + enabled +
-            ", verificationCode='" + verificationCode + '\'' +
-            '}';
-    }
 }

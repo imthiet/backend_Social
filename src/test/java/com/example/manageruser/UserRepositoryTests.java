@@ -1,10 +1,17 @@
 package com.example.manageruser;
 
+import com.example.manageruser.Model.UserDto;
 import com.example.manageruser.Repository.UserRepository;
 import com.example.manageruser.Model.User;
 
 
+import com.example.manageruser.Service.UserService;
+import com.example.manageruser.WskConfig.UserAlreadyExistsException;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
@@ -12,7 +19,10 @@ import org.springframework.test.annotation.Rollback;
 
 import java.util.Optional;
 
+
 import  static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.*;
 
 
 @DataJpaTest
@@ -20,7 +30,15 @@ import  static org.assertj.core.api.Assertions.assertThat;
 @Rollback(false)
 public class UserRepositoryTests {
     @Autowired private UserRepository repo;
+    @Mock
+    private UserRepository userRepository;
+    @InjectMocks
+    private UserService userService; // Lớp chứa phương thức registerUser
 
+    @BeforeEach
+    public void setUp() {
+        MockitoAnnotations.openMocks(this);
+    }
     @Test
     public void testAddNew()
     {
@@ -70,6 +88,14 @@ public class UserRepositoryTests {
         assertThat(findU).isPresent();
         System.out.println(findU.get());
     }
+    @Test
+    public void Getname()
+    {
+        String username = "23A4030326";
+        Optional<User> findU = repo.findByUsername(username);
+        assertThat(findU).isPresent();
+        System.out.println(findU.get());
+    }
 
     @Test
     public void delete()
@@ -81,4 +107,47 @@ public class UserRepositoryTests {
 
     }
 
+    @Test
+    public void testRegisterUser_UsernameExists() {
+        // Thiết lập dữ liệu giả để kiểm tra
+        UserDto userDto = new UserDto();
+        userDto.setUsername("thietquang");
+        userDto.setEmail("test@example.com");
+
+        when(userRepository.findByUsername(userDto.getUsername())).thenReturn(Optional.of(new User()));
+
+        // Kiểm tra xem exception có được ném ra không
+        assertThrows(UserAlreadyExistsException.class, () -> userService.registerUser(userDto));
+    }
+
+    @Test
+    public void testRegisterUser_EmailExists() {
+        UserDto userDto = new UserDto();
+        userDto.setUsername("ttttttt");
+        userDto.setEmail("thietx2003@gmail.com.com");
+
+        when(userRepository.findByUsername(userDto.getUsername())).thenReturn(Optional.empty());
+        when(userRepository.findByEmail(userDto.getEmail())).thenReturn(Optional.of(new User()));
+
+        // Kiểm tra xem exception có được ném ra không
+        assertThrows(UserAlreadyExistsException.class, () -> userService.registerUser(userDto));
+    }
+
+    @Test
+    public void testRegisterUser_Success() {
+        UserDto userDto = new UserDto();
+        userDto.setUsername("newUser");
+        userDto.setEmail("newEmail@example.com");
+
+        when(userRepository.findByUsername(userDto.getUsername())).thenReturn(Optional.empty());
+        when(userRepository.findByEmail(userDto.getEmail())).thenReturn(Optional.empty());
+
+        // Gọi phương thức đăng ký
+        userService.registerUser(userDto);
+
+        // Kiểm tra xem phương thức save có được gọi không
+        verify(userRepository, times(1)).save(any(User.class));
+    }
 }
+
+

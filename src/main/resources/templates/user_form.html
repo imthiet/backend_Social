@@ -2,43 +2,61 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-<!--    <title>[[${pageTitle}]]</title>-->
     <title>Sign In</title>
     <link rel="stylesheet" type="text/css" th:href="@{/webjars/bootstrap/css/bootstrap.min.css}"/>
     <link rel="stylesheet" type="text/css" th:href="@{/css/custom.css}"/>
+    <style>
+        .full-height {
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+    </style>
 </head>
 <body id="homeBody">
-<div class="container-fluid text-center">
-<!--    <div><h2>[[${pageTitle}]]</h2></div>-->
-    <div><h2>Sign In</h2></div>
-    <div th:if="${error}" class="alert alert-danger text-center">
-        [[${error}]]
-    </div>
-    <form th:action="@{/users/save}" method="POST" th:object="${user}" style="max-width: 300px; margin: 0 auto;" onsubmit="return validatePassword()">
-        <input type="hidden" th:field="*{id}"/>
-        <div class="border border-secondary rounded p-3">
-            <div class="mb-3">
-                <label class="form-label">Email address</label>
-                <input type="email" th:field="*{email}" class="form-control" required minlength="8"/>
-                <div class="form-text">We'll never share your email with anyone else.</div>
-            </div>
-            <div class="mb-3">
-                <label class="form-label">Username</label>
-                <input type="text" th:field="*{username}" class="form-control" required minlength="5"/>
-            </div>
-            <div class="mb-3">
-                <label class="form-label">Password</label>
-                <input type="password" th:field="*{password}" id="password" class="form-control" required minlength="6"/>
-            </div>
-            <div class="mb-3">
-                <label class="form-label">ReType Password</label>
-                <input type="password" id="confirmPassword" class="form-control" required minlength="6"/>
-            </div>
-            <button type="submit" class="btn btn-primary">Submit</button>
-            <button type="button" class="btn btn-warning m-2" onclick="cancelForm()">Cancel</button>
+<div class="container-fluid full-height">
+    <form th:action="@{/users/save}" method="POST" th:object="${user}"
+          class="form-container" style="max-width: 400px; margin: 0 auto;" onsubmit="return validatePassword()">
+
+        <!-- Welcome Title inside the form -->
+        <div class="mb-2 text-center Title">
+            Now Feed - Sign In
         </div>
+
+        <!-- Error message inside the form -->
+        <div th:if="${error}" class="alert alert-danger text-center">
+            [[${error}]]
+        </div>
+
+        <input type="hidden" th:field="*{id}"/>
+
+        <div class="mb-3">
+            <label class="form-label">Email address</label>
+            <input type="email" th:field="*{email}" class="form-control" required minlength="8"/>
+
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Username</label>
+            <input type="text" th:field="*{username}" class="form-control" required minlength="5"/>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Password</label>
+            <input type="password" th:field="*{password}" id="password" class="form-control" required minlength="6"/>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">ReType Password</label>
+            <input type="password" id="confirmPassword" class="form-control" required minlength="6"/>
+        </div>
+
+        <button type="submit" class="login_btn">Submit</button>
+        <button type="button" class="cancel_btn" onclick="cancelForm()">Cancel</button>
     </form>
 </div>
+
 <script type="text/javascript">
     function cancelForm() {
         window.location = "[[@{/users}]]";
@@ -55,4 +73,14 @@
     }
 </script>
 </body>
+
+<footer class="footer bg-light text-center">
+    <div class="container py-3">
+        <span class="text-muted">© 2024 Your Company. All rights reserved.</span>
+        <div>
+            <a href="#" class="text-muted">Privacy Policy</a> |
+            <a href="#" class="text-muted">Terms of Service</a>
+        </div>
+    </div>
+</footer>
 </html>

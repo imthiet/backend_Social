@@ -11,7 +11,13 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -33,19 +39,46 @@ public class UserController {
     @Autowired
     private EmailService emailService;
 
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
+
+
+
+
 
     private String getSiteURL(HttpServletRequest request) {
         String siteURL = request.getRequestURL().toString();
         return siteURL.replace(request.getServletPath(), "");
     }
-
     @GetMapping("/users")
-    public String showUserList(Model model) {
+    public String showUserList(RedirectAttributes ra, Model model) {
+        // Lấy thông tin người dùng từ SecurityContext
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String username = authentication != null ? authentication.getName() : null;
+
+        if (username == null) {
+            ra.addFlashAttribute("error", "Vui lòng đăng nhập để truy cập trang này.");
+            return "redirect:/login";
+        }
+
+        // Lấy thông tin người dùng từ cơ sở dữ liệu theo tên đăng nhập
+        User currentUser = userService.findByUsername(username);
+
+        if (currentUser == null || !currentUser.isAdmin()) {
+            ra.addFlashAttribute("error", "Bạn không có quyền truy cập trang này.");
+            return "redirect:/newsfeed";
+        }
+
+        // Nếu người dùng là admin, hiển thị danh sách người dùng
         List<User> listUser = userService.getAllUsers();
         model.addAttribute("listUser", listUser);
 
         return "users";
     }
+
+
+
     @GetMapping("/users/new")
     public String showUserForm(Model model) {
         model.addAttribute("user", new User());
@@ -56,23 +89,28 @@ public class UserController {
     @PostMapping("/users/save")
     public String saveUser(@ModelAttribute("user") User user, RedirectAttributes ra, HttpServletRequest request) throws UnsupportedEncodingException, MessagingException {
 
-        if(userService.emailExists(user.getEmail()) || userService.usernameExists(user.getUsername())) {
+        if (userService.emailExists(user.getEmail()) || userService.usernameExists(user.getUsername())) {
             ra.addFlashAttribute("error", "Email hoặc tên người dùng đã tồn tại");
             return "redirect:/users/new";
         }
+
+        // Mã hóa mật khẩu trước khi lưu
+        String encodedPassword = passwordEncoder.encode(user.getPassword());
+        user.setPassword(encodedPassword);
+
         user.setEnabled(false);
+        user.setAdmin(false);
         user.setVerificationCode(UUID.randomUUID().toString());
+
         userService.save(user);
 
         emailService.sendVerificationEmail(user, getSiteURL(request));
-        // Gửi email xác minh
-
-
         ra.addFlashAttribute("messages", "Đăng ký thành công! Vui lòng kiểm tra email để xác minh tài khoản.");
-        return  "redirect:/users";
+
+        return "redirect:/login";
     }
 
-    @PostMapping("/users/save_update")
+    @PostMapping("/users/save_update") // upadte cuar nguoi dung
     public String saveUserUpdate(@ModelAttribute("user") User user, RedirectAttributes ra, Model model) {
 
         User rootUser = userService.findById(user.getId());
@@ -84,6 +122,27 @@ public class UserController {
         userService.save(user);
         ra.addFlashAttribute("messages", "User Updated Successfull!");
         return  "redirect:/users";
+    }
+
+    @PostMapping("/users/save_edit")
+    public String saveUserEdit(@ModelAttribute("user") User user, RedirectAttributes ra) {
+
+        // Tìm User trong cơ sở dữ liệu theo ID
+        User rootUser = userService.findById(user.getId());
+
+        if (rootUser != null) {
+            // Cập nhật trạng thái 'enabled' của User
+            rootUser.setEnabled(user.isEnabled());
+            rootUser.setAdmin(user.isAdmin());
+            // Lưu user đã cập nhật vào cơ sở dữ liệu
+            userService.save(rootUser);
+
+            ra.addFlashAttribute("messages", "User Updated Successfully!");
+        } else {
+            ra.addFlashAttribute("error", "User not found!");
+        }
+
+        return "redirect:/users";
     }
 
 
@@ -112,13 +171,17 @@ public class UserController {
 
     }
 
-    @GetMapping("/users/login")
-    public String showUserLoginForm(Model model) {
+    @GetMapping("/login")
+    public String showUserLoginForm(@RequestParam(value = "error", required = false) String error, Model model) {
+        if (error != null) {
+            model.addAttribute("error", "Invalid username or password. Please try again.");
+        }
         model.addAttribute("user", new User());
-
-        return "Login";
-
+        return "login"; // template login
     }
+
+
+
     @PostMapping("/users/validate")
     public String login(@ModelAttribute("user") User user, RedirectAttributes ra, Model model, HttpSession session) {
 
@@ -178,6 +241,12 @@ public class UserController {
             // Nếu xác minh thất bại, hiển thị trang thông báo thất bại
             return "verification_failure"; // Đây là tên của file HTML bạn đã tạo
         }
+    }
+    @GetMapping("/test")
+    public String sc( Model model) {
+
+            return "verification_success"; // Đây là tên của file HTML bạn đã tạo
+
     }
 
 

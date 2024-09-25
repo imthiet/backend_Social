@@ -1,8 +1,9 @@
 #homeBody
 {
-    background-image:  url("/Image/home_bgr.jpg");
+    background-image:  url("/Image/backgr.png");
     background-size: cover;
     background-repeat: no-repeat;
+
 
 }
 .Title
@@ -10,4 +11,80 @@
     font-size: 30px;
     color:white;
     font-weight: bold;
+}
+/* Custom styles for the login form */
+.form-container {
+
+    background-color: white;
+    padding: 20px;
+    border-radius: 14px;
+    align-items: center;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1); /* Đổ bóng cho form */
+    max-width: 700px; /* Giới hạn độ rộng tối đa của form */
+    width: 100%; /* Form sẽ chiếm toàn bộ chiều ngang trên các màn hình nhỏ */
+    margin: 0 auto; /* Đảm bảo form nằm giữa */
+}
+
+/* Tùy chỉnh thêm cho form nếu cần */
+.form-container .form-label {
+    font-weight: bold;
+    color: #333;
+}
+
+.form-container .form-control {
+
+    background-color: #f0f8ff; /* Màu nền của input */
+}
+
+.footer {
+    margin-top: auto; /* Đẩy footer xuống dưới cùng */
+    position: relative; /* Để đảm bảo footer không bị thụt */
+}
+.login_btn
+{
+    border-radius: 12px;
+    height: 55px;
+    display: grid;
+    width: 100%;
+    align-items: center;
+
+    font-size: 25px;
+    font-weight: bold;
+    text-align: center;
+    cursor: pointer;
+    user-select: none;
+    margin-right: 12px;
+    min-width: 161px;
+    color: #ffffff;
+
+
+    margin-top: 24px;
+    background: #00285A;
+    outline: 0;
+}
+.mb-2
+{
+    color: #00285A;
+}
+.cancel_btn
+{
+    border-radius: 12px;
+    height: 40px;
+    display: grid;
+    width: 100%;
+
+
+    font-size: 18px;
+    font-weight: bold;
+    text-align: center;
+    cursor: pointer;
+    user-select: none;
+    margin-right: 12px;
+    min-width: 161px;
+    color: #ffffff;
+
+
+    margin-top: 24px;
+    background: #00285A;
+    outline: 0;
 }

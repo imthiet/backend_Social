@@ -2,8 +2,12 @@ package com.example.manageruser.Controller;
 
 import com.example.manageruser.Model.User;
 import com.example.manageruser.Repository.UserRepository;
+import com.example.manageruser.Service.SearchService;
+import com.example.manageruser.Service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.repository.query.Param;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -12,25 +16,21 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
-@RestController
-@RequestMapping("/search")
+@Controller
+
 public class SearchController {
 
     @Autowired
-    private UserRepository userRepository;
+    SearchService service;
 
-    @GetMapping("/users")
-    public String searchUsers(@RequestParam("query") String query, Model model) {
-        // Tìm kiếm người dùng dựa trên từ khóa
-        List<User> searchResults = userRepository.findByUsernameContainingIgnoreCase(query);
+    @RequestMapping("/search")
+    public String index(Model model, @Param("keyword") String keyword){
+        List<User> listUser = service.listAll(keyword);
 
-        // Đưa kết quả tìm kiếm vào Model để hiển thị trong view
-        model.addAttribute("searchResults", searchResults);
-        model.addAttribute("query", query);
+        // Thay đổi tên biến từ studentList thành listStudent để khớp với Thymeleaf
+        model.addAttribute("listUser", listUser);
+        model.addAttribute("keyword", keyword);
 
-        // Trả về trang kết quả tìm kiếm
-
-        return "search-results";
-//        return searchResults;
+        return "search"; // template search
     }
 }

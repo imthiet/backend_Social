@@ -33,6 +33,10 @@
             <th>ID</th>
             <th>UserName</th>
             <th>Email</th>
+
+            <th>Enabled</th>
+            <th>Admin</th>
+
             <th>Edit</th>
             <th>Delete</th>
         </tr>
@@ -41,8 +45,10 @@
         <tbody>
         <tr th:each="user : ${listUser}">
             <td th:text="${user.id}">1</td>
-            <td th:text="${user.username}">JohnDoe</td>
-            <td th:text="${user.email}">john@example.com</td>
+            <td th:text="${user.username}"></td>
+            <td th:text="${user.email}"></td>
+            <td th:text="${user.enabled}"></td>
+            <td th:text="${user.isAdmin()}"></td>
             <td>
                 <a class="btn btn-warning" th:href="@{'/users/edit/' + ${user.id}}">Edit</a>
             </td>
