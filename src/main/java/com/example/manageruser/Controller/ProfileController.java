@@ -6,6 +6,8 @@ import com.example.manageruser.Service.FriendService;
 import com.example.manageruser.Service.UserService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -24,11 +26,12 @@ public class ProfileController {
     private FriendService friendService;
 
     @GetMapping
-    public String showUserProfile(HttpSession session, Model model) {
-        String username = (String) session.getAttribute("username");
+    public String showUserProfile(Model model) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String username = authentication != null ? authentication.getName() : null;
 
         if (username == null) {
-            return "redirect:/users/login"; // Nếu chưa đăng nhập, chuyển hướng về trang login
+            return "redirect:/login"; // Nếu chưa đăng nhập, chuyển hướng về trang login
         }
 
         User user = userService.findByUsername(username);
@@ -39,4 +42,5 @@ public class ProfileController {
 
         return "profile"; // Tên của template Thymeleaf
     }
+
 }

@@ -113,7 +113,7 @@ public class UserController {
             ra.addFlashAttribute("error", "Username hoặc email đã tồn tại.");
             return "redirect:/users/new";
         } catch (Exception e) {
-            ra.addFlashAttribute("error", "Username hoặc email đã tồn ta, vui lòng sử dụng email chính chủ và tên khác.");
+            ra.addFlashAttribute("error", "Existed Email Or Username!");
             return "redirect:/users/new";
         }
 
@@ -126,14 +126,14 @@ public class UserController {
             throw new RuntimeException(e);
         }
 
-        ra.addFlashAttribute("messages", "Đăng ký thành công! Vui lòng kiểm tra email để xác minh tài khoản.");
+        ra.addFlashAttribute("error", "Sign in successful! Please check your email to verification!.");
         return "redirect:/login";
     }
 
 
 
 
-    @PostMapping("/users/save_update") // upadte cuar nguoi dung
+    @PostMapping("/users/save_update")
     public String saveUserUpdate(@ModelAttribute("user") User user, RedirectAttributes ra, Model model) {
 
         User rootUser = userService.findById(user.getId());
@@ -271,6 +271,8 @@ public class UserController {
             return "verification_success"; // Đây là tên của file HTML bạn đã tạo
 
     }
+
+
 
 
 }
