@@ -27,10 +27,10 @@ public class UserService {
         return (List<User>) repo.findAll();
     }
 
-    public void save(User user) {
-
-        repo.save(user);
-    }
+//    public void save(User user) {
+//
+//        repo.save(user);
+//    }
 
     public boolean emailExists(String email) {
         return repo.findByEmail(email) != null;
@@ -89,23 +89,18 @@ public User findByEmail(String email) {
             return true;
         }
     }
-    public void registerUser(UserDto userDto) {
-        // Kiểm tra username
-        if (repo.findByUsername(userDto.getUsername()).isPresent()) {
-            throw new UserAlreadyExistsException("Người dùng đã tồn tại");
+    public void save(User user) {
+        // Kiểm tra username đã tồn tại
+        if (repo.existsByUsername(user.getUsername())) {
+            throw new IllegalArgumentException("Username đã tồn tại!");
         }
 
-        // Kiểm tra email
-        if (repo.findByEmail(userDto.getEmail()).isPresent()) {
-            throw new UserAlreadyExistsException("Email đã tồn tại");
+        // Kiểm tra email đã tồn tại
+        if (repo.existsByEmail(user.getEmail())) {
+            throw new IllegalArgumentException("Email đã tồn tại!");
         }
 
-        // Tạo người dùng mới
-        User newUser = new User();
-        newUser.setUsername(userDto.getUsername());
-        newUser.setEmail(userDto.getEmail());
-        // Các thuộc tính khác...
-        repo.save(newUser);
+        repo.save(user);
     }
 
 

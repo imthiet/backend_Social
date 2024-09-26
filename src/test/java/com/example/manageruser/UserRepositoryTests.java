@@ -107,47 +107,7 @@ public class UserRepositoryTests {
 
     }
 
-    @Test
-    public void testRegisterUser_UsernameExists() {
-        // Thiết lập dữ liệu giả để kiểm tra
-        UserDto userDto = new UserDto();
-        userDto.setUsername("thietquang");
-        userDto.setEmail("test@example.com");
 
-        when(userRepository.findByUsername(userDto.getUsername())).thenReturn(Optional.of(new User()));
-
-        // Kiểm tra xem exception có được ném ra không
-        assertThrows(UserAlreadyExistsException.class, () -> userService.registerUser(userDto));
-    }
-
-    @Test
-    public void testRegisterUser_EmailExists() {
-        UserDto userDto = new UserDto();
-        userDto.setUsername("ttttttt");
-        userDto.setEmail("thietx2003@gmail.com.com");
-
-        when(userRepository.findByUsername(userDto.getUsername())).thenReturn(Optional.empty());
-        when(userRepository.findByEmail(userDto.getEmail())).thenReturn(Optional.of(new User()));
-
-        // Kiểm tra xem exception có được ném ra không
-        assertThrows(UserAlreadyExistsException.class, () -> userService.registerUser(userDto));
-    }
-
-    @Test
-    public void testRegisterUser_Success() {
-        UserDto userDto = new UserDto();
-        userDto.setUsername("newUser");
-        userDto.setEmail("newEmail@example.com");
-
-        when(userRepository.findByUsername(userDto.getUsername())).thenReturn(Optional.empty());
-        when(userRepository.findByEmail(userDto.getEmail())).thenReturn(Optional.empty());
-
-        // Gọi phương thức đăng ký
-        userService.registerUser(userDto);
-
-        // Kiểm tra xem phương thức save có được gọi không
-        verify(userRepository, times(1)).save(any(User.class));
-    }
 }
 
 

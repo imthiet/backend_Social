@@ -1,86 +1,120 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta charset="UTF-8">
-    <title>Sign In</title>
-    <link rel="stylesheet" type="text/css" th:href="@{/webjars/bootstrap/css/bootstrap.min.css}"/>
-    <link rel="stylesheet" type="text/css" th:href="@{/css/custom.css}"/>
-    <style>
-        .full-height {
-            height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <title>Sign In</title>
+  <link rel="stylesheet" type="text/css" th:href="@{/webjars/bootstrap/css/bootstrap.min.css}"/>
+  <link rel="stylesheet" type="text/css" th:href="@{/css/custom.css}"/>
+  <style>
+    .full-height {
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .input-group-text {
+      cursor: pointer;
+    }
+    .Title {
+      font-size: 24px;
+      font-weight: bold;
+    }
+
+  </style>
+  <!-- Font Awesome for eye icon -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 <body id="homeBody">
 <div class="container-fluid full-height">
-    <form th:action="@{/users/save}" method="POST" th:object="${user}"
-          class="form-container" style="max-width: 400px; margin: 0 auto;" onsubmit="return validatePassword()">
+  <form th:action="@{/users/save}" method="POST" th:object="${user}"
+        class="form-container" style="max-width: 400px; margin: 0 auto;" onsubmit="return validatePassword()">
 
-        <!-- Welcome Title inside the form -->
-        <div class="mb-2 text-center Title">
-            Now Feed - Sign In
-        </div>
+    <!-- Welcome Title inside the form -->
+    <div class="mb-2 text-center Title">
+      Now Feed - Sign In
+    </div>
 
-        <!-- Error message inside the form -->
-        <div th:if="${error}" class="alert alert-danger text-center">
-            [[${error}]]
-        </div>
+    <!-- Error message inside the form -->
+    <div th:if="${error}" class="alert alert-danger text-center">
+      [[${error}]]
+    </div>
 
-        <input type="hidden" th:field="*{id}"/>
+    <input type="hidden" th:field="*{id}"/>
 
-        <div class="mb-3">
-            <label class="form-label">Email address</label>
-            <input type="email" th:field="*{email}" class="form-control" required minlength="8"/>
+    <div class="mb-3">
+      <label class="form-label">Email address</label>
+      <input type="email" th:field="*{email}" class="form-control" required minlength="8"/>
+    </div>
 
-        </div>
+    <div class="mb-3">
+      <label class="form-label">Username</label>
+      <input type="text" th:field="*{username}" class="form-control" required minlength="5"/>
+    </div>
 
-        <div class="mb-3">
-            <label class="form-label">Username</label>
-            <input type="text" th:field="*{username}" class="form-control" required minlength="5"/>
-        </div>
+    <div class="mb-3">
+      <label class="form-label">Password</label>
+      <div class="input-group">
+        <input type="password" th:field="*{password}" id="password" class="form-control" required minlength="6"/>
+        <span class="input-group-text" onclick="togglePassword('password', 'eyeIcon')">
+                    <i class="fa fa-eye" id="eyeIcon"></i>
+                </span>
+      </div>
+    </div>
 
-        <div class="mb-3">
-            <label class="form-label">Password</label>
-            <input type="password" th:field="*{password}" id="password" class="form-control" required minlength="6"/>
-        </div>
+    <div class="mb-3">
+      <label class="form-label">ReType Password</label>
+      <div class="input-group">
+        <input type="password" id="confirmPassword" class="form-control" required minlength="6"/>
+        <span class="input-group-text" onclick="togglePassword('confirmPassword', 'eyeIcon2')">
+                    <i class="fa fa-eye" id="eyeIcon2"></i>
+                </span>
+      </div>
+    </div>
 
-        <div class="mb-3">
-            <label class="form-label">ReType Password</label>
-            <input type="password" id="confirmPassword" class="form-control" required minlength="6"/>
-        </div>
-
-        <button type="submit" class="login_btn">Submit</button>
-        <button type="button" class="cancel_btn" onclick="cancelForm()">Cancel</button>
-    </form>
+    <button type="submit" class="login_btn">Submit</button>
+    <button type="button" class="cancel_btn" onclick="cancelForm()">Cancel</button>
+  </form>
 </div>
 
 <script type="text/javascript">
-    function cancelForm() {
-        window.location = "[[@{/users}]]";
-    }
+  function cancelForm() {
+    window.location = "[[@{/users}]]";
+  }
 
-    function validatePassword() {
-        var password = document.getElementById("password").value;
-        var confirmPassword = document.getElementById("confirmPassword").value;
-        if (password !== confirmPassword) {
-            alert("Passwords do not match.");
-            return false;
-        }
-        return true;
+  function validatePassword() {
+    var password = document.getElementById("password").value;
+    var confirmPassword = document.getElementById("confirmPassword").value;
+    if (password !== confirmPassword) {
+      alert("Passwords do not match.");
+      return false;
     }
+    return true;
+  }
+
+  function togglePassword(passwordFieldId, eyeIconId) {
+    var passwordField = document.getElementById(passwordFieldId);
+    var eyeIcon = document.getElementById(eyeIconId);
+
+    if (passwordField.type === "password") {
+      passwordField.type = "text";
+      eyeIcon.classList.remove("fa-eye");
+      eyeIcon.classList.add("fa-eye-slash");
+    } else {
+      passwordField.type = "password";
+      eyeIcon.classList.remove("fa-eye-slash");
+      eyeIcon.classList.add("fa-eye");
+    }
+  }
 </script>
 </body>
 
 <footer class="footer bg-light text-center">
-    <div class="container py-3">
-        <span class="text-muted">© 2024 Your Company. All rights reserved.</span>
-        <div>
-            <a href="#" class="text-muted">Privacy Policy</a> |
-            <a href="#" class="text-muted">Terms of Service</a>
-        </div>
+  <div class="container py-3">
+    <span class="text-muted">© 2024 Your Company. All rights reserved.</span>
+    <div>
+      <a href="#" class="text-muted">Privacy Policy</a> |
+      <a href="#" class="text-muted">Terms of Service</a>
     </div>
+  </div>
 </footer>
 </html>

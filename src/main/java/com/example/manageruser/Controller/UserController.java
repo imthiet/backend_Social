@@ -6,20 +6,23 @@ import com.example.manageruser.Model.UserNotFoundException;
 import com.example.manageruser.Repository.UserRepository;
 import com.example.manageruser.Service.EmailService;
 import com.example.manageruser.Service.UserService;
-import jakarta.mail.MessagingException;
+
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import jakarta.validation.Valid;
+
 import org.springframework.beans.factory.annotation.Autowired;
 
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.messaging.MessagingException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
@@ -87,28 +90,48 @@ public class UserController {
 
     }
     @PostMapping("/users/save")
-    public String saveUser(@ModelAttribute("user") User user, RedirectAttributes ra, HttpServletRequest request) throws UnsupportedEncodingException, MessagingException {
+    public String saveUser(
+        @Valid @ModelAttribute("user") User user,
+        BindingResult bindingResult,
+        RedirectAttributes ra,
+        HttpServletRequest request) throws UnsupportedEncodingException {
 
-        if (userService.emailExists(user.getEmail()) || userService.usernameExists(user.getUsername())) {
-            ra.addFlashAttribute("error", "Email hoặc tên người dùng đã tồn tại");
+        if (bindingResult.hasErrors()) {
+            return "users/new";
+        }
+
+        try {
+            String encodedPassword = passwordEncoder.encode(user.getPassword());
+            user.setPassword(encodedPassword);
+            user.setEnabled(false);
+            user.setAdmin(false);
+            user.setVerificationCode(UUID.randomUUID().toString());
+
+            userService.save(user);
+        } catch (DataIntegrityViolationException e) {
+            // Kiểm tra lỗi vi phạm unique key và thêm thông báo lỗi
+            ra.addFlashAttribute("error", "Username hoặc email đã tồn tại.");
+            return "redirect:/users/new";
+        } catch (Exception e) {
+            ra.addFlashAttribute("error", "Username hoặc email đã tồn ta, vui lòng sử dụng email chính chủ và tên khác.");
             return "redirect:/users/new";
         }
 
-        // Mã hóa mật khẩu trước khi lưu
-        String encodedPassword = passwordEncoder.encode(user.getPassword());
-        user.setPassword(encodedPassword);
+        try {
+            emailService.sendVerificationEmail(user, getSiteURL(request));
+        } catch (MessagingException e) {
+            ra.addFlashAttribute("error", "Gửi email xác minh thất bại. Vui lòng thử lại.");
+            return "redirect:/users/new";
+        } catch (jakarta.mail.MessagingException e) {
+            throw new RuntimeException(e);
+        }
 
-        user.setEnabled(false);
-        user.setAdmin(false);
-        user.setVerificationCode(UUID.randomUUID().toString());
-
-        userService.save(user);
-
-        emailService.sendVerificationEmail(user, getSiteURL(request));
         ra.addFlashAttribute("messages", "Đăng ký thành công! Vui lòng kiểm tra email để xác minh tài khoản.");
-
         return "redirect:/login";
     }
+
+
+
 
     @PostMapping("/users/save_update") // upadte cuar nguoi dung
     public String saveUserUpdate(@ModelAttribute("user") User user, RedirectAttributes ra, Model model) {
