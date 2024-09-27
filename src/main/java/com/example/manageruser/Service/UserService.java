@@ -58,7 +58,7 @@ public User findByEmail(String email) {
     public User findByUsername(String username) {
     // Xử lý Optional<User> bằng orElseThrow() để ném ngoại lệ nếu không tìm thấy
     return repo.findByUsername(username)
-            .orElseThrow(() -> new RuntimeException("User not found with email: " + username));
+            .orElseThrow(() -> new RuntimeException("User not found with username: " + username));
 }
 
 

@@ -9,36 +9,40 @@
   <style>
     /* Thay đổi chiều rộng của thanh tìm kiếm */
     #keyword {
-      width: 50%; /* Giảm chiều rộng còn 50% */
+      width: 50%;
     }
 
     /* Thêm viền cho phần tìm kiếm kết quả */
     .search-results {
-      border: 3px bold #00285A; /* Màu giống nút */
-
-      border-radius: 12px; /* Bo tròn các góc */
-      padding: 15px; /* Khoảng cách bên trong */
-      margin-top: 20px; /* Khoảng cách phía trên */
+      border: 3px solid #00285A;
+      border-radius: 12px;
+      padding: 15px;
+      margin-top: 20px;
     }
 
     .post-card {
-      margin-bottom: 18px; /* Khoảng cách giữa các kết quả */
-      display: flex; /* Sử dụng flexbox */
-      justify-content: space-between; /* Căn giữa nội dung */
-      align-items: center; /* Căn giữa theo chiều dọc */
+      margin-bottom: 18px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      cursor: pointer; /* Thay đổi con trỏ khi di chuột qua */
     }
 
-    .post-card button { /* Kiểu cho button */
-      background: #00285A; /* Màu nền */
-      color: white; /* Màu chữ */
-      border: none; /* Bỏ viền */
-      border-radius: 12px; /* Bo tròn góc */
-      padding: 5px 10px; /* Khoảng cách bên trong */
-      cursor: pointer; /* Con trỏ chuột khi di chuột qua */
+    .post-card:hover {
+      background-color: #f0f0f0; /* Hiệu ứng hover */
     }
 
-    .post-card button:hover { /* Hiệu ứng hover */
-      background: #b289e1; /* Màu nền khi hover */
+    .post-card button {
+      background: #00285A;
+      color: white;
+      border: none;
+      border-radius: 12px;
+      padding: 5px 10px;
+      cursor: pointer;
+    }
+
+    .post-card button:hover {
+      background: #b289e1;
     }
   </style>
 </head>
@@ -53,7 +57,6 @@
   <!-- Search form -->
   <form th:action="@{/search}" method="get" class="mb-4">
     <input type="text" name="keyword" id="keyword" th:value="${keyword}" placeholder="Enter username or email" required class="form-control" style="border-radius: 12px; border: 2px solid #00285A;"/>
-
     <input type="submit" value="Search" class="btn btn-primary mt-2" style="border-radius: 12px; background: #00285A"/>
   </form>
 
@@ -61,17 +64,36 @@
 
   <!-- Table for displaying search results -->
   <div class="search-results">
-    <div th:each="user : ${listUser}" class="post-card">
+    <div th:each="user : ${listUser}" class="post-card" th:attr="data-username=${user.username}">
       <div>
         <p th:text="${user.username}">Post Content</p>
         <div class="post-meta">
           <span th:text="${user.email}">User Email</span>
         </div>
       </div>
-      <button th:action="@{/add_friend}" type="button" class="btn-icon">Add Friend</button> <!-- Thay thế icon bằng button -->
+      <form th:action="@{/add_friend}" method="post" style="display:inline;">
+        <input type="hidden" name="username" th:value="${user.username}"/>
+        <button type="submit" class="btn-icon">Add Friend</button>
+      </form>
     </div>
   </div>
 </div>
+
+<!-- JavaScript -->
+<script>
+  // Xử lý sự kiện click cho các post-card
+  document.addEventListener('DOMContentLoaded', function() {
+    const postCards = document.querySelectorAll('.post-card');
+
+    postCards.forEach(function(postCard) {
+      postCard.addEventListener('click', function() {
+        const username = postCard.getAttribute('data-username');
+        console.log('Clicked on username:', username); // Log tên người dùng
+        window.location.href = '/profile/' + username; // Chuyển hướng đến trang profile
+      });
+    });
+  });
+</script>
 
 </body>
 </html>
