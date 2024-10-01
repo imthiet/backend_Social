@@ -3,9 +3,14 @@ package com.example.manageruser.Model;
 public class UserDto {
     private String username;
     private String email;
-    // Các thuộc tính khác (nếu cần)
 
-    // Getter và Setter
+    // Constructor
+    public UserDto(String username, String email) {
+        this.username = username;
+        this.email = email;
+    }
+
+    // Getters and Setters
     public String getUsername() {
         return username;
     }
@@ -21,6 +26,5 @@ public class UserDto {
     public void setEmail(String email) {
         this.email = email;
     }
-
-    // Bạn có thể thêm các thuộc tính khác và getter/setter tương tự
 }
+

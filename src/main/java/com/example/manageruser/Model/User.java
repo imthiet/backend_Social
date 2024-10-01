@@ -54,7 +54,40 @@ public class User {
 
     private boolean isAdmin = false;
 
-    // Getters và setters
+    @Transient
+    private boolean friendPending;
+
+    @Column(name = "avatar")
+    private String avatar;
+
+    public boolean isFriendPending() {
+        return friendPending;
+    }
+
+    public void setFriendPending(boolean friendPending) {
+        this.friendPending = friendPending;
+    }
+// Getters và setters
+
+
+    @Override
+    public String toString() {
+        return "User{" +
+                "id=" + id +
+                ", username='" + username + '\'' +
+                ", password='" + password + '\'' +
+                ", email='" + email + '\'' +
+                ", posts=" + posts +
+                ", comments=" + comments +
+                ", likes=" + likes +
+                ", friendships=" + friendships +
+                ", friends=" + friends +
+                ", enabled=" + enabled +
+                ", verificationCode='" + verificationCode + '\'' +
+                ", isAdmin=" + isAdmin +
+                ", friendPending=" + friendPending +
+                '}';
+    }
 
     public int getId() {
         return id;

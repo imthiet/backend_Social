@@ -7,12 +7,10 @@
   <link rel="stylesheet" type="text/css" th:href="@{/css/search.css}"/>
   <link rel="stylesheet" type="text/css" th:href="@{/webjars/bootstrap/css/bootstrap.min.css}"/>
   <style>
-    /* Thay đổi chiều rộng của thanh tìm kiếm */
     #keyword {
       width: 50%;
     }
 
-    /* Thêm viền cho phần tìm kiếm kết quả */
     .search-results {
       border: 3px solid #00285A;
       border-radius: 12px;
@@ -25,11 +23,11 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      cursor: pointer; /* Thay đổi con trỏ khi di chuột qua */
+      cursor: pointer;
     }
 
     .post-card:hover {
-      background-color: #f0f0f0; /* Hiệu ứng hover */
+      background-color: #f0f0f0;
     }
 
     .post-card button {
@@ -49,49 +47,101 @@
 
 <body>
 
-<!-- Sử dụng fragment header -->
+<!-- Using fragment header -->
 <div th:replace="~{fragments/header :: header}"></div>
 
 <div class="search-container" align="center">
 
   <!-- Search form -->
-  <form th:action="@{/search}" method="get" class="mb-4">
+  <form id="search-form" th:action="@{/search}" method="get" class="mb-4" onsubmit="return false;">
     <input type="text" name="keyword" id="keyword" th:value="${keyword}" placeholder="Enter username or email" required class="form-control" style="border-radius: 12px; border: 2px solid #00285A;"/>
-    <input type="submit" value="Search" class="btn btn-primary mt-2" style="border-radius: 12px; background: #00285A"/>
+    <input type="submit" value="Search" class="btn btn-primary mt-2" style="border-radius: 12px; background: #00285A" onclick="performSearch()"/>
   </form>
 
   <br />
 
   <!-- Table for displaying search results -->
-  <div class="search-results">
-    <div th:each="user : ${listUser}" class="post-card" th:attr="data-username=${user.username}">
-      <div>
-        <p th:text="${user.username}">Post Content</p>
-        <div class="post-meta">
-          <span th:text="${user.email}">User Email</span>
-        </div>
-      </div>
-      <form th:action="@{/add_friend}" method="post" style="display:inline;">
-        <input type="hidden" name="username" th:value="${user.username}"/>
-        <button type="submit" class="btn-icon">Add Friend</button>
-      </form>
-    </div>
-  </div>
+  <div class="search-results" id="search-results"></div>
+
+  <!-- Load more button -->
+  <button id="load-more" onclick="loadMore()">Load more</button>
+
 </div>
 
 <!-- JavaScript -->
 <script>
-  // Xử lý sự kiện click cho các post-card
-  document.addEventListener('DOMContentLoaded', function() {
-    const postCards = document.querySelectorAll('.post-card');
+  let currentPage = 0;
+  const size = 10; // Number of results per page
+  let isLoading = false;
+  let lastPage = false;
 
-    postCards.forEach(function(postCard) {
-      postCard.addEventListener('click', function() {
-        const username = postCard.getAttribute('data-username');
-        console.log('Clicked on username:', username); // Log tên người dùng
-        window.location.href = '/profile/' + username; // Chuyển hướng đến trang profile
-      });
-    });
+  function performSearch() {
+    currentPage = 0; // Reset current page on new search
+    document.getElementById('search-results').innerHTML = ''; // Clear previous results
+    loadMore(); // Load initial results
+  }
+
+  function loadMore() {
+    if (isLoading || lastPage) return;
+
+    isLoading = true;
+    const keyword = document.getElementById('keyword').value;
+
+    fetch(`/search?keyword=${encodeURIComponent(keyword)}&page=${currentPage}&size=${size}`)
+            .then(response => {
+              if (!response.ok) {
+                throw new Error('Network response was not ok');
+              }
+              return response.json();
+            })
+            .then(data => {
+              if (data.length === 0) {
+                lastPage = true;
+                document.getElementById('load-more').style.display = 'none';
+              } else {
+                data.forEach(user => {
+                  const div = document.createElement('div');
+                  div.className = 'post-card';
+                  div.setAttribute('data-username', user.username);
+                  div.innerHTML = `
+                            <div>
+                                <p>${user.username}</p>
+                                <div class="post-meta">
+                                    <span>${user.email}</span>
+                                </div>
+                            </div>
+                            <form action="/add_friend" method="post" style="display:inline;">
+                                <input type="hidden" name="username" value="${user.username}"/>
+                                <button type="submit" class="btn-icon" ${user.isFriendPending ? 'disabled style="background-color: #e3c711"' : ''}>
+                                    ${user.isFriendPending ? 'Pending' : 'Add Friend'}
+                                </button>
+                            </form>
+                        `;
+                  document.getElementById('search-results').appendChild(div);
+                });
+                currentPage++;
+                document.getElementById('load-more').style.display = 'block';
+              }
+            })
+            .catch(error => console.error('Error:', error))
+            .finally(() => {
+              isLoading = false;
+            });
+  }
+
+  // Load more results when scrolling to the bottom
+  window.addEventListener('scroll', function() {
+    if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 10) {
+      loadMore();
+    }
+  });
+
+  // Initial load
+  document.addEventListener('DOMContentLoaded', function() {
+    const keywordInput = document.getElementById('keyword');
+    if (keywordInput.value) {
+      performSearch(); // Perform search if there's a keyword already
+    }
   });
 </script>
 
