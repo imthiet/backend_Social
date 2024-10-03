@@ -6,7 +6,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
 
-
+import java.sql.Blob;
 import java.util.List;
 
 @Entity
@@ -57,8 +57,16 @@ public class User {
     @Transient
     private boolean friendPending;
 
-    @Column(name = "avatar")
-    private String avatar;
+    @Lob
+    private Blob image;
+
+    public Blob getImage() {
+        return image;
+    }
+
+    public void setImage(Blob image) {
+        this.image = image;
+    }
 
     public boolean isFriendPending() {
         return friendPending;
@@ -70,24 +78,7 @@ public class User {
 // Getters và setters
 
 
-    @Override
-    public String toString() {
-        return "User{" +
-                "id=" + id +
-                ", username='" + username + '\'' +
-                ", password='" + password + '\'' +
-                ", email='" + email + '\'' +
-                ", posts=" + posts +
-                ", comments=" + comments +
-                ", likes=" + likes +
-                ", friendships=" + friendships +
-                ", friends=" + friends +
-                ", enabled=" + enabled +
-                ", verificationCode='" + verificationCode + '\'' +
-                ", isAdmin=" + isAdmin +
-                ", friendPending=" + friendPending +
-                '}';
-    }
+
 
     public int getId() {
         return id;

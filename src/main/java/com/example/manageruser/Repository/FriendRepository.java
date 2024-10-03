@@ -16,11 +16,17 @@ public interface FriendRepository extends JpaRepository<FriendShip, Long> {
     List<User> findFriendsByUsername(@Param("username") String username);
 
     // Kiểm tra xem hai người dùng có tồn tại quan hệ kết bạn hay chưa
-    @Query("SELECT COUNT(f) > 0 FROM FriendShip f WHERE f.user = :currentUser AND f.friend = :friendUser")
+    @Query("SELECT COUNT(f) > 0 FROM FriendShip f WHERE (f.user = :currentUser AND f.friend = :friendUser) OR (f.user = :friendUser AND f.friend = :currentUser)")
     boolean existsBetweenUsers(@Param("currentUser") User currentUser, @Param("friendUser") User friendUser);
+
 
     @Query("SELECT CASE WHEN COUNT(f) > 0 THEN true ELSE false END " +
             "FROM FriendShip f WHERE f.user = :currentUser AND f.friend = :friendUser AND f.accepted = false")
     boolean existsByUserAndFriend(@Param("currentUser") User currentUser, @Param("friendUser") User friendUser);
 
+    @Query("SELECT COUNT(f) > 0 FROM FriendShip f WHERE f.user = :currentUser AND f.friend = :friendUser AND f.accepted = :accepted")
+    boolean existsByUserAndFriendAndAccepted(@Param("currentUser") User currentUser, @Param("friendUser") User friendUser, @Param("accepted") boolean accepted);
+
 }
+
+

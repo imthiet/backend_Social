@@ -25,8 +25,14 @@ public class FriendService {
     public void save(FriendShip friendShip) {
         friendRepository.save(friendShip);
     }
-    // Kiểm tra xem đã gửi yêu cầu kết bạn hay chưa
+
+    // Check if a friend request is pending
     public boolean isFriendPending(User currentUser, User friendUser) {
         return friendRepository.existsByUserAndFriend(currentUser, friendUser);
+    }
+
+    // Check if users are friends (friendship is accepted)
+    public boolean isFriendAccepted(User currentUser, User friendUser) {
+        return friendRepository.existsByUserAndFriendAndAccepted(currentUser, friendUser, true);
     }
 }

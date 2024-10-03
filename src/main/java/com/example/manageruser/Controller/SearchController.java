@@ -1,5 +1,6 @@
 package com.example.manageruser.Controller;
 
+import com.example.manageruser.Model.FriendShip;
 import com.example.manageruser.Model.User;
 import com.example.manageruser.Repository.UserRepository;
 import com.example.manageruser.Service.FriendService;
@@ -13,11 +14,10 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.security.Principal;
 import java.util.List;
 
@@ -66,4 +66,24 @@ public class SearchController {
         model.addAttribute("totalPages", usersPage.getTotalPages());
         return "search";
     }
+
+    @PostMapping("/add_friend")
+    public ResponseEntity<String> addFriend(@RequestParam("username") String friendUsername, Principal principal) {
+        String currentUsername = principal.getName();
+        User currentUser = userService.findByUsername(currentUsername);
+        User friendUser = userService.findByUsername(friendUsername);
+
+        if (currentUser != null && friendUser != null) {
+            if (!friendShipService.existsBetweenUsers(currentUser, friendUser)) {
+                FriendShip friendShip = new FriendShip();
+                friendShip.setUser(currentUser);
+                friendShip.setFriend(friendUser);
+                friendShip.setAccepted(false);
+                friendShipService.save(friendShip);
+            }
+        }
+
+        return ResponseEntity.ok("Friend request sent");
+    }
+
 }

@@ -8,8 +8,12 @@ import com.example.manageruser.WskConfig.UserAlreadyExistsException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.sql.Blob;
+import java.sql.SQLException;
+import java.util.Base64;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class UserService {
@@ -22,10 +26,13 @@ public class UserService {
 //    public User findByUsername(String username) {
 //        return repo.findByUsername(username);
 //    }
-    public List<User> getAllUsers() {
+public List<UserDto> getAllUsers() {
+    List<User> users = (List<User>) repo.findAll();
+    return users.stream()
+            .map(this::convertToDto)
+            .collect(Collectors.toList());
+}
 
-        return (List<User>) repo.findAll();
-    }
 
 //    public void save(User user) {
 //
@@ -101,6 +108,34 @@ public User findByEmail(String email) {
         }
 
         repo.save(user);
+    }
+
+    public void saveAgaint(User user) {
+        repo.save(user);
+    }
+    private UserDto convertToDto(User user) {
+        UserDto dto = new UserDto();
+        dto.setUsername(user.getUsername());
+        dto.setEmail(user.getEmail());
+
+        // Convert BLOB to Base64 string
+        if (user.getImage() != null) {
+            try {
+                Blob imageBlob = user.getImage();
+                byte[] imageBytes = imageBlob.getBytes(1, (int) imageBlob.length());
+                String base64Image = Base64.getEncoder().encodeToString(imageBytes);
+                dto.setImage("data:image/jpeg;base64," + base64Image); // Ensure the correct prefix
+                System.out.println("Successfully converted image to Base64 for user: " + user.getUsername());
+            } catch (SQLException e) {
+                System.err.println("Error retrieving image for user: " + user.getUsername());
+                e.printStackTrace();
+            }
+        } else {
+            dto.setImage(null); // Handle null image case
+            System.out.println("No image found for user: " + user.getUsername());
+        }
+
+        return dto;
     }
 
 

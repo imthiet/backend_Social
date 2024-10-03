@@ -24,6 +24,9 @@
       justify-content: space-between;
       align-items: center;
       cursor: pointer;
+      padding: 10px;
+      border-radius: 8px;
+      border: 1px solid #ddd;
     }
 
     .post-card:hover {
@@ -42,6 +45,38 @@
     .post-card button:hover {
       background: #b289e1;
     }
+    .btn-add-friend {
+      background: #00285A; /* Màu nền cho nút Add Friend */
+      color: white;
+      border: none;
+      border-radius: 12px;
+      padding: 5px 10px;
+      cursor: pointer;
+    }
+
+    .btn-add-friend:hover {
+      background: #b289e1; /* Màu nền khi hover */
+    }
+
+    .btn-pending {
+      background: #e3c711; /* Màu nền cho Pending */
+      color: black; /* Màu chữ cho Pending */
+      border: none;
+      border-radius: 12px;
+      padding: 5px 10px;
+      cursor: not-allowed; /* Thay đổi con trỏ khi hover */
+    }
+
+    .btn-accepted {
+      background: #28a745; /* Màu nền cho Accepted */
+      color: white; /* Màu chữ cho Accepted */
+      border: none;
+      border-radius: 12px;
+      padding: 5px 10px;
+      cursor: default; /* Không cho hover */
+    }
+
+
   </style>
 </head>
 
@@ -62,9 +97,6 @@
 
   <!-- Table for displaying search results -->
   <div class="search-results" id="search-results"></div>
-
-  <!-- Load more button -->
-  <button id="load-more" onclick="loadMore()">Load more</button>
 
 </div>
 
@@ -103,20 +135,34 @@
                   const div = document.createElement('div');
                   div.className = 'post-card';
                   div.setAttribute('data-username', user.username);
+
+
+                  // Thêm click listener để chuyển đến hồ sơ
+                  div.addEventListener('click', () => {
+                    window.location.href = `/profile/${encodeURIComponent(user.username)}`; // Update this line
+                  });
+
+
                   div.innerHTML = `
-                            <div>
-                                <p>${user.username}</p>
-                                <div class="post-meta">
-                                    <span>${user.email}</span>
-                                </div>
-                            </div>
-                            <form action="/add_friend" method="post" style="display:inline;">
-                                <input type="hidden" name="username" value="${user.username}"/>
-                                <button type="submit" class="btn-icon" ${user.isFriendPending ? 'disabled style="background-color: #e3c711"' : ''}>
-                                    ${user.isFriendPending ? 'Pending' : 'Add Friend'}
-                                </button>
-                            </form>
-                        `;
+  <div style="display: flex; align-items: center;">
+  <img src="${user.image ? user.image : 'Image/profile.png'}" alt="${user.username}'s avatar" style="width: 40px; height: 40px; border-radius: 50%; margin-right: 10px;">
+    <div>
+      <p>${user.username}</p>
+      <div class="post-meta">
+        <span>${user.email}</span>
+      </div>
+    </div>
+  </div>
+  <button type="button" class="btn-icon ${user.friendPending ? 'btn-pending' : user.friend ? 'btn-accepted' : 'btn-add-friend'}"
+    onclick="addFriend('${user.username}', this, event)"
+    ${user.friendPending || user.friend ? 'disabled' : ''}
+    aria-label="${user.friendPending ? 'Friend request pending' : user.friend ? 'Friend request accepted' : 'Add friend'}">
+    ${user.friendPending ? 'Pending' : user.friend ? 'Accepted' : 'Add Friend'}
+  </button>
+`;
+
+
+
                   document.getElementById('search-results').appendChild(div);
                 });
                 currentPage++;
@@ -127,6 +173,33 @@
             .finally(() => {
               isLoading = false;
             });
+  }
+
+  // Ajax để gửi yêu cầu kết bạn
+  function addFriend(username, button, event) {
+    // Dừng sự kiện click lan rộng
+    event.stopPropagation();
+
+    fetch('/add_friend', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: new URLSearchParams({
+        'username': username
+      })
+    })
+            .then(response => {
+              if (response.ok) {
+                // Cập nhật trạng thái nút khi yêu cầu thành công
+                button.textContent = 'Pending';
+                button.disabled = true;
+                button.style.backgroundColor = '#e3c711';
+              } else {
+                console.error('Error adding friend');
+              }
+            })
+            .catch(error => console.error('Error:', error));
   }
 
   // Load more results when scrolling to the bottom

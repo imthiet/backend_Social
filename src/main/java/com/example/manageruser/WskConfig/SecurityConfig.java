@@ -40,7 +40,7 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/css/**", "/js/**", "/Image/**", "/webjars/**", "/users/**").permitAll()
+                        .requestMatchers("/css/**", "/js/**", "/Image/**", "/webjars/**", "/users/**","/avartar/**").permitAll()
                         .requestMatchers("/users").hasRole("ADMIN")// Cho phép admin dang nhap
                         .anyRequest().authenticated() // Các URL còn lại yêu cầu xác thực
                 )
