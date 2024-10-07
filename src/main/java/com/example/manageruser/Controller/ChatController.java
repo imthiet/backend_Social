@@ -9,6 +9,8 @@ import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -46,10 +48,11 @@ public class MessageController {
 
 	@GetMapping
 	public String showMessagesPage(HttpSession session, Model model) {
-		String username = (String) session.getAttribute("username");
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		String username = authentication != null ? authentication.getName() : null;
 
 		if (username == null) {
-			return "redirect:/users/login"; // Nếu chưa đăng nhập, chuyển hướng về trang login
+			return "redirect:/login"; // Nếu chưa đăng nhập, chuyển hướng về trang login
 		}
 
 		List<User> usersWithMessages = chatService.getUsersWithMessages(username);
@@ -59,8 +62,8 @@ public class MessageController {
 			System.out.println("User: " + user.getUsername());
 		}
 
-		return "messages"; // Tên của template Thymeleaf
-		//return "redirect:/ChatBox.html";
+		return "messages";
+		//return "redirect:/ChatBox.html"; // chatbox html
 	}
 
 }

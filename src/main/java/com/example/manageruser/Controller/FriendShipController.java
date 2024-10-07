@@ -42,11 +42,11 @@ public class FriendShipController {
                                                      Principal principal) {
 
         Pageable pageable = PageRequest.of(page, size); // Create pageable object
-        Page<User> usersPage = service.listAll(keyword, pageable); // Get the Page<User>
         String currentUsername = principal.getName();
+        User currentUser = userService.findByUsername(currentUsername); // Lấy người dùng hiện tại
 
-        // Directly retrieve the current user
-        User currentUser = userService.findByUsername(currentUsername);
+        // Truyền currentUser vào lời gọi phương thức listAll
+        Page<User> usersPage = service.listAll(keyword, pageable, currentUser); // Get the Page<User>
 
         // Convert User to DTO and check friend status
         List<UserDto> userDTOs = usersPage.getContent().stream().map(user -> {
@@ -60,6 +60,7 @@ public class FriendShipController {
 
         return ResponseEntity.ok(userDTOs);
     }
+
 
     private UserDto createUserDto(User user, User currentUser) {
         UserDto userDTO = new UserDto(user.getUsername(), user.getEmail(), false, false, null);

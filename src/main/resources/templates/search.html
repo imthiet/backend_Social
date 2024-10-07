@@ -45,8 +45,9 @@
     .post-card button:hover {
       background: #b289e1;
     }
+
     .btn-add-friend {
-      background: #00285A; /* Màu nền cho nút Add Friend */
+      background: #00285A;
       color: white;
       border: none;
       border-radius: 12px;
@@ -55,28 +56,26 @@
     }
 
     .btn-add-friend:hover {
-      background: #b289e1; /* Màu nền khi hover */
+      background: #b289e1;
     }
 
     .btn-pending {
-      background: #e3c711; /* Màu nền cho Pending */
-      color: black; /* Màu chữ cho Pending */
+      background: #e3c711;
+      color: black;
       border: none;
       border-radius: 12px;
       padding: 5px 10px;
-      cursor: not-allowed; /* Thay đổi con trỏ khi hover */
+      cursor: not-allowed;
     }
 
     .btn-accepted {
-      background: #28a745; /* Màu nền cho Accepted */
-      color: white; /* Màu chữ cho Accepted */
+      background: #28a745;
+      color: white;
       border: none;
       border-radius: 12px;
       padding: 5px 10px;
-      cursor: default; /* Không cho hover */
+      cursor: default;
     }
-
-
   </style>
 </head>
 
@@ -87,6 +86,8 @@
 
 <div class="search-container" align="center">
 
+
+
   <!-- Search form -->
   <form id="search-form" th:action="@{/search}" method="get" class="mb-4" onsubmit="return false;">
     <input type="text" name="keyword" id="keyword" th:value="${keyword}" placeholder="Enter username or email" required class="form-control" style="border-radius: 12px; border: 2px solid #00285A;"/>
@@ -96,6 +97,8 @@
   <br />
 
   <!-- Table for displaying search results -->
+  <!-- Label to show "Kết quả tìm kiếm" or "Gợi ý bạn bè" -->
+  <label id="result-label_rs" class="h4 mb-3" th:text="${label_rs}">Kết quả tìm kiếm</label>
   <div class="search-results" id="search-results"></div>
 
 </div>
@@ -110,6 +113,17 @@
   function performSearch() {
     currentPage = 0; // Reset current page on new search
     document.getElementById('search-results').innerHTML = ''; // Clear previous results
+
+    const keyword = document.getElementById('keyword').value;
+
+    // Cập nhật nhãn kết quả tìm kiếm hoặc gợi ý bạn bè
+    const resultLabel = document.getElementById('result-label_rs');
+    if (keyword.trim() === "") {
+      resultLabel.textContent = "Gợi ý bạn bè";
+    } else {
+      resultLabel.textContent = "Kết quả tìm kiếm";
+    }
+
     loadMore(); // Load initial results
   }
 
@@ -136,32 +150,30 @@
                   div.className = 'post-card';
                   div.setAttribute('data-username', user.username);
 
-
-                  // Thêm click listener để chuyển đến hồ sơ
+                  // Add click listener to navigate to the user's profile
                   div.addEventListener('click', () => {
-                    window.location.href = `/profile/${encodeURIComponent(user.username)}`; // Update this line
+                    window.location.href = `/profile/${encodeURIComponent(user.username)}`;
                   });
 
-
                   div.innerHTML = `
-  <div style="display: flex; align-items: center;">
-  <img src="${user.image ? user.image : 'Image/profile.png'}" alt="${user.username}'s avatar" style="width: 40px; height: 40px; border-radius: 50%; margin-right: 10px;">
-    <div>
-      <p>${user.username}</p>
-      <div class="post-meta">
-        <span>${user.email}</span>
-      </div>
-    </div>
-  </div>
-  <button type="button" class="btn-icon ${user.friendPending ? 'btn-pending' : user.friend ? 'btn-accepted' : 'btn-add-friend'}"
-    onclick="addFriend('${user.username}', this, event)"
-    ${user.friendPending || user.friend ? 'disabled' : ''}
-    aria-label="${user.friendPending ? 'Friend request pending' : user.friend ? 'Friend request accepted' : 'Add friend'}">
-    ${user.friendPending ? 'Pending' : user.friend ? 'Accepted' : 'Add Friend'}
-  </button>
-`;
-
-
+                      <div style="display: flex; align-items: center;">
+                      <img src="${user.image ? user.image : 'Image/profile.png'}" alt="${user.username}'s avatar" style="width: 40px; height: 40px; border-radius: 50%; margin-right: 10px;">
+                        <div>
+                          <p>${user.username}</p>
+                          <div class="post-meta">
+                            <span>${user.email}</span>
+                            <br />
+                            <span>${user.address}</span>
+                          </div>
+                        </div>
+                      </div>
+                      <button type="button" class="btn-icon ${user.friendPending ? 'btn-pending' : user.friend ? 'btn-accepted' : 'btn-add-friend'}"
+                        onclick="addFriend('${user.username}', this, event)"
+                        ${user.friendPending || user.friend ? 'disabled' : ''}
+                        aria-label="${user.friendPending ? 'Friend request pending' : user.friend ? 'Friend request accepted' : 'Add friend'}">
+                        ${user.friendPending ? 'Pending' : user.friend ? 'Accepted' : 'Add Friend'}
+                      </button>
+                    `;
 
                   document.getElementById('search-results').appendChild(div);
                 });
@@ -175,10 +187,9 @@
             });
   }
 
-  // Ajax để gửi yêu cầu kết bạn
+  // Ajax to send friend request
   function addFriend(username, button, event) {
-    // Dừng sự kiện click lan rộng
-    event.stopPropagation();
+    event.stopPropagation(); // Stop event propagation
 
     fetch('/add_friend', {
       method: 'POST',
@@ -191,7 +202,7 @@
     })
             .then(response => {
               if (response.ok) {
-                // Cập nhật trạng thái nút khi yêu cầu thành công
+                // Update button state after successful request
                 button.textContent = 'Pending';
                 button.disabled = true;
                 button.style.backgroundColor = '#e3c711';

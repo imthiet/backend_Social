@@ -45,7 +45,7 @@ public class SearchController {
 //        return "search"; // template search
 //    }
     @GetMapping("/search_page")
-    public String search(@RequestParam(value = "keyword", defaultValue = "") String keyword,
+    public String search(@RequestParam(value = "keyword", required = false) String keyword,
                          @RequestParam(value = "page", defaultValue = "0") int page,
                          @RequestParam(value = "size", defaultValue = "10") int size,
                          Principal principal, Model model) {
@@ -53,17 +53,28 @@ public class SearchController {
         User currentUser = userService.findByUsername(currentUsername);
 
         Pageable pageable = PageRequest.of(page, size);
-        Page<User> usersPage = service.listAll(keyword, pageable);
+        Page<User> usersPage;
 
-        // Gán thêm thông tin về tình trạng kết bạn
+        if (keyword != null && !keyword.trim().isEmpty()) {
+            usersPage = service.listAll(keyword, pageable, currentUser);
+            model.addAttribute("label_rs", "Kết quả tìm kiếm");
+        } else if (keyword == null || keyword == " ") {
+            usersPage = service.listAll(null, pageable, currentUser);
+
+        } else {
+            // Directly suggest friends if no keyword is provided
+            usersPage = service.suggestFriends(currentUser, pageable);
+            model.addAttribute("label_rs", "Gợi ý bạn bè");
+        }
+
         usersPage.getContent().forEach(user -> {
-
             user.setFriendPending(friendShipService.isFriendPending(currentUser, user));
         });
 
         model.addAttribute("listUser", usersPage.getContent());
         model.addAttribute("currentPage", usersPage.getNumber());
         model.addAttribute("totalPages", usersPage.getTotalPages());
+
         return "search";
     }
 

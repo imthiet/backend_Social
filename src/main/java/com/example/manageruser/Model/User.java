@@ -57,6 +57,16 @@ public class User {
     @Transient
     private boolean friendPending;
 
+    private String address;
+
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
+    }
+
     @Lob
     private Blob image;
 
@@ -174,5 +184,26 @@ public class User {
 
     public void setFriends(List<FriendShip> friends) {
         this.friends = friends;
+    }
+
+    @Override
+    public String toString() {
+        return "User{" +
+                "id=" + id +
+                ", username='" + username + '\'' +
+                ", password='" + password + '\'' +
+                ", email='" + email + '\'' +
+                ", posts=" + posts +
+                ", comments=" + comments +
+                ", likes=" + likes +
+                ", friendships=" + friendships +
+                ", friends=" + friends +
+                ", enabled=" + enabled +
+                ", verificationCode='" + verificationCode + '\'' +
+                ", isAdmin=" + isAdmin +
+                ", friendPending=" + friendPending +
+                ", address='" + address + '\'' +
+                ", image=" + image +
+                '}';
     }
 }

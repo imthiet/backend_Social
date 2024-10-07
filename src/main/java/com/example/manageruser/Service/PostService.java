@@ -13,8 +13,6 @@ import java.util.List;
 @Service
 public class PostService {
 
-
-
     @Autowired
     private PostRepository postRepository;
 
@@ -22,18 +20,8 @@ public class PostService {
         return postRepository.findAll();
     }
 
-
-    public List<Post> getPostsByFriendShip(String username) {
-
-        List<Post> posts = postRepository.findPostsByFriendship(username);
-
-        return posts;
-
+    public List<Post> getPostsByFriendShip(String username, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        return postRepository.findPostsByFriendship(username, pageable).getContent();
     }
-
-//    public Page<Post> getPostsByFriendShip(String username, int page, int size) {
-//        Pageable pageable = PageRequest.of(page, size);
-//        return postRepository.findPostsByFriendship(username, pageable);
-//    }
-
 }
