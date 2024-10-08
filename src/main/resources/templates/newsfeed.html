@@ -6,26 +6,6 @@
     <link rel="stylesheet" type="text/css" th:href="@{/css/newsfeed.css}"/>
     <link rel="stylesheet" type="text/css" th:href="@{/css/head_cus.css}"/>
     <link rel="stylesheet" type="text/css" th:href="@{/webjars/bootstrap/css/bootstrap.min.css}"/>
-    <style>
-        .newsfeed-container {
-            margin: 20px auto;
-            width: 70%;
-
-        }
-
-        .post-card {
-            margin-bottom: 18px;
-            padding: 15px;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            background-color: #f9f9f9;
-        }
-
-        .post-meta {
-            font-size: 0.9em;
-            color: #555;
-        }
-    </style>
 </head>
 <body>
 <div th:replace="~{fragments/header :: header}"></div>
@@ -40,11 +20,11 @@
     </div>
 </div>
 
-<button id="load-more" style="display: none;">Load More</button>
+<button id="load-more" class="btn btn-primary" style="display: none;">Load More</button>
 
 <script>
     let currentPage = parseInt([[${currentPage}]]);
-    const size = 10; // Adjust this to match your PostService size
+    const size = 10;
     let isLoading = false;
     let lastPage = false;
 
@@ -78,17 +58,20 @@
             });
     }
 
-    // Load more results when scrolling to the bottom
     window.addEventListener('scroll', function() {
         if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 10) {
             loadMorePosts();
         }
     });
 
-    // Initial load
     document.addEventListener('DOMContentLoaded', function() {
-        // You can add initial loading logic here if needed
+        if (document.body.offsetHeight < window.innerHeight) {
+            document.getElementById('load-more').click();
+        }
     });
 </script>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

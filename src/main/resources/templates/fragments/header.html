@@ -2,11 +2,11 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
   <meta charset="UTF-8">
-<!--  <link rel="stylesheet" type="text/css" th:href="@{/css/header.css}"/>-->
+    <link rel="stylesheet" type="text/css" th:href="@{/css/head_cus.css}"/>
 </head>
 <body style="border: #00285A">
 <header th:fragment="header" style=" padding: 10px;"> <!-- Thêm màu nền và padding -->
-  <h3  style="padding-bottom: 10px; color: #00285A">Now Feeds</h3>
+
 
   <div class="header-container"> <!-- Thêm div container -->
     <div class="header-icons">
@@ -28,7 +28,7 @@
     </div>
 
     <div class="header-username" style="display: flex; align-items: center;"> <!-- Sử dụng inline flexbox -->
-      <div style="display: flex; align-items: center;"> <!-- Thêm div để căn giữa avatar -->
+      <div style="display: flex; align-items: center;">
         <img src="#" th:src="@{/Image/profile.png}" alt="User Avatar" class="avatar-img" style="width: 40px; height: 40px; border-radius: 50%; margin-right: 10px;"/> <!-- Áp dụng kiểu inline -->
       </div>
       <span style="color: black; padding-right: 20px;" th:text="${usn}"></span>

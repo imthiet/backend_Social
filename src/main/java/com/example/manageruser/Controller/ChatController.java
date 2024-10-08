@@ -2,6 +2,7 @@ package com.example.manageruser.Controller;
 
 import com.example.manageruser.Model.Message;
 import com.example.manageruser.Model.User;
+import com.example.manageruser.Model.UserWithLastMessageDTO;
 import com.example.manageruser.Service.ChatService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +22,8 @@ import java.util.List;
 
 @Controller
 public class ChatController {
+	@Autowired
+	ChatService chatService;
 
 	@MessageMapping("chat.sendMessage")
 	@SendTo("/topic/chat")
@@ -40,33 +43,52 @@ public class ChatController {
 //		//model.addAttribute("username", username);
 //		return "redirect:/ChatBox.html?username=" + username;
 //	}
-@Controller
-@RequestMapping("/messages")
-public class MessageController {
-	@Autowired
-	private ChatService chatService;
 
-	@GetMapping
+//@RequestMapping("/messages")
+//public class MessageController {
+//
+//	private ChatService chatService;
+//
+//	@GetMapping
+//	public String showMessagesPage(HttpSession session, Model model) {
+//		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+//		String username = authentication != null ? authentication.getName() : null;
+//
+//		if (username == null) {
+//			return "redirect:/login"; // Nếu chưa đăng nhập, chuyển hướng về trang login
+//		}
+//
+//		List<User> usersWithMessages = chatService.getUsersWithMessages(username);
+//		model.addAttribute("usersWithMessages", usersWithMessages);
+//		model.addAttribute("usn", username);
+//		for (User user : usersWithMessages) {
+//			System.out.println("User: " + user.getUsername());
+//		}
+//
+//		return "messages";
+//		//return "redirect:/ChatBox.html"; // chatbox html
+//	}
+//
+//}
+
+	@GetMapping("/messages")
 	public String showMessagesPage(HttpSession session, Model model) {
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 		String username = authentication != null ? authentication.getName() : null;
 
 		if (username == null) {
-			return "redirect:/login"; // Nếu chưa đăng nhập, chuyển hướng về trang login
+			return "redirect:/login"; // If not logged in, redirect to login
 		}
 
-		List<User> usersWithMessages = chatService.getUsersWithMessages(username);
+		// Get users with their last message
+		List<UserWithLastMessageDTO> usersWithMessages = chatService.getUsersWithMessages(username);
 		model.addAttribute("usersWithMessages", usersWithMessages);
 		model.addAttribute("usn", username);
-		for (User user : usersWithMessages) {
-			System.out.println("User: " + user.getUsername());
-		}
 
 		return "messages";
-		//return "redirect:/ChatBox.html"; // chatbox html
 	}
 
-}
+
 
 
 }

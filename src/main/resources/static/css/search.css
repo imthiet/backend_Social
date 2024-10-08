@@ -3,15 +3,26 @@
     margin: 20px auto;
     width: 80%;
     max-width: 800px;
-    padding-top:120px ;
+    padding-top:60px ;
 }
 .post-card {
-  background-color: #fff;
-  margin-bottom: 20px;
-  padding: 15px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-  border-radius: 12px;
-  border: 2px solid #111111; /* Thêm viền 1px với màu xám */
+    display: flex;
+    justify-content: space-between; /* Đảm bảo khoảng cách giữa các phần tử */
+    align-items: center; /* Căn giữa theo chiều dọc */
+    background-color: #fff;
+    margin-bottom: 20px;
+    padding: 15px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    border-radius: 12px;
+    border: 2px solid #111111; /* Thêm viền 1px với màu xám */
+    position: relative; /* Thêm thuộc tính này để sử dụng tuyệt đối cho nút */
+}
+
+.post-card button {
+    position: absolute; /* Đặt nút ở vị trí tuyệt đối */
+    right: 15px; /* Đặt cách bên phải 15px */
+    top: 50%; /* Căn giữa theo chiều dọc */
+    transform: translateY(-50%); /* Điều chỉnh để căn giữa hoàn hảo */
 }
 
 
@@ -22,4 +33,68 @@
     margin-top: 10px;
     display: flex;
     justify-content: space-between;
+}
+.post-card:hover {
+    background-color: #f0f0f0;
+}
+
+/*.post-card button {*/
+/*    background: #00285A;*/
+/*    color: white;*/
+/*    border: none;*/
+/*    border-radius: 12px;*/
+/*    padding: 5px 10px;*/
+/*    cursor: pointer;*/
+/*}*/
+
+.post-card button:hover {
+    background: #b289e1;
+}
+
+.btn-add-friend {
+    background: #00285A;
+    color: white;
+    border: none;
+    border-radius: 12px;
+    padding: 5px 10px;
+    cursor: pointer;
+}
+
+.btn-add-friend:hover {
+    background: #b289e1;
+}
+
+.btn-pending {
+    background: #e3c711;
+    color: black;
+    border: none;
+    border-radius: 12px;
+    padding: 5px 10px;
+    cursor: not-allowed;
+}
+
+.btn-accepted {
+    background: #28a745;
+    color: white;
+    border: none;
+    border-radius: 12px;
+    padding: 5px 10px;
+    cursor: default;
+}
+#keyword {
+    width: 50%;
+}
+
+.search-results {
+    border: 1px solid #00285A;
+    border-radius: 12px;
+    padding: 15px;
+    margin-top: 10px;
+}
+
+.search-wrapper {
+    border: 1px solid #00285A; /* Border cho khung chung */
+    border-radius: 12px; /* Bo góc cho khung */
+    padding: 15px; /* Khoảng cách bên trong khung */
+    margin-top: 20px; /* Khoảng cách với phần tử trên */
 }

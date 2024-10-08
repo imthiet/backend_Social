@@ -78,23 +78,24 @@ public class SearchController {
         return "search";
     }
 
-    @PostMapping("/add_friend")
-    public ResponseEntity<String> addFriend(@RequestParam("username") String friendUsername, Principal principal) {
-        String currentUsername = principal.getName();
-        User currentUser = userService.findByUsername(currentUsername);
-        User friendUser = userService.findByUsername(friendUsername);
-
-        if (currentUser != null && friendUser != null) {
-            if (!friendShipService.existsBetweenUsers(currentUser, friendUser)) {
-                FriendShip friendShip = new FriendShip();
-                friendShip.setUser(currentUser);
-                friendShip.setFriend(friendUser);
-                friendShip.setAccepted(false);
-                friendShipService.save(friendShip);
-            }
-        }
-
-        return ResponseEntity.ok("Friend request sent");
-    }
+//    @PostMapping("/add_friend")
+//    public ResponseEntity<String> addFriend(@RequestParam("username") String friendUsername, Principal principal) {
+//        String currentUsername = principal.getName();
+//        User currentUser = userService.findByUsername(currentUsername);
+//        User friendUser = userService.findByUsername(friendUsername);
+//
+//        if (currentUser != null && friendUser != null) {
+//            if (!friendShipService.existsBetweenUsers(currentUser, friendUser)) {
+//                FriendShip friendShip = new FriendShip();
+//                friendShip.setUser(currentUser);
+//                friendShip.setFriend(friendUser);
+//                friendShip.setAccepted(false);
+//                friendShipService.save(friendShip);
+//            }
+//        }
+//
+//        return ResponseEntity.ok("Friend request sent");
+//    }
+git
 
 }

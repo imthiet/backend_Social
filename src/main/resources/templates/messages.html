@@ -1,28 +1,25 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
+    <meta charset="UTF-8">
     <title>Messages</title>
-
     <link rel="stylesheet" type="text/css" th:href="@{/css/message.css}">
+    <link rel="stylesheet" type="text/css" th:href="@{/css/head_cus.css}"/>
 </head>
 <body>
-
 <div th:replace="~{fragments/header :: header}"></div>
 
 <div class="container">
     <h2>Chat List</h2>
     <ul class="user-list">
-        <li th:each="user : ${usersWithMessages}">
-            <p th:text="${user.username}">User</p>
+        <li th:each="dto : ${usersWithMessages}">
+            <p th:text="${dto.user.username}">User</p>
             <div class="details">
-
-                // them time
+                <span th:text="${dto.lastMessage.content}">Last message here</span>
+                <span th:text="${#dates.format(dto.lastMessage.timestamp, 'dd-MM-yyyy HH:mm')}">Timestamp</span>
             </div>
         </li>
     </ul>
 </div>
-<footer>
-    <p>&copy; 2024 Your Application Name. All Rights Reserved.</p>
-</footer>
 </body>
 </html>
