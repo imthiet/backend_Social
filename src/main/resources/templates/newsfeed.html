@@ -6,19 +6,44 @@
     <link rel="stylesheet" type="text/css" th:href="@{/css/newsfeed.css}"/>
     <link rel="stylesheet" type="text/css" th:href="@{/css/head_cus.css}"/>
     <link rel="stylesheet" type="text/css" th:href="@{/webjars/bootstrap/css/bootstrap.min.css}"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
 </head>
 <body>
 <div th:replace="~{fragments/header :: header}"></div>
 
 <div class="newsfeed-container" id="newsfeed-container">
     <div th:each="post : ${posts}" class="post-card">
+        <!-- Profile Image -->
+        <div class="post-header">
+            <img th:src="@{/Image/home_bgr.jpg}" alt="Profile Image" class="profile-img" style="width:200px; height:200px; border-radius:10%;">
+
+        </div>
+
+        <!-- Post Content -->
         <p th:text="${post.content}">Post Content</p>
+
+        <!-- Post Metadata (Author and Date) -->
         <div class="post-meta">
             <span th:text="${post.user.username}">Author Name</span>
             <span th:text="${#dates.format(post.createdAt, 'yyyy-MM-dd HH:mm')}">Date and Time</span>
         </div>
+
+        <!-- Post Footer (Like and Comment Icons) -->
+        <div class="post-footer">
+            <!-- Like Icon -->
+            <span class="like-icon" style="cursor:pointer;">
+                <i class="fa fa-thumbs-up"></i> Like
+            </span>
+
+            <!-- Comment Icon -->
+            <span class="comment-icon" style="cursor:pointer;">
+                <i class="fa fa-comment"></i> Comment
+            </span>
+        </div>
     </div>
 </div>
+
 
 <button id="load-more" class="btn btn-primary" style="display: none;">Load More</button>
 

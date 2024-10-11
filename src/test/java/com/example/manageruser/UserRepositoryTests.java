@@ -1,12 +1,10 @@
 package com.example.manageruser;
 
-import com.example.manageruser.Model.UserDto;
 import com.example.manageruser.Repository.UserRepository;
 import com.example.manageruser.Model.User;
 
 
 import com.example.manageruser.Service.UserService;
-import com.example.manageruser.WskConfig.UserAlreadyExistsException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -22,7 +20,6 @@ import java.util.Optional;
 
 import  static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.*;
 
 
 @DataJpaTest

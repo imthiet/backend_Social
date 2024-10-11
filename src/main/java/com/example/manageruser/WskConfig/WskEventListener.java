@@ -34,20 +34,20 @@ public class WskEventListener {
             messagOperations.convertAndSend("/topic/chat", Message.builder().type(MsgType.LEAVE).sender(username).build());
         }
     }
-    private final SimpMessageSendingOperations messagingTemplate;
-
-    @EventListener
-    public void handleFriendRequestEvent(FriendRequestEvent event) {
-        User sender = event.getSender();
-        User receiver = event.getReceiver();
-
-        // Create the message to be sent to the receiver
-        Message notificationMessage = new Message();
-        notificationMessage.setType(MsgType.FRIEND_REQUEST);
-        notificationMessage.setSender(sender.getUsername());
-        notificationMessage.setContent("You have a new friend request from " + sender.getUsername());
-
-        // Send the message to the receiver through WebSocket
-        messagingTemplate.convertAndSendToUser(receiver.getUsername(), "/topic/friendRequest", notificationMessage);
-    }
+//    private final SimpMessageSendingOperations messagingTemplate;
+//
+//    @EventListener
+//    public void handleFriendRequestEvent(FriendRequestEvent event) {
+//        User sender = event.getSender();
+//        User receiver = event.getReceiver();
+//
+//        // Tạo thông báo kết bạn
+//        Message notificationMessage = new Message();
+//        notificationMessage.setType(MsgType.FRIEND_REQUEST);
+//        notificationMessage.setSender(sender.getUsername());
+//        notificationMessage.setContent("You have a new friend request from " + sender.getUsername());
+//
+//        // Gửi thông báo tới người nhận
+//        messagingTemplate.convertAndSendToUser(receiver.getUsername(), "/topic/friendRequest", notificationMessage);
+//    }
 }

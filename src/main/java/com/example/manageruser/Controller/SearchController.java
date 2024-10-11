@@ -1,12 +1,16 @@
 package com.example.manageruser.Controller;
 
 import com.example.manageruser.Model.FriendShip;
+import com.example.manageruser.Model.Notification;
 import com.example.manageruser.Model.User;
 import com.example.manageruser.Repository.UserRepository;
 import com.example.manageruser.Service.FriendService;
+import com.example.manageruser.Service.NotificationService;
 import com.example.manageruser.Service.SearchService;
 import com.example.manageruser.Service.UserService;
+import com.example.manageruser.WskConfig.FriendRequestEvent;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -96,6 +100,47 @@ public class SearchController {
 //
 //        return ResponseEntity.ok("Friend request sent");
 //    }
-git
+@Autowired
+private ApplicationEventPublisher eventPublisher;
+
+    @Autowired
+    private NotificationService notificationService; // Thêm dịch vụ thông báo
+
+    @PostMapping("/add_friend")
+    public ResponseEntity<String> addFriend(@RequestParam("username") String friendUsername, Principal principal) {
+        String currentUsername = principal.getName();
+        User currentUser = userService.findByUsername(currentUsername);
+        User friendUser = userService.findByUsername(friendUsername);
+
+        if (currentUser != null && friendUser != null) {
+            // Check if a friendship already exists
+            if (!friendShipService.existsBetweenUsers(currentUser, friendUser)) {
+                FriendShip friendShip = new FriendShip();
+                friendShip.setUser(currentUser);
+                friendShip.setFriend(friendUser);
+                friendShip.setAccepted(false);
+                friendShipService.save(friendShip);
+
+                // Tạo thông báo
+                Notification notification = new Notification();
+                notification.setContent(currentUser.getUsername() + " đã gửi yêu cầu kết bạn cho bạn.");
+
+                notification.setReceiver(friendUser);
+
+                // Lưu thông báo
+                notificationService.save(notification);
+
+                // Publish the friend request event
+                eventPublisher.publishEvent(new FriendRequestEvent(currentUser, friendUser));
+            } else {
+                return ResponseEntity.badRequest().body("Friendship already exists");
+            }
+        } else {
+            return ResponseEntity.badRequest().body("User not found");
+        }
+
+        return ResponseEntity.ok("Friend request sent");
+    }
+
 
 }

@@ -2,7 +2,7 @@ package com.example.manageruser.Controller;
 
 
 import com.example.manageruser.Model.User;
-import com.example.manageruser.Model.UserDto;
+import com.example.manageruser.Dto.UserDto;
 import com.example.manageruser.Model.UserNotFoundException;
 import com.example.manageruser.Repository.UserRepository;
 import com.example.manageruser.Service.EmailService;
@@ -17,7 +17,6 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.MessagingException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -26,16 +25,9 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import java.io.File;
-import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.nio.file.Paths;
-import java.sql.Blob;
-import java.sql.SQLException;
-import java.util.Base64;
 import java.util.List;
 import java.util.UUID;
 

@@ -1,10 +1,9 @@
 package com.example.manageruser.Service;
 
-import com.example.manageruser.Model.UserDto;
+import com.example.manageruser.Dto.UserDto;
 import com.example.manageruser.Model.UserNotFoundException;
 import com.example.manageruser.Model.User;
 import com.example.manageruser.Repository.UserRepository;
-import com.example.manageruser.WskConfig.UserAlreadyExistsException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

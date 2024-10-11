@@ -1,8 +1,7 @@
 package com.example.manageruser.Controller;
 
 import com.example.manageruser.Model.Message;
-import com.example.manageruser.Model.User;
-import com.example.manageruser.Model.UserWithLastMessageDTO;
+import com.example.manageruser.Dto.UserWithLastMessageDTO;
 import com.example.manageruser.Service.ChatService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,8 +14,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
 
@@ -86,6 +83,23 @@ public class ChatController {
 		model.addAttribute("usn", username);
 
 		return "messages";
+	}
+
+	@GetMapping("/chatbox")
+	public String showMessagesBox(HttpSession session, Model model) {
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		String username = authentication != null ? authentication.getName() : null;
+
+		if (username == null) {
+			return "redirect:/login"; // If not logged in, redirect to login
+		}
+
+		// Get users with their last message
+		List<UserWithLastMessageDTO> usersWithMessages = chatService.getUsersWithMessages(username);
+		model.addAttribute("usersWithMessages", usersWithMessages);
+		model.addAttribute("usn", username);
+
+		return "redirect:/ChatBox.html"; // chatbox html
 	}
 
 

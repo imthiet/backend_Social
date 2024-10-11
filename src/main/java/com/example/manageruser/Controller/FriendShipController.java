@@ -1,11 +1,10 @@
 package com.example.manageruser.Controller;
 
 import com.example.manageruser.Model.User;
-import com.example.manageruser.Model.UserDto;
+import com.example.manageruser.Dto.UserDto;
 import com.example.manageruser.Service.FriendService;
 import com.example.manageruser.Service.SearchService;
 import com.example.manageruser.Service.UserService;
-import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -20,7 +19,6 @@ import java.sql.Blob;
 import java.sql.SQLException;
 import java.util.Base64;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Controller

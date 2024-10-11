@@ -35,7 +35,8 @@ public class newFeedController {
             return "redirect:/login"; // Redirect to login if not authenticated
         }
 
-        List<Post> posts = postService.getPostsByFriendShip(username, page, size);
+       // List<Post> posts = postService.getPostsByFriendShip(username, page, size);
+        List<Post> posts = postService.getAllPosts();
         model.addAttribute("posts", posts);
         model.addAttribute("usn", username);
         model.addAttribute("currentPage", page); // Add current page to model

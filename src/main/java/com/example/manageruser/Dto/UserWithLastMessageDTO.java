@@ -1,4 +1,7 @@
-package com.example.manageruser.Model;
+package com.example.manageruser.Dto;
+
+import com.example.manageruser.Model.Message;
+import com.example.manageruser.Model.User;
 
 public class UserWithLastMessageDTO {
     private User user;

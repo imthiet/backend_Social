@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Notifications</title>
+    <link rel="stylesheet" type="text/css" th:href="@{/css/head_cus.css}"/>
+</head>
+<body>
+<div th:replace="~{fragments/header :: header}"></div>
+
+<h1>Notifications</h1>
+
+<ul id="notifications-list" style="margin-top: 120px">
+    <li th:each="notification : ${notifications}">
+        <span th:text="${notification.content}"></span>
+    </li>
+</ul>
+</body>
+</html>

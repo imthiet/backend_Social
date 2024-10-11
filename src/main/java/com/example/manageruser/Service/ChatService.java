@@ -3,7 +3,7 @@ package com.example.manageruser.Service;
 import com.example.manageruser.Model.Chat;
 import com.example.manageruser.Model.Message;
 import com.example.manageruser.Model.User;
-import com.example.manageruser.Model.UserWithLastMessageDTO;
+import com.example.manageruser.Dto.UserWithLastMessageDTO;
 import com.example.manageruser.Repository.ChatRepository;
 import com.example.manageruser.Repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;

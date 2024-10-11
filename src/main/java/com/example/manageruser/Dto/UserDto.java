@@ -1,4 +1,4 @@
-package com.example.manageruser.Model;
+package com.example.manageruser.Dto;
 
 public class UserDto {
     private String username;
