@@ -47,14 +47,11 @@ public class UserController {
     private PasswordEncoder passwordEncoder;
 
 
-
-
-
-
     private String getSiteURL(HttpServletRequest request) {
         String siteURL = request.getRequestURL().toString();
         return siteURL.replace(request.getServletPath(), "");
     }
+
     @GetMapping("/users")
     public String showUserList(RedirectAttributes ra, Model model) {
         // Lấy thông tin người dùng từ SecurityContext
@@ -82,7 +79,6 @@ public class UserController {
     }
 
 
-
     @GetMapping("/users/new")
     public String showUserForm(Model model) {
         model.addAttribute("user", new User());
@@ -90,12 +86,13 @@ public class UserController {
         return "user_form";
 
     }
+
     @PostMapping("/users/save")
     public String saveUser(
-        @Valid @ModelAttribute("user") User user,
-        BindingResult bindingResult,
-        RedirectAttributes ra,
-        HttpServletRequest request) throws UnsupportedEncodingException {
+            @Valid @ModelAttribute("user") User user,
+            BindingResult bindingResult,
+            RedirectAttributes ra,
+            HttpServletRequest request) throws UnsupportedEncodingException {
 
         if (bindingResult.hasErrors()) {
             return "users/new";
@@ -132,20 +129,17 @@ public class UserController {
     }
 
 
-
-
     @PostMapping("/users/save_update")
     public String saveUserUpdate(@ModelAttribute("user") User user, RedirectAttributes ra, Model model) {
 
         User rootUser = userService.findById(user.getId());
-        if(!rootUser.getPassword().equals(user.getPassword()))
-        {
+        if (!rootUser.getPassword().equals(user.getPassword())) {
             ra.addFlashAttribute("error", "Passwords is incorrect!");
             return "redirect:/users/edit/" + user.getId();
         }
         userService.save(user);
         ra.addFlashAttribute("messages", "User Updated Successfull!");
-        return  "redirect:/users";
+        return "redirect:/users";
     }
 
     @PostMapping("/users/save_edit")
@@ -170,7 +164,6 @@ public class UserController {
     }
 
 
-
     @GetMapping("/users/delete/{id}")
     public String deleteUser(@PathVariable("id") Integer id, RedirectAttributes ra) {
         userService.deleteById(id);
@@ -179,7 +172,7 @@ public class UserController {
     }
 
     @GetMapping("/users/edit/{id}")
-    public String updateUser(@PathVariable("id") Integer id, Model model,RedirectAttributes ra) {
+    public String updateUser(@PathVariable("id") Integer id, Model model, RedirectAttributes ra) {
 
         try {
             User user = userService.get(id);
@@ -205,7 +198,6 @@ public class UserController {
     }
 
 
-
     @PostMapping("/users/validate")
     public String login(@ModelAttribute("user") User user, RedirectAttributes ra, Model model, HttpSession session) {
 
@@ -227,9 +219,6 @@ public class UserController {
 
         // Chuyển hướng về trang chính sau khi đăng nhập thành công
     }
-
-
-
 
 
     // Xử lý yêu cầu POST để thực hiện logout
@@ -256,29 +245,13 @@ public class UserController {
         return "redirect:/users/login";
     }
 
-    @GetMapping("/verify")
-    public String verifyUser(@RequestParam("code") String code, Model model) {
-        if (userService.verify(code)) {
-            // Nếu xác minh thành công, hiển thị trang xác minh thành công
-            return "verification_success"; // Đây là tên của file HTML bạn đã tạo
-        } else {
-            // Nếu xác minh thất bại, hiển thị trang thông báo thất bại
-            return "verification_failure"; // Đây là tên của file HTML bạn đã tạo
-        }
-    }
+
     @GetMapping("/test")
-    public String sc( Model model) {
+    public String sc(Model model) {
 
-            return "verification_success"; // Đây là tên của file HTML bạn đã tạo
+        return "verification_success"; // Đây là tên của file HTML bạn đã tạo
 
     }
-
-
-
-
-
-
-
 
 
 }

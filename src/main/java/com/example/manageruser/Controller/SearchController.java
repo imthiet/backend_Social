@@ -82,7 +82,7 @@ public class SearchController {
         return "search";
     }
 
-//    @PostMapping("/add_friend")
+    //    @PostMapping("/add_friend")
 //    public ResponseEntity<String> addFriend(@RequestParam("username") String friendUsername, Principal principal) {
 //        String currentUsername = principal.getName();
 //        User currentUser = userService.findByUsername(currentUsername);
@@ -100,8 +100,8 @@ public class SearchController {
 //
 //        return ResponseEntity.ok("Friend request sent");
 //    }
-@Autowired
-private ApplicationEventPublisher eventPublisher;
+    @Autowired
+    private ApplicationEventPublisher eventPublisher;
 
     @Autowired
     private NotificationService notificationService; // Thêm dịch vụ thông báo

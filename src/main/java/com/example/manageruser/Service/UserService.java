@@ -18,19 +18,21 @@ import java.util.stream.Collectors;
 public class UserService {
     @Autowired
     private UserRepository repo;
+
     @Autowired
     public UserService(UserRepository userRepository) {
         this.repo = userRepository;
     }
-//    public User findByUsername(String username) {
+
+    //    public User findByUsername(String username) {
 //        return repo.findByUsername(username);
 //    }
-public List<UserDto> getAllUsers() {
-    List<User> users = (List<User>) repo.findAll();
-    return users.stream()
-            .map(this::convertToDto)
-            .collect(Collectors.toList());
-}
+    public List<UserDto> getAllUsers() {
+        List<User> users = (List<User>) repo.findAll();
+        return users.stream()
+                .map(this::convertToDto)
+                .collect(Collectors.toList());
+    }
 
 
 //    public void save(User user) {
@@ -45,38 +47,36 @@ public List<UserDto> getAllUsers() {
     public boolean usernameExists(String username) {
         return repo.findByUsername(username).isPresent(); // Cập nhật
     }
-   public User findById(int id) {
-      return  repo.findById(id).orElse(null);
 
-   }
+    public User findById(int id) {
+        return repo.findById(id).orElse(null);
+
+    }
 
 //   public User findByEmail(String email) {
 //        return repo.findByEmail(email);
 //   }
 
 
-
-public User findByEmail(String email) {
-    return repo.findByEmail(email)
-            .orElseThrow(() -> new RuntimeException("User not found with email: " + email));
-}
+    public User findByEmail(String email) {
+        return repo.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found with email: " + email));
+    }
 
     public User findByUsername(String username) {
-    // Xử lý Optional<User> bằng orElseThrow() để ném ngoại lệ nếu không tìm thấy
-    return repo.findByUsername(username)
-            .orElseThrow(() -> new RuntimeException("User not found with username: " + username));
-}
-
-
-
+        // Xử lý Optional<User> bằng orElseThrow() để ném ngoại lệ nếu không tìm thấy
+        return repo.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User not found with username: " + username));
+    }
 
 
     public void deleteById(Integer id) {
         repo.deleteById(id);
     }
+
     public User get(Integer id) throws UserNotFoundException {
         Optional<User> userById = repo.findById(id);
-        if(userById.isPresent()) {
+        if (userById.isPresent()) {
             return userById.get();
         }
         throw new UserNotFoundException("Could not found this user!");
@@ -95,6 +95,7 @@ public User findByEmail(String email) {
             return true;
         }
     }
+
     public void save(User user) {
         // Kiểm tra username đã tồn tại
         if (repo.existsByUsername(user.getUsername())) {
@@ -112,6 +113,7 @@ public User findByEmail(String email) {
     public void saveAgaint(User user) {
         repo.save(user);
     }
+
     private UserDto convertToDto(User user) {
         UserDto dto = new UserDto();
         dto.setUsername(user.getUsername());

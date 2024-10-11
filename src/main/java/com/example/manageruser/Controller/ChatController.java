@@ -19,21 +19,21 @@ import java.util.List;
 
 @Controller
 public class ChatController {
-	@Autowired
-	ChatService chatService;
+    @Autowired
+    ChatService chatService;
 
-	@MessageMapping("chat.sendMessage")
-	@SendTo("/topic/chat")
-	public Message sendMsg(@Payload Message msg) {
-		return msg;
-	}
+    @MessageMapping("chat.sendMessage")
+    @SendTo("/topic/chat")
+    public Message sendMsg(@Payload Message msg) {
+        return msg;
+    }
 
-	@MessageMapping("chat.addUser")
-	@SendTo("/topic/chat")
-	public Message addUser(@Payload Message msg, SimpMessageHeaderAccessor headerAccessor) {
-		headerAccessor.getSessionAttributes().put("username", msg.getSender());
-		return msg;
-	}
+    @MessageMapping("chat.addUser")
+    @SendTo("/topic/chat")
+    public Message addUser(@Payload Message msg, SimpMessageHeaderAccessor headerAccessor) {
+        headerAccessor.getSessionAttributes().put("username", msg.getSender());
+        return msg;
+    }
 
 //	@GetMapping("/chatbox")
 //	public String showChatBox(@RequestParam("username") String username) {
@@ -68,41 +68,39 @@ public class ChatController {
 //
 //}
 
-	@GetMapping("/messages")
-	public String showMessagesPage(HttpSession session, Model model) {
-		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-		String username = authentication != null ? authentication.getName() : null;
+    @GetMapping("/messages")
+    public String showMessagesPage(HttpSession session, Model model) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String username = authentication != null ? authentication.getName() : null;
 
-		if (username == null) {
-			return "redirect:/login"; // If not logged in, redirect to login
-		}
+        if (username == null) {
+            return "redirect:/login"; // If not logged in, redirect to login
+        }
 
-		// Get users with their last message
-		List<UserWithLastMessageDTO> usersWithMessages = chatService.getUsersWithMessages(username);
-		model.addAttribute("usersWithMessages", usersWithMessages);
-		model.addAttribute("usn", username);
+        // Get users with their last message
+        List<UserWithLastMessageDTO> usersWithMessages = chatService.getUsersWithMessages(username);
+        model.addAttribute("usersWithMessages", usersWithMessages);
+        model.addAttribute("usn", username);
 
-		return "messages";
-	}
+        return "messages";
+    }
 
-	@GetMapping("/chatbox")
-	public String showMessagesBox(HttpSession session, Model model) {
-		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-		String username = authentication != null ? authentication.getName() : null;
+    @GetMapping("/chatbox")
+    public String showMessagesBox(HttpSession session, Model model) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String username = authentication != null ? authentication.getName() : null;
 
-		if (username == null) {
-			return "redirect:/login"; // If not logged in, redirect to login
-		}
+        if (username == null) {
+            return "redirect:/login"; // If not logged in, redirect to login
+        }
 
-		// Get users with their last message
-		List<UserWithLastMessageDTO> usersWithMessages = chatService.getUsersWithMessages(username);
-		model.addAttribute("usersWithMessages", usersWithMessages);
-		model.addAttribute("usn", username);
+        // Get users with their last message
+        List<UserWithLastMessageDTO> usersWithMessages = chatService.getUsersWithMessages(username);
+        model.addAttribute("usersWithMessages", usersWithMessages);
+        model.addAttribute("usn", username);
 
-		return "redirect:/ChatBox.html"; // chatbox html
-	}
-
-
+        return "redirect:/ChatBox.html"; // chatbox html
+    }
 
 
 }

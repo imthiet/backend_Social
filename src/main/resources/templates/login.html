@@ -1,105 +1,104 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
-  <meta charset="UTF-8">
-  <title>LOGIN</title>
-  <link rel="stylesheet" type="text/css" th:href="@{/webjars/bootstrap/css/bootstrap.min.css}"/>
-  <link rel="stylesheet" type="text/css" th:href="@{/css/custom.css}"/>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <meta charset="UTF-8">
+    <title>LOGIN</title>
+    <link rel="stylesheet" type="text/css" th:href="@{/webjars/bootstrap/css/bootstrap.min.css}"/>
+    <link rel="stylesheet" type="text/css" th:href="@{/css/custom.css}"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 
 
-  <style>
-    /* Full-height container for centering */
-    .full-height {
-      height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
+    <style>
+        /* Full-height container for centering */
+        .full-height {
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
 
-    .password-container {
-      position: relative;
-    }
+        .password-container {
+            position: relative;
+        }
 
-    .toggle-password {
-      position: absolute;
-      right: 10px;
-      top: 50%;
-      transform: translateY(-50%);
-      cursor: pointer;
-    }
-  </style>
+        .toggle-password {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+        }
+    </style>
 </head>
 <body id="homeBody">
 <div class="container-fluid full-height">
-  <form th:action="@{/login}" method="POST" th:object="${user}"
-        class="form-container" style="max-width: 400px; margin: 0 auto;">
+    <form th:action="@{/login}" method="POST" th:object="${user}"
+          class="form-container" style="max-width: 400px; margin: 0 auto;">
 
-    <!-- Welcome Title inside the form -->
-    <div id="welcome" class="mb-2 text-center Title">
-      Welcome to Now Feed
-    </div>
+        <!-- Welcome Title inside the form -->
+        <div id="welcome" class="mb-2 text-center Title">
+            Welcome to Now Feed
+        </div>
 
-    <!-- Error message inside the form -->
-    <div th:if="${error}" class="alert alert-danger text-center">
-      [[${error}]]
-    </div>
+        <!-- Error message inside the form -->
+        <div th:if="${error}" class="alert alert-danger text-center">
+            [[${error}]]
+        </div>
 
-    <div class="mb-3">
-      <label class="form-label">Username</label>
-      <input type="text" th:field="*{username}" class="form-control" required minlength="6"/>
-    </div>
+        <div class="mb-3">
+            <label class="form-label">Username</label>
+            <input type="text" th:field="*{username}" class="form-control" required minlength="6"/>
+        </div>
 
-    <div class="mb-3">
-      <label class="form-label">Password</label>
-      <div class="input-group">
-        <input type="password" th:field="*{password}" class="form-control" id="password" required minlength="6"/>
-        <span class="input-group-text" onclick="togglePassword()">
+        <div class="mb-3">
+            <label class="form-label">Password</label>
+            <div class="input-group">
+                <input type="password" th:field="*{password}" class="form-control" id="password" required
+                       minlength="6"/>
+                <span class="input-group-text" onclick="togglePassword()">
             <i class="fa fa-eye" id="eyeIcon"></i>
         </span>
-      </div>
-    </div>
+            </div>
+        </div>
 
 
+        <button type="submit" class="login_btn">Login</button>
 
+        <div class="mt-3 text-center">
+            <h5>Don't have an account?
+                <a th:href="@{/users/new}" class="text-decoration-underline">Sign Up</a>
+            </h5>
+        </div>
 
-    <button type="submit" class="login_btn">Login</button>
-
-    <div class="mt-3 text-center">
-      <h5>Don't have an account?
-        <a th:href="@{/users/new}" class="text-decoration-underline">Sign Up</a>
-      </h5>
-    </div>
-
-  </form>
+    </form>
 </div>
 
 <script>
-  function togglePassword() {
-    var passwordField = document.getElementById("password");
-    var eyeIcon = document.getElementById("eyeIcon");
+    function togglePassword() {
+        var passwordField = document.getElementById("password");
+        var eyeIcon = document.getElementById("eyeIcon");
 
-    if (passwordField.type === "password") {
-      passwordField.type = "text";
-      eyeIcon.classList.remove("fa-eye");
-      eyeIcon.classList.add("fa-eye-slash");
-    } else {
-      passwordField.type = "password";
-      eyeIcon.classList.remove("fa-eye-slash");
-      eyeIcon.classList.add("fa-eye");
+        if (passwordField.type === "password") {
+            passwordField.type = "text";
+            eyeIcon.classList.remove("fa-eye");
+            eyeIcon.classList.add("fa-eye-slash");
+        } else {
+            passwordField.type = "password";
+            eyeIcon.classList.remove("fa-eye-slash");
+            eyeIcon.classList.add("fa-eye");
+        }
     }
-  }
 </script>
 
 </body>
 
 <footer class="footer bg-light text-center">
-  <div class="container py-3">
-    <span class="text-muted">© 2024 Your Company. All rights reserved.</span>
-    <div>
-      <a href="#" class="text-muted">Privacy Policy</a> |
-      <a href="#" class="text-muted">Terms of Service</a>
+    <div class="container py-3">
+        <span class="text-muted">© 2024 Your Company. All rights reserved.</span>
+        <div>
+            <a href="#" class="text-muted">Privacy Policy</a> |
+            <a href="#" class="text-muted">Terms of Service</a>
+        </div>
     </div>
-  </div>
 </footer>
 </html>

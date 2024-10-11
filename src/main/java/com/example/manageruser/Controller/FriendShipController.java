@@ -71,9 +71,9 @@ public class FriendShipController {
         userDTO.setFriend(isFriend);
 
         // Optionally set the user's image if available
-         if (user.getImage() != null) {
-             userDTO.setImage(getBase64Image(user.getImage())); // Assume this method exists
-         }
+        if (user.getImage() != null) {
+            userDTO.setImage(getBase64Image(user.getImage())); // Assume this method exists
+        }
 
         return userDTO;
     }

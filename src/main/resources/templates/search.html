@@ -1,76 +1,77 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-  <meta charset="UTF-8">
-  <title>User Search</title>
-  <link rel="stylesheet" type="text/css" th:href="@{/css/head_cus.css}"/>
-  <link rel="stylesheet" type="text/css" th:href="@{/css/search.css}"/>
-  <link rel="stylesheet" type="text/css" th:href="@{/webjars/bootstrap/css/bootstrap.min.css}"/>
+    <meta charset="UTF-8">
+    <title>User Search</title>
+    <link rel="stylesheet" type="text/css" th:href="@{/css/head_cus.css}"/>
+    <link rel="stylesheet" type="text/css" th:href="@{/css/search.css}"/>
+    <link rel="stylesheet" type="text/css" th:href="@{/webjars/bootstrap/css/bootstrap.min.css}"/>
 
-  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-  <script>
-    function loadNotifications(username) {
-      $.ajax({
-        url: `/api/notifications/${username}`,
-        type: 'GET',
-        success: function(notifications) {
-          // Xử lý thông báo, ví dụ:
-          notifications.forEach(notification => {
-            // Thêm thông báo vào giao diện người dùng
-            $('#notifications').append(`<div>${notification.content} - ${notification.receiver.username}</div>`);
-          });
-        },
-        error: function(xhr, status, error) {
-          console.error('Error fetching notifications:', error);
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        function loadNotifications(username) {
+            $.ajax({
+                url: `/api/notifications/${username}`,
+                type: 'GET',
+                success: function (notifications) {
+                    // Xử lý thông báo, ví dụ:
+                    notifications.forEach(notification => {
+                        // Thêm thông báo vào giao diện người dùng
+                        $('#notifications').append(`<div>${notification.content} - ${notification.receiver.username}</div>`);
+                    });
+                },
+                error: function (xhr, status, error) {
+                    console.error('Error fetching notifications:', error);
+                }
+            });
         }
-      });
-    }
 
-    // Gọi hàm loadNotifications khi tải trang hoặc khi có sự kiện cụ thể
-    $(document).ready(function() {
-      const username = 'user123'; // Thay thế bằng tên người dùng thực tế
-      loadNotifications(username);
-    });
-  </script>
+        // Gọi hàm loadNotifications khi tải trang hoặc khi có sự kiện cụ thể
+        $(document).ready(function () {
+            const username = 'user123'; // Thay thế bằng tên người dùng thực tế
+            loadNotifications(username);
+        });
+    </script>
 
-  <div id="notifications"></div>
+    <div id="notifications"></div>
 
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-  <style>
-    /* Thêm style để icon trông đẹp */
-    #iconContainer {
-      font-size: 30px;
-      margin-bottom: 20px;
-    }
-    .fa-envelope-open {
-      color: red;
-    }
-  </style>
-<!--  <script type="text/javascript">-->
-<!--    var socket = new SockJS('/ws');-->
-<!--    var privateStompClient = Stomp.over(socket);-->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        /* Thêm style để icon trông đẹp */
+        #iconContainer {
+            font-size: 30px;
+            margin-bottom: 20px;
+        }
 
-<!--    privateStompClient.connect({}, function(frame) {-->
-<!--      console.log('Connected: ' + frame);-->
+        .fa-envelope-open {
+            color: red;
+        }
+    </style>
+    <!--  <script type="text/javascript">-->
+    <!--    var socket = new SockJS('/ws');-->
+    <!--    var privateStompClient = Stomp.over(socket);-->
 
-<!--      // Subscribe to notifications for the logged-in user-->
-<!--      privateStompClient.subscribe('/user/specific', function(messageOutput) {-->
-<!--        showNotification(JSON.parse(messageOutput.body),function (result) {-->
-<!--          -->
-<!--        });-->
-<!--      });-->
-<!--    });-->
+    <!--    privateStompClient.connect({}, function(frame) {-->
+    <!--      console.log('Connected: ' + frame);-->
 
-<!--    // Function to show the notification-->
-<!--    function showNotification(notification) {-->
-<!--      alert("New friend request from: " + notification.content);-->
-<!--      // You can also change the icon or show a visual notification in your UI-->
-<!--      console.log("get new friedn request!");-->
-<!--      var messageIcon = document.getElementById('messageIcon');-->
-<!--      messageIcon.classList.remove('fa-envelope');-->
-<!--      messageIcon.classList.add('fa-envelope-open');-->
-<!--    }-->
-<!--  </script>-->
+    <!--      // Subscribe to notifications for the logged-in user-->
+    <!--      privateStompClient.subscribe('/user/specific', function(messageOutput) {-->
+    <!--        showNotification(JSON.parse(messageOutput.body),function (result) {-->
+    <!--          -->
+    <!--        });-->
+    <!--      });-->
+    <!--    });-->
+
+    <!--    // Function to show the notification-->
+    <!--    function showNotification(notification) {-->
+    <!--      alert("New friend request from: " + notification.content);-->
+    <!--      // You can also change the icon or show a visual notification in your UI-->
+    <!--      console.log("get new friedn request!");-->
+    <!--      var messageIcon = document.getElementById('messageIcon');-->
+    <!--      messageIcon.classList.remove('fa-envelope');-->
+    <!--      messageIcon.classList.add('fa-envelope-open');-->
+    <!--    }-->
+    <!--  </script>-->
 
 </head>
 
@@ -80,76 +81,79 @@
 <div th:replace="~{fragments/header :: header}"></div>
 
 <div class="search-container" align="center">
-  <!-- Bọc search form và search results trong một div chung -->
-  <div class="search-wrapper">
-    <!-- Search form -->
-    <form id="search-form" th:action="@{/search}" method="get" class="mb-4" style="margin-top: 50px" onsubmit="return false;">
-      <input type="text" name="keyword" id="keyword" th:value="${keyword}" placeholder="Enter username or email" required class="form-control" style="border-radius: 12px; border: 1px solid #00285A;"/>
-      <input type="submit" value="Search" class="btn btn-primary mt-2" style="border-radius: 12px; background: #00285A" onclick="performSearch()"/>
-    </form>
+    <!-- Bọc search form và search results trong một div chung -->
+    <div class="search-wrapper">
+        <!-- Search form -->
+        <form id="search-form" th:action="@{/search}" method="get" class="mb-4" style="margin-top: 50px"
+              onsubmit="return false;">
+            <input type="text" name="keyword" id="keyword" th:value="${keyword}" placeholder="Enter username or email"
+                   required class="form-control" style="border-radius: 12px; border: 1px solid #00285A;"/>
+            <input type="submit" value="Search" class="btn btn-primary mt-2"
+                   style="border-radius: 12px; background: #00285A" onclick="performSearch()"/>
+        </form>
 
-    <br />
+        <br/>
 
-    <!-- Label to show "Kết quả tìm kiếm" or "Gợi ý bạn bè" -->
-    <label id="result-label_rs" class="h4 mb-3" th:text="${label_rs}">Kết quả tìm kiếm</label>
-    <div class="search-results" id="search-results"></div>
-  </div>
+        <!-- Label to show "Kết quả tìm kiếm" or "Gợi ý bạn bè" -->
+        <label id="result-label_rs" class="h4 mb-3" th:text="${label_rs}">Kết quả tìm kiếm</label>
+        <div class="search-results" id="search-results"></div>
+    </div>
 </div>
 
 
 <!-- JavaScript -->
 <script>
-  let currentPage = 0;
-  const size = 10; // Number of results per page
-  let isLoading = false;
-  let lastPage = false;
+    let currentPage = 0;
+    const size = 10; // Number of results per page
+    let isLoading = false;
+    let lastPage = false;
 
-  function performSearch() {
-    currentPage = 0; // Reset current page on new search
-    document.getElementById('search-results').innerHTML = ''; // Clear previous results
+    function performSearch() {
+        currentPage = 0; // Reset current page on new search
+        document.getElementById('search-results').innerHTML = ''; // Clear previous results
 
-    const keyword = document.getElementById('keyword').value;
+        const keyword = document.getElementById('keyword').value;
 
-    // Cập nhật nhãn kết quả tìm kiếm hoặc gợi ý bạn bè
-    const resultLabel = document.getElementById('result-label_rs');
-    if (keyword.trim() === "") {
-      resultLabel.textContent = "Gợi ý bạn bè";
-    } else {
-      resultLabel.textContent = "Kết quả tìm kiếm";
+        // Cập nhật nhãn kết quả tìm kiếm hoặc gợi ý bạn bè
+        const resultLabel = document.getElementById('result-label_rs');
+        if (keyword.trim() === "") {
+            resultLabel.textContent = "Gợi ý bạn bè";
+        } else {
+            resultLabel.textContent = "Kết quả tìm kiếm";
+        }
+
+        loadMore(); // Load initial results
     }
 
-    loadMore(); // Load initial results
-  }
+    function loadMore() {
+        if (isLoading || lastPage) return;
 
-  function loadMore() {
-    if (isLoading || lastPage) return;
+        isLoading = true;
+        const keyword = document.getElementById('keyword').value;
 
-    isLoading = true;
-    const keyword = document.getElementById('keyword').value;
-
-    fetch(`/search?keyword=${encodeURIComponent(keyword)}&page=${currentPage}&size=${size}`)
+        fetch(`/search?keyword=${encodeURIComponent(keyword)}&page=${currentPage}&size=${size}`)
             .then(response => {
-              if (!response.ok) {
-                throw new Error('Network response was not ok');
-              }
-              return response.json();
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
             })
             .then(data => {
-              if (data.length === 0) {
-                lastPage = true;
-                document.getElementById('load-more').style.display = 'none';
-              } else {
-                data.forEach(user => {
-                  const div = document.createElement('div');
-                  div.className = 'post-card';
-                  div.setAttribute('data-username', user.username);
+                if (data.length === 0) {
+                    lastPage = true;
+                    document.getElementById('load-more').style.display = 'none';
+                } else {
+                    data.forEach(user => {
+                        const div = document.createElement('div');
+                        div.className = 'post-card';
+                        div.setAttribute('data-username', user.username);
 
-                  // Add click listener to navigate to the user's profile
-                  div.addEventListener('click', () => {
-                    window.location.href = `/profile/${encodeURIComponent(user.username)}`;
-                  });
+                        // Add click listener to navigate to the user's profile
+                        div.addEventListener('click', () => {
+                            window.location.href = `/profile/${encodeURIComponent(user.username)}`;
+                        });
 
-                  div.innerHTML = `
+                        div.innerHTML = `
     <div style="display: flex; align-items: center; justify-content: space-between;">
         <div style="flex: 1; display: flex; align-items: center;">
             <img src="${user.image ? user.image : 'Image/profile.png'}" alt="${user.username}'s avatar" style="width: 40px; height: 40px; border-radius: 50%; margin-right: 10px;">
@@ -174,66 +178,65 @@
 `;
 
 
-
-                  document.getElementById('search-results').appendChild(div);
-                });
-                currentPage++;
-                document.getElementById('load-more').style.display = 'block';
-              }
+                        document.getElementById('search-results').appendChild(div);
+                    });
+                    currentPage++;
+                    document.getElementById('load-more').style.display = 'block';
+                }
             })
             .catch(error => console.error('Error:', error))
             .finally(() => {
-              isLoading = false;
+                isLoading = false;
             });
-  }
+    }
 
-  // Ajax to send friend request
-  function addFriend(username, button, event) {
-    event.stopPropagation(); // Stop event propagation
+    // Ajax to send friend request
+    function addFriend(username, button, event) {
+        event.stopPropagation(); // Stop event propagation
 
-    fetch('/add_friend', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-      },
-      body: new URLSearchParams({
-        'username': username
-      })
-    })
+        fetch('/add_friend', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: new URLSearchParams({
+                'username': username
+            })
+        })
             .then(response => {
-              if (response.ok) {
-                // Update button state after successful request
-                button.textContent = 'Pending';
-                button.disabled = true;
-                button.style.backgroundColor = '#e3c711';
+                if (response.ok) {
+                    // Update button state after successful request
+                    button.textContent = 'Pending';
+                    button.disabled = true;
+                    button.style.backgroundColor = '#e3c711';
 
-                // Send a notification to the user about the friend request
-                privateStompClient.send("/app/private", {}, JSON.stringify({
-                  'content': 'You have a new friend request!',
-                  'receiver': username
-                }));
-                console.log("send success!")
-              } else {
-                console.error('Error adding friend');
-              }
+                    // Send a notification to the user about the friend request
+                    privateStompClient.send("/app/private", {}, JSON.stringify({
+                        'content': 'You have a new friend request!',
+                        'receiver': username
+                    }));
+                    console.log("send success!")
+                } else {
+                    console.error('Error adding friend');
+                }
             })
             .catch(error => console.error('Error:', error));
-  }
-
-  // Load more results when scrolling to the bottom
-  window.addEventListener('scroll', function() {
-    if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 10) {
-      loadMore();
     }
-  });
 
-  // Initial load
-  document.addEventListener('DOMContentLoaded', function() {
-    const keywordInput = document.getElementById('keyword');
-    if (keywordInput.value) {
-      performSearch(); // Perform search if there's a keyword already
-    }
-  });
+    // Load more results when scrolling to the bottom
+    window.addEventListener('scroll', function () {
+        if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 10) {
+            loadMore();
+        }
+    });
+
+    // Initial load
+    document.addEventListener('DOMContentLoaded', function () {
+        const keywordInput = document.getElementById('keyword');
+        if (keywordInput.value) {
+            performSearch(); // Perform search if there's a keyword already
+        }
+    });
 </script>
 
 </body>
