@@ -6,102 +6,82 @@
     <link rel="stylesheet" type="text/css" th:href="@{/css/head_cus.css}"/>
     <link rel="stylesheet" type="text/css" th:href="@{/css/search.css}"/>
     <link rel="stylesheet" type="text/css" th:href="@{/webjars/bootstrap/css/bootstrap.min.css}"/>
-
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script>
-        function loadNotifications(username) {
-            $.ajax({
-                url: `/api/notifications/${username}`,
-                type: 'GET',
-                success: function (notifications) {
-                    // Xử lý thông báo, ví dụ:
-                    notifications.forEach(notification => {
-                        // Thêm thông báo vào giao diện người dùng
-                        $('#notifications').append(`<div>${notification.content} - ${notification.receiver.username}</div>`);
-                    });
-                },
-                error: function (xhr, status, error) {
-                    console.error('Error fetching notifications:', error);
-                }
-            });
-        }
-
-        // Gọi hàm loadNotifications khi tải trang hoặc khi có sự kiện cụ thể
-        $(document).ready(function () {
-            const username = 'user123'; // Thay thế bằng tên người dùng thực tế
-            loadNotifications(username);
-        });
-    </script>
-
-    <div id="notifications"></div>
-
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+
+
     <style>
-        /* Thêm style để icon trông đẹp */
+        /* Custom styles for the notification icon */
         #iconContainer {
             font-size: 30px;
             margin-bottom: 20px;
         }
-
         .fa-envelope-open {
             color: red;
         }
     </style>
-    <!--  <script type="text/javascript">-->
-    <!--    var socket = new SockJS('/ws');-->
-    <!--    var privateStompClient = Stomp.over(socket);-->
-
-    <!--    privateStompClient.connect({}, function(frame) {-->
-    <!--      console.log('Connected: ' + frame);-->
-
-    <!--      // Subscribe to notifications for the logged-in user-->
-    <!--      privateStompClient.subscribe('/user/specific', function(messageOutput) {-->
-    <!--        showNotification(JSON.parse(messageOutput.body),function (result) {-->
-    <!--          -->
-    <!--        });-->
-    <!--      });-->
-    <!--    });-->
-
-    <!--    // Function to show the notification-->
-    <!--    function showNotification(notification) {-->
-    <!--      alert("New friend request from: " + notification.content);-->
-    <!--      // You can also change the icon or show a visual notification in your UI-->
-    <!--      console.log("get new friedn request!");-->
-    <!--      var messageIcon = document.getElementById('messageIcon');-->
-    <!--      messageIcon.classList.remove('fa-envelope');-->
-    <!--      messageIcon.classList.add('fa-envelope-open');-->
-    <!--    }-->
-    <!--  </script>-->
-
 </head>
 
 <body>
-
 <!-- Using fragment header -->
 <div th:replace="~{fragments/header :: header}"></div>
 
 <div class="search-container" align="center">
-    <!-- Bọc search form và search results trong một div chung -->
     <div class="search-wrapper">
         <!-- Search form -->
-        <form id="search-form" th:action="@{/search}" method="get" class="mb-4" style="margin-top: 50px"
-              onsubmit="return false;">
+        <form id="search-form" th:action="@{/search}" method="get" class="mb-4" style="margin-top: 50px" onsubmit="return false;">
             <input type="text" name="keyword" id="keyword" th:value="${keyword}" placeholder="Enter username or email"
                    required class="form-control" style="border-radius: 12px; border: 1px solid #00285A;"/>
-            <input type="submit" value="Search" class="btn btn-primary mt-2"
-                   style="border-radius: 12px; background: #00285A" onclick="performSearch()"/>
+            <input type="submit" value="Search" class="btn btn-primary mt-2" style="border-radius: 12px; background: #00285A" onclick="performSearch()"/>
         </form>
 
         <br/>
 
-        <!-- Label to show "Kết quả tìm kiếm" or "Gợi ý bạn bè" -->
+        <!-- Label to show "Search Results" or "Friend Suggestions" -->
         <label id="result-label_rs" class="h4 mb-3" th:text="${label_rs}">Kết quả tìm kiếm</label>
         <div class="search-results" id="search-results"></div>
     </div>
 </div>
 
-
 <!-- JavaScript -->
+<script src="https://cdn.jsdelivr.net/sockjs/latest/sockjs.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+<!--<script src = "static/js/notifi.js"></script>-->
+
+<script type="text/javascript">
+    var stompClient = null;
+
+    function connect() {
+        var socket = new SockJS('/websocket');
+        stompClient = Stomp.over(socket);
+        stompClient.connect({}, function (frame) {
+            console.log('Connected: ' + frame);
+
+            // Lắng nghe hàng đợi cá nhân của người dùng
+            stompClient.subscribe('/user/queue/friendRequest', function (notification) {
+                showNotification(JSON.parse(notification.body).viewer + ' ' + JSON.parse(notification.body).message);
+            });
+        });
+    }
+
+    function showNotification(message) {
+        alert(message); // Hiển thị thông báo (có thể thay bằng UI notification đẹp hơn)
+    }
+
+    function notifyProfileView(sender) {
+        console.log("sending", sender);
+        stompClient.send("/app/sendRequest", {}, JSON.stringify({'sender': sender}));
+    }
+
+    // Đảm bảo mã chạy sau khi DOM đã được tải
+    window.onload = function() {
+        connect();
+    };
+
+
+
+</script>
+
 <script>
     let currentPage = 0;
     const size = 10; // Number of results per page
@@ -112,15 +92,11 @@
         currentPage = 0; // Reset current page on new search
         document.getElementById('search-results').innerHTML = ''; // Clear previous results
 
-        const keyword = document.getElementById('keyword').value;
+        const keyword = document.getElementById('keyword').value.trim();
 
-        // Cập nhật nhãn kết quả tìm kiếm hoặc gợi ý bạn bè
+        // Update the label for search results or friend suggestions
         const resultLabel = document.getElementById('result-label_rs');
-        if (keyword.trim() === "") {
-            resultLabel.textContent = "Gợi ý bạn bè";
-        } else {
-            resultLabel.textContent = "Kết quả tìm kiếm";
-        }
+        resultLabel.textContent = keyword === "" ? "Gợi ý bạn bè" : "Kết quả tìm kiếm";
 
         loadMore(); // Load initial results
     }
@@ -129,7 +105,7 @@
         if (isLoading || lastPage) return;
 
         isLoading = true;
-        const keyword = document.getElementById('keyword').value;
+        const keyword = document.getElementById('keyword').value.trim();
 
         fetch(`/search?keyword=${encodeURIComponent(keyword)}&page=${currentPage}&size=${size}`)
             .then(response => {
@@ -144,41 +120,7 @@
                     document.getElementById('load-more').style.display = 'none';
                 } else {
                     data.forEach(user => {
-                        const div = document.createElement('div');
-                        div.className = 'post-card';
-                        div.setAttribute('data-username', user.username);
-
-                        // Add click listener to navigate to the user's profile
-                        div.addEventListener('click', () => {
-                            window.location.href = `/profile/${encodeURIComponent(user.username)}`;
-                        });
-
-                        div.innerHTML = `
-    <div style="display: flex; align-items: center; justify-content: space-between;">
-        <div style="flex: 1; display: flex; align-items: center;">
-            <img src="${user.image ? user.image : 'Image/profile.png'}" alt="${user.username}'s avatar" style="width: 40px; height: 40px; border-radius: 50%; margin-right: 10px;">
-            <div>
-                <p>${user.username}</p>
-                <div class="post-meta">
-                    <span>${user.email}</span>
-                    <br />
-                    <span>${user.address}</span>
-                </div>
-            </div>
-        </div>
-        <div>
-            <button type="button" class="btn-icon ${user.friendPending ? 'btn-pending' : user.friend ? 'btn-accepted' : 'btn-add-friend'}"
-                onclick="addFriend('${user.username}', this, event)"
-                ${user.friendPending || user.friend ? 'disabled' : ''}
-                aria-label="${user.friendPending ? 'Friend request pending' : user.friend ? 'Friend request accepted' : 'Add friend'}">
-                ${user.friendPending ? 'Pending' : user.friend ? 'Accepted' : 'Add Friend'}
-            </button>
-        </div>
-    </div>
-`;
-
-
-                        document.getElementById('search-results').appendChild(div);
+                        addUserToResults(user);
                     });
                     currentPage++;
                     document.getElementById('load-more').style.display = 'block';
@@ -190,38 +132,94 @@
             });
     }
 
-    // Ajax to send friend request
-    function addFriend(username, button, event) {
-        event.stopPropagation(); // Stop event propagation
+    function addUserToResults(user) {
+        const div = document.createElement('div');
+        div.className = 'post-card';
+        div.setAttribute('data-username', user.username);
 
+        // Add click listener to navigate to the user's profile
+        div.addEventListener('click', () => {
+            notifyProfileView(user.username);
+             //window.location.href = `/profile/${encodeURIComponent(user.username)}`;
+
+        });
+
+        div.innerHTML = `
+                <div style="display: flex; align-items: center; justify-content: space-between;">
+                    <div style="flex: 1; display: flex; align-items: center;">
+                        <img src="${user.image || 'Image/profile.png'}" alt="${user.username}'s avatar" style="width: 40px; height: 40px; border-radius: 50%; margin-right: 10px;">
+                        <div>
+                            <p>${user.username}</p>
+                            <div class="post-meta">
+                                <span>${user.email}</span>
+                                <br />
+                                <span>${user.address}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                      <button type="button" class="btn-icon ${user.friendPending ? 'btn-pending' : user.friend ? 'btn-accepted' : 'btn-add-friend'}"
+                            onclick="addFriend('${user.username}', this, event)"
+                            ${user.friendPending || user.friend ? 'disabled' : ''}>
+                            ${user.friendPending ? 'Pending' : user.friend ? 'Accepted' : 'Add Friend'}
+                        </button>
+                    </div>
+                </div>
+            `;
+
+        document.getElementById('search-results').appendChild(div);
+    }
+
+    function addFriend(username, button, event) {
+        event.stopPropagation(); // Ngăn việc click kích hoạt sự kiện khác
+
+        console.log('Adding friend for username:', username);
+
+        // Gửi yêu cầu kết bạn
         fetch('/add_friend', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded',
             },
-            body: new URLSearchParams({
-                'username': username
-            })
+            body: new URLSearchParams({ 'username': username }),
         })
             .then(response => {
                 if (response.ok) {
-                    // Update button state after successful request
+                    // Cập nhật trạng thái nút sau khi thành công
                     button.textContent = 'Pending';
                     button.disabled = true;
-                    button.style.backgroundColor = '#e3c711';
+                    button.setAttribute('aria-disabled', 'true');
+                    button.style.backgroundColor = '#e3c711'; // Đổi màu nút để biểu thị trạng thái pending
 
-                    // Send a notification to the user about the friend request
-                    privateStompClient.send("/app/private", {}, JSON.stringify({
-                        'content': 'You have a new friend request!',
-                        'receiver': username
-                    }));
-                    console.log("send success!")
+                    // Gửi thông báo qua WebSocket
+                    //showNotification();
+                    notifyProfileView(username); // Gửi thông báo thông qua WebSocket
+
+
                 } else {
-                    console.error('Error adding friend');
+                    return response.text().then(text => {
+                        console.error('Error adding friend:', text);
+                        alert('Error adding friend: ' + text);
+                    });
                 }
             })
             .catch(error => console.error('Error:', error));
     }
+
+
+    // Function to check for notifications
+    // function checkForNotifications() {
+    //     fetch('/notifications/unread') // Fetch unread notifications
+    //         .then(response => response.json())
+    //         .then(notifications => {
+    //             if (notifications.length > 0) {
+    //                 notifications.forEach(notification => {
+    //                      //alert(notification.contentnoti); // Show alert for each notification
+    //                 });
+    //             }
+    //         })
+    //         .catch(error => console.error('Error fetching notifications:', error));
+    // }
 
     // Load more results when scrolling to the bottom
     window.addEventListener('scroll', function () {
@@ -236,6 +234,9 @@
         if (keywordInput.value) {
             performSearch(); // Perform search if there's a keyword already
         }
+
+        // Check for notifications every 10 seconds
+        // setInterval(checkForNotifications, 3000);
     });
 </script>
 

@@ -1,40 +1,31 @@
 package com.example.manageruser.Dto;
 
+import java.time.LocalDateTime;
+
 public class NotificationDTO {
+    private String contentnoti;
+    private LocalDateTime timestamp;
+    private String status ;
 
-    private Long id;
-    private String content;
-    private String receiverUsername;
 
-    // Constructor
-    public NotificationDTO(Long id, String content, String receiverUsername) {
-        this.id = id;
-        this.content = content;
-        this.receiverUsername = receiverUsername;
+    public NotificationDTO(String contentnoti, LocalDateTime timestamp, String status) {
+        this.contentnoti = contentnoti;
+        this.timestamp = timestamp;
+        this.status = status;
     }
 
-    // Getters and setters
-    public Long getId() {
-        return id;
+    public String getContentnoti() {
+        return contentnoti;
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    public LocalDateTime getTimestamp() {
+        return timestamp;
+    }
+    public String getStatus() {
+        return status;
     }
 
-    public String getContent() {
-        return content;
-    }
 
-    public void setContent(String content) {
-        this.content = content;
-    }
 
-    public String getReceiverUsername() {
-        return receiverUsername;
-    }
 
-    public void setReceiverUsername(String receiverUsername) {
-        this.receiverUsername = receiverUsername;
-    }
 }

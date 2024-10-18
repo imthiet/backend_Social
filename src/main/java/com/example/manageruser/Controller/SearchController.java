@@ -3,7 +3,7 @@ package com.example.manageruser.Controller;
 import com.example.manageruser.Model.FriendShip;
 import com.example.manageruser.Model.Notification;
 import com.example.manageruser.Model.User;
-import com.example.manageruser.Repository.UserRepository;
+
 import com.example.manageruser.Service.FriendService;
 import com.example.manageruser.Service.NotificationService;
 import com.example.manageruser.Service.SearchService;
@@ -16,6 +16,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.repository.query.Param;
 import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -23,6 +24,7 @@ import org.springframework.web.bind.annotation.*;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.security.Principal;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Controller
@@ -38,16 +40,6 @@ public class SearchController {
     @Autowired
     FriendService friendShipService;
 
-    //    @RequestMapping("/search-exit")
-//    public String index(Model model, @Param("keyword") String keyword){
-//        List<User> listUser = service.listAll(keyword);
-//
-//        // Thay đổi tên biến từ studentList thành listStudent để khớp với Thymeleaf
-//        model.addAttribute("listUser", listUser);
-//        model.addAttribute("keyword", keyword);
-//
-//        return "search"; // template search
-//    }
     @GetMapping("/search_page")
     public String search(@RequestParam(value = "keyword", required = false) String keyword,
                          @RequestParam(value = "page", defaultValue = "0") int page,
@@ -82,26 +74,13 @@ public class SearchController {
         return "search";
     }
 
-    //    @PostMapping("/add_friend")
-//    public ResponseEntity<String> addFriend(@RequestParam("username") String friendUsername, Principal principal) {
-//        String currentUsername = principal.getName();
-//        User currentUser = userService.findByUsername(currentUsername);
-//        User friendUser = userService.findByUsername(friendUsername);
-//
-//        if (currentUser != null && friendUser != null) {
-//            if (!friendShipService.existsBetweenUsers(currentUser, friendUser)) {
-//                FriendShip friendShip = new FriendShip();
-//                friendShip.setUser(currentUser);
-//                friendShip.setFriend(friendUser);
-//                friendShip.setAccepted(false);
-//                friendShipService.save(friendShip);
-//            }
-//        }
-//
-//        return ResponseEntity.ok("Friend request sent");
-//    }
+
     @Autowired
     private ApplicationEventPublisher eventPublisher;
+
+    @Autowired
+    private SimpMessagingTemplate messagingTemplate;
+
 
     @Autowired
     private NotificationService notificationService; // Thêm dịch vụ thông báo
@@ -109,29 +88,33 @@ public class SearchController {
     @PostMapping("/add_friend")
     public ResponseEntity<String> addFriend(@RequestParam("username") String friendUsername, Principal principal) {
         String currentUsername = principal.getName();
-        User currentUser = userService.findByUsername(currentUsername);
-        User friendUser = userService.findByUsername(friendUsername);
+        User sender = userService.findByUsername(currentUsername);
+        User receiver = userService.findByUsername(friendUsername);
 
-        if (currentUser != null && friendUser != null) {
+
+        if (sender != null && receiver != null) {
             // Check if a friendship already exists
-            if (!friendShipService.existsBetweenUsers(currentUser, friendUser)) {
+            if (!friendShipService.existsBetweenUsers(sender, receiver)) {
                 FriendShip friendShip = new FriendShip();
-                friendShip.setUser(currentUser);
-                friendShip.setFriend(friendUser);
+                friendShip.setUser(sender);
+                friendShip.setFriend(receiver);
                 friendShip.setAccepted(false);
                 friendShipService.save(friendShip);
-
-                // Tạo thông báo
+// Tạo thông báo
                 Notification notification = new Notification();
-                notification.setContent(currentUser.getUsername() + " đã gửi yêu cầu kết bạn cho bạn.");
+                notification.setContentnoti(sender.getUsername() + " đã gửi yêu cầu kết bạn cho bạn.");
 
-                notification.setReceiver(friendUser);
+// Set the sender and receiver
+                notification.setSender(sender); // Make sure 'sender' is not null
+                notification.setReceiver(receiver);
 
-                // Lưu thông báo
+// Optionally set the status and timestamp
+                notification.setStatus("unread");
+                notification.setTimestamp(LocalDateTime.now());
+
+// Lưu thông báo
                 notificationService.save(notification);
 
-                // Publish the friend request event
-                eventPublisher.publishEvent(new FriendRequestEvent(currentUser, friendUser));
             } else {
                 return ResponseEntity.badRequest().body("Friendship already exists");
             }
@@ -141,6 +124,5 @@ public class SearchController {
 
         return ResponseEntity.ok("Friend request sent");
     }
-
 
 }

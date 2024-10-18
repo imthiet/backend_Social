@@ -1,44 +1,38 @@
 package com.example.manageruser.Model;
 
+import com.example.manageruser.Model.User;
 import jakarta.persistence.*;
+import java.time.LocalDateTime;
 
 @Entity
 public class Notification {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String content; // Nội dung thông báo
+    private String contentnoti;
 
     @ManyToOne
-    @JoinColumn(name = "receiver_username", referencedColumnName = "username")
-    private User receiver; // Người nhận thông báo
+    @JoinColumn(name = "sender_id")
+    private User sender;
 
-    // Constructor không tham số
-    public Notification() {}
+    @ManyToOne
+    @JoinColumn(name = "receiver_id")
+    private User receiver;
 
-    // Constructor với tham số
-    public Notification(String content, User receiver) {
-        this.content = content;
-        this.receiver = receiver;
-    }
+    private String status; // e.g., "unread", "read"
 
-    // Getters và setters
+    private LocalDateTime timestamp; // to store the notification creation time
+
+    // Getters and Setters
+
+
     public Long getId() {
         return id;
     }
 
     public void setId(Long id) {
         this.id = id;
-    }
-
-    public String getContent() {
-        return content;
-    }
-
-    public void setContent(String content) {
-        this.content = content;
     }
 
     public User getReceiver() {
@@ -49,12 +43,47 @@ public class Notification {
         this.receiver = receiver;
     }
 
+    public String getContentnoti() {
+        return contentnoti;
+    }
+
+    public void setContentnoti(String contentnoti) {
+        this.contentnoti = contentnoti;
+    }
+
+    public User getSender() {
+        return sender;
+    }
+
+    public void setSender(User sender) {
+        this.sender = sender;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public LocalDateTime getTimestamp() {
+        return timestamp;
+    }
+
+    public void setTimestamp(LocalDateTime timestamp) {
+        this.timestamp = timestamp;
+    }
+
     @Override
     public String toString() {
         return "Notification{" +
                 "id=" + id +
-                ", content='" + content + '\'' +
-                ", receiverUsername='" + (receiver != null ? receiver.getUsername() : "N/A") + '\'' +
+                ", contentnoti='" + contentnoti + '\'' +
+                ", sender=" + sender +
+                ", receiver=" + receiver +
+                ", status='" + status + '\'' +
+                ", timestamp=" + timestamp +
                 '}';
     }
 }

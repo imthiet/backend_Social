@@ -23,7 +23,7 @@ public class Post {
     @Column(nullable = false)
     private Date createdAt;
 
-
+    
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)

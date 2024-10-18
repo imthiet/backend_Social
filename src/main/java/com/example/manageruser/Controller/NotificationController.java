@@ -5,55 +5,83 @@ import com.example.manageruser.Model.Notification;
 import com.example.manageruser.Model.User;
 import com.example.manageruser.Service.NotificationService;
 import com.example.manageruser.Service.UserService;
-import org.springframework.messaging.handler.annotation.MessageMapping;
-import org.springframework.messaging.handler.annotation.Payload;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
-import org.springframework.security.core.Authentication;
-import org.springframework.stereotype.Controller;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
 import java.util.List;
+import java.util.stream.Collectors;
 
-@Controller
+@RestController
+@RequestMapping("/api/notifications")
 public class NotificationController {
 
-    private final NotificationService notificationService;
-    private final SimpMessagingTemplate messagingTemplate;
-    private final UserService userService;
+    @Autowired
+    private NotificationService notificationService;
 
-    // Constructor to autowire both NotificationService and SimpMessagingTemplate
-    public NotificationController(NotificationService notificationService, SimpMessagingTemplate messagingTemplate, UserService userService) {
-        this.notificationService = notificationService;
-        this.messagingTemplate = messagingTemplate;
-        this.userService = userService;
+    @Autowired
+    private UserService userService;
+
+//    // API to get all notifications for the currently logged-in user
+//    @GetMapping
+//    public Page<Notification> getUserNotifications(
+//            @AuthenticationPrincipal UserDetails userDetails,
+//            @RequestParam(defaultValue = "0") int page,   // Page number
+//            @RequestParam(defaultValue = "10") int size   // Page size
+//    ) {
+//        // Get username from Principal
+//        String username = userDetails.getUsername();
+//
+//        // Find user by username
+//        User currentUser = userService.findByUsername(username);
+//
+//        // Fetch notifications by user ID with pagination
+//        return notificationService.getNotificationsByReceiverId(currentUser.getId(), page, size);
+//    }
+
+    @GetMapping("/unread")
+    public ResponseEntity<List<Notification>> getUnreadNotifications(Principal principal) {
+        User user = userService.findByUsername(principal.getName()); // Get the currently logged-in user
+        List<Notification> notifications = notificationService.getUnreadNotifications(user); // Fetch unread notifications
+        System.out.println("thong bao: " + notifications);
+        return ResponseEntity.ok(notifications); // Return the notifications as a response
+    }
+    // Fetch all notifications for the current user
+
+
+    @GetMapping("")
+    public ResponseEntity<List<NotificationDTO>> getNotifications(
+            @AuthenticationPrincipal UserDetails userDetails,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+
+        String username = userDetails.getUsername();
+        User currentUser = userService.findByUsername(username);
+        Page<Notification> notifications = notificationService.getNotificationsByReceiverId(currentUser.getId(), page, size);
+
+        // Map notifications to NotificationDTO
+        List<NotificationDTO> notificationDTOs = notifications.getContent().stream()
+                .map(noti -> new NotificationDTO(noti.getContentnoti(), noti.getTimestamp(),noti.getStatus()))
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok(notificationDTOs); // Return List of DTOs
     }
 
-    @GetMapping("/notification")
-    public String showNotifications(Authentication authentication, Model model) {
-        String username = authentication.getName();  // Get logged-in user
-        List<NotificationDTO> notifications = notificationService.getNotificationsForUser(username);
-        model.addAttribute("notifications", notifications);
-        return "notifications";  // This will render notifications.html
+    @PostMapping("/mark-all-read")
+    public ResponseEntity<Void> markAllNotificationsAsRead(@AuthenticationPrincipal UserDetails userDetails) {
+        String username = userDetails.getUsername();
+        User currentUser = userService.findByUsername(username);
+
+        notificationService.markAllAsRead(currentUser.getId());
+
+        return ResponseEntity.ok().build();
     }
 
-    @MessageMapping("/private")
-    public void sendToSpecificUser(@Payload Notification notification) {
-        // Kiểm tra xem receiver có phải là null không
-        if (notification.getReceiver() != null) {
-            User receiverUser = userService.findByUsername(notification.getReceiver().getUsername());
-            notification.setReceiver(receiverUser);
 
-            // Gửi thông báo đến người dùng cụ thể
-            messagingTemplate.convertAndSendToUser(
-                    receiverUser.getUsername(), // tên người nhận
-                    "/specific", // Đích đến
-                    notification // Thông điệp thông báo sẽ được gửi
-            );
-            System.out.println("Đang gửi thông báo đến: " + receiverUser.getUsername());
-        } else {
-            System.out.println("Không tìm thấy người nhận thông báo.");
-        }
-    }
 
 }

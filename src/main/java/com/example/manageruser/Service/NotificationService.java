@@ -1,47 +1,63 @@
 package com.example.manageruser.Service;
 
-import com.example.manageruser.Dto.NotificationDTO;
 import com.example.manageruser.Model.Notification;
+import com.example.manageruser.Model.User;
 import com.example.manageruser.Repository.NotificationRepository;
-
+import com.example.manageruser.Repository.UserRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.stream.Collectors;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.time.LocalDateTime;
 
 @Service
 public class NotificationService {
 
-    private final NotificationRepository notificationRepository;
+    @Autowired
+    private NotificationRepository notificationRepository;
 
-    public NotificationService(NotificationRepository notificationRepository) {
-        this.notificationRepository = notificationRepository;
+    UserService userService;
+
+    public void createNotification(User sender, User receiver, String content) {
+        Notification notification = new Notification();
+        notification.setSender(sender);
+        notification.setReceiver(receiver);
+        notification.setContentnoti(content);
+        notification.setStatus("unread");
+        notification.setTimestamp(LocalDateTime.now());
+        notificationRepository.save(notification);
     }
 
-    public List<NotificationDTO> getNotificationsForUser(String username) {
-        List<Notification> notifications = notificationRepository.findByReceiverUsername(username);
-
-        // Chuyển đổi từ Notification sang NotificationDTO
-        return notifications.stream()
-                .map(notification -> new NotificationDTO(notification.getId(), notification.getContent(), notification.getReceiver().getUsername()))
-                .collect(Collectors.toList());
+    public List<Notification> getUnreadNotifications(User user) {
+        return notificationRepository.findByReceiverAndStatus(user, "unread");
     }
 
-//    public void save(Notification notification) {
-//        notificationRepository.save(notification);
-//    }
-//    // Tìm thông báo cho người nhận
-//    public List<Notification> findByReceiverUsername(String username) {
-//        return notificationRepository.findByReceiverUsername(username);
-//    }
-
-    // Lưu thông báo và trả về thông báo đã lưu
-    public Notification save(Notification notification) {
-        return notificationRepository.save(notification); // Phương thức này phải trả về Notification
+    public void save(Notification notification) {
+        notificationRepository.save(notification);
     }
 
-    // Tìm thông báo cho người nhận
-    public List<Notification> findByReceiverUsername(String username) {
-        return notificationRepository.findByReceiver_Username(username);
+    // Get notifications by receiver's ID
+    public Page<Notification> getNotificationsByReceiverId(int userId, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("timestamp").descending());
+        return notificationRepository.findByReceiverId(userId, pageable);
     }
+
+
+    public void markAllAsRead(int userId) {
+        List<Notification> notifications = notificationRepository.findByReceiverIdAndStatus(userId, "unread");
+        notifications.forEach(notification -> notification.setStatus("read"));
+        notificationRepository.saveAll(notifications); // Lưu tất cả các thông báo đã cập nhật
+    }
+
+
 }

@@ -5,8 +5,21 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 @Getter
-@AllArgsConstructor
+
 public class FriendRequestEvent {
-    private User sender;
-    private User receiver;
+    private final User sender;
+    private final User receiver;
+
+    public FriendRequestEvent(User sender, User receiver) {
+        this.sender = sender;
+        this.receiver = receiver;
+    }
+
+    public User getSender() {
+        return sender;
+    }
+
+    public User getReceiver() {
+        return receiver;
+    }
 }
