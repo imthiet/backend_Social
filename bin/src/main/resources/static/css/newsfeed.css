@@ -1,0 +1,60 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f9f9f9;
+    margin: 0;
+    padding: 0;
+}
+
+header {
+    background-color: #333;
+    color: #fff;
+    padding: 10px 20px;
+    text-align: center;
+}
+
+.newsfeed-container {
+    margin: 20px auto;
+    width: 80%;
+    max-width: 800px;
+    padding-top: 120px; /* Fix header overlap issue */
+
+}
+
+.post-card {
+    background-color: #fff;
+    margin-bottom: 20px;
+    padding: 15px;
+    border-radius: 12px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    border: 1px solid #00285A;
+    position: relative;
+}
+
+
+.read-icon {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 15px;
+    height: 15px;
+}
+
+
+.post-meta {
+    font-size: 0.9em;
+    color: #555;
+    margin-top: 10px;
+    display: flex;
+    justify-content: space-between;
+}
+
+#load-more {
+    display: block;
+    margin: 20px auto;
+}
+
+@media (max-width: 768px) {
+    .newsfeed-container {
+        width: 90%;
+    }
+}

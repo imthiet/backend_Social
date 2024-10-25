@@ -9,6 +9,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class PostService {
@@ -19,9 +20,22 @@ public class PostService {
     public List<Post> getAllPosts() {
         return postRepository.findAll();
     }
-
-    public List<Post> getPostsByFriendShip(String username, int page, int size) {
+    public List<Post> getPostsByFriendShip(int userId, int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
-        return postRepository.findPostsByFriendship(username, pageable).getContent();
+        return postRepository.findPostsByFriendship(userId, pageable).getContent();
+    }
+
+
+    public Post findPostById(Long id) {
+        Optional<Post> post = postRepository.findById(id);
+        return post.orElse(null);
+    }
+
+    public void save(Post post) {
+        postRepository.save(post);
+    }
+
+    public List<Post> findPostsByUID(int id) {
+        return postRepository.getPostsByUserId(id); // Thay đổi trả về List<Post>
     }
 }

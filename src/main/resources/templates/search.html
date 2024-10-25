@@ -140,7 +140,7 @@
         // Add click listener to navigate to the user's profile
         div.addEventListener('click', () => {
             notifyProfileView(user.username);
-             //window.location.href = `/profile/${encodeURIComponent(user.username)}`;
+            window.location.href = `/profile/${encodeURIComponent(user.username)}`;
 
         });
 
@@ -207,19 +207,7 @@
     }
 
 
-    // Function to check for notifications
-    // function checkForNotifications() {
-    //     fetch('/notifications/unread') // Fetch unread notifications
-    //         .then(response => response.json())
-    //         .then(notifications => {
-    //             if (notifications.length > 0) {
-    //                 notifications.forEach(notification => {
-    //                      //alert(notification.contentnoti); // Show alert for each notification
-    //                 });
-    //             }
-    //         })
-    //         .catch(error => console.error('Error fetching notifications:', error));
-    // }
+
 
     // Load more results when scrolling to the bottom
     window.addEventListener('scroll', function () {

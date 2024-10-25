@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>User Search</title>
+    <link rel="stylesheet" type="text/css" th:href="@{/css/head_cus.css}"/>
+    <link rel="stylesheet" type="text/css" th:href="@{/css/search.css}"/>
+    <link rel="stylesheet" type="text/css" th:href="@{/webjars/bootstrap/css/bootstrap.min.css}"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+
+
+    <style>
+        /* Custom styles for the notification icon */
+        #iconContainer {
+            font-size: 30px;
+            margin-bottom: 20px;
+        }
+        .fa-envelope-open {
+            color: red;
+        }
+    </style>
+</head>
+
+<body>
+<!-- Using fragment header -->
+<div th:replace="~{fragments/header :: header}"></div>
+
+<div class="search-container" align="center">
+    <div class="search-wrapper">
+        <!-- Search form -->
+        <form id="search-form" th:action="@{/search}" method="get" class="mb-4" style="margin-top: 50px" onsubmit="return false;">
+            <input type="text" name="keyword" id="keyword" th:value="${keyword}" placeholder="Enter username or email"
+                   required class="form-control" style="border-radius: 12px; border: 1px solid #00285A;"/>
+            <input type="submit" value="Search" class="btn btn-primary mt-2" style="border-radius: 12px; background: #00285A" onclick="performSearch()"/>
+        </form>
+
+        <br/>
+
+        <!-- Label to show "Search Results" or "Friend Suggestions" -->
+        <label id="result-label_rs" class="h4 mb-3" th:text="${label_rs}">Kết quả tìm kiếm</label>
+        <div class="search-results" id="search-results"></div>
+    </div>
+</div>
+
+<!-- JavaScript -->
+<script src="https://cdn.jsdelivr.net/sockjs/latest/sockjs.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+<!--<script src = "static/js/notifi.js"></script>-->
+
+<script type="text/javascript">
+    var stompClient = null;
+
+    function connect() {
+        var socket = new SockJS('/websocket');
+        stompClient = Stomp.over(socket);
+        stompClient.connect({}, function (frame) {
+            console.log('Connected: ' + frame);
+
+            // Lắng nghe hàng đợi cá nhân của người dùng
+            stompClient.subscribe('/user/queue/friendRequest', function (notification) {
+                showNotification(JSON.parse(notification.body).viewer + ' ' + JSON.parse(notification.body).message);
+            });
+        });
+    }
+
+    function showNotification(message) {
+        alert(message); // Hiển thị thông báo (có thể thay bằng UI notification đẹp hơn)
+    }
+
+    function notifyProfileView(sender) {
+        console.log("sending", sender);
+        stompClient.send("/app/sendRequest", {}, JSON.stringify({'sender': sender}));
+    }
+
+    // Đảm bảo mã chạy sau khi DOM đã được tải
+    window.onload = function() {
+        connect();
+    };
+
+
+
+</script>
+
+<script>
+    let currentPage = 0;
+    const size = 10; // Number of results per page
+    let isLoading = false;
+    let lastPage = false;
+
+    function performSearch() {
+        currentPage = 0; // Reset current page on new search
+        document.getElementById('search-results').innerHTML = ''; // Clear previous results
+
+        const keyword = document.getElementById('keyword').value.trim();
+
+        // Update the label for search results or friend suggestions
+        const resultLabel = document.getElementById('result-label_rs');
+        resultLabel.textContent = keyword === "" ? "Gợi ý bạn bè" : "Kết quả tìm kiếm";
+
+        loadMore(); // Load initial results
+    }
+
+    function loadMore() {
+        if (isLoading || lastPage) return;
+
+        isLoading = true;
+        const keyword = document.getElementById('keyword').value.trim();
+
+        fetch(`/search?keyword=${encodeURIComponent(keyword)}&page=${currentPage}&size=${size}`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.length === 0) {
+                    lastPage = true;
+                    document.getElementById('load-more').style.display = 'none';
+                } else {
+                    data.forEach(user => {
+                        addUserToResults(user);
+                    });
+                    currentPage++;
+                    document.getElementById('load-more').style.display = 'block';
+                }
+            })
+            .catch(error => console.error('Error:', error))
+            .finally(() => {
+                isLoading = false;
+            });
+    }
+
+    function addUserToResults(user) {
+        const div = document.createElement('div');
+        div.className = 'post-card';
+        div.setAttribute('data-username', user.username);
+
+        // Add click listener to navigate to the user's profile
+        div.addEventListener('click', () => {
+            notifyProfileView(user.username);
+             //window.location.href = `/profile/${encodeURIComponent(user.username)}`;
+
+        });
+
+        div.innerHTML = `
+                <div style="display: flex; align-items: center; justify-content: space-between;">
+                    <div style="flex: 1; display: flex; align-items: center;">
+                        <img src="${user.image || 'Image/profile.png'}" alt="${user.username}'s avatar" style="width: 40px; height: 40px; border-radius: 50%; margin-right: 10px;">
+                        <div>
+                            <p>${user.username}</p>
+                            <div class="post-meta">
+                                <span>${user.email}</span>
+                                <br />
+                                <span>${user.address}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                      <button type="button" class="btn-icon ${user.friendPending ? 'btn-pending' : user.friend ? 'btn-accepted' : 'btn-add-friend'}"
+                            onclick="addFriend('${user.username}', this, event)"
+                            ${user.friendPending || user.friend ? 'disabled' : ''}>
+                            ${user.friendPending ? 'Pending' : user.friend ? 'Accepted' : 'Add Friend'}
+                        </button>
+                    </div>
+                </div>
+            `;
+
+        document.getElementById('search-results').appendChild(div);
+    }
+
+    function addFriend(username, button, event) {
+        event.stopPropagation(); // Ngăn việc click kích hoạt sự kiện khác
+
+        console.log('Adding friend for username:', username);
+
+        // Gửi yêu cầu kết bạn
+        fetch('/add_friend', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: new URLSearchParams({ 'username': username }),
+        })
+            .then(response => {
+                if (response.ok) {
+                    // Cập nhật trạng thái nút sau khi thành công
+                    button.textContent = 'Pending';
+                    button.disabled = true;
+                    button.setAttribute('aria-disabled', 'true');
+                    button.style.backgroundColor = '#e3c711'; // Đổi màu nút để biểu thị trạng thái pending
+
+                    // Gửi thông báo qua WebSocket
+                    //showNotification();
+                    notifyProfileView(username); // Gửi thông báo thông qua WebSocket
+
+
+                } else {
+                    return response.text().then(text => {
+                        console.error('Error adding friend:', text);
+                        alert('Error adding friend: ' + text);
+                    });
+                }
+            })
+            .catch(error => console.error('Error:', error));
+    }
+
+
+    // Function to check for notifications
+    // function checkForNotifications() {
+    //     fetch('/notifications/unread') // Fetch unread notifications
+    //         .then(response => response.json())
+    //         .then(notifications => {
+    //             if (notifications.length > 0) {
+    //                 notifications.forEach(notification => {
+    //                      //alert(notification.contentnoti); // Show alert for each notification
+    //                 });
+    //             }
+    //         })
+    //         .catch(error => console.error('Error fetching notifications:', error));
+    // }
+
+    // Load more results when scrolling to the bottom
+    window.addEventListener('scroll', function () {
+        if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 10) {
+            loadMore();
+        }
+    });
+
+    // Initial load
+    document.addEventListener('DOMContentLoaded', function () {
+        const keywordInput = document.getElementById('keyword');
+        if (keywordInput.value) {
+            performSearch(); // Perform search if there's a keyword already
+        }
+
+        // Check for notifications every 10 seconds
+        // setInterval(checkForNotifications, 3000);
+    });
+</script>
+
+</body>
+</html>

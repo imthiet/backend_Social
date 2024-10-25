@@ -21,6 +21,9 @@ public class FriendService {
     public boolean existsBetweenUsers(User currentUser, User friendUser) {
         return friendRepository.existsBetweenUsers(currentUser, friendUser);
     }
+    public FriendShip findByUsers(User sender, User receiver) {
+        return friendRepository.findByUserAndFriend(sender, receiver);
+    }
 
     public void save(FriendShip friendShip) {
         friendRepository.save(friendShip);
@@ -35,4 +38,6 @@ public class FriendService {
     public boolean isFriendAccepted(User currentUser, User friendUser) {
         return friendRepository.existsByUserAndFriendAndAccepted(currentUser, friendUser, true);
     }
+
+
 }

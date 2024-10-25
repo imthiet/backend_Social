@@ -21,7 +21,6 @@
                  class="img-fluid rounded-circle"
                  style="width: 150px; height: 150px;"
                  onerror="this.onerror=null;this.src='Image/profile.png';"/>
-
         </div>
         <div class="col-md-8">
             <div class="user-info">
@@ -33,21 +32,22 @@
     </div>
 
     <!-- Upload Avatar Section -->
-    <div class="row mb-4">
+    <div class="row mt-4">
         <div class="col-md-12">
-            <h4>Upload Avatar</h4>
+            <h4>Change Avatar</h4>
             <form th:action="@{/profile/{id}/avatar(id=${user.id})}" method="post" enctype="multipart/form-data" class="form-inline">
                 <div class="input-group">
                     <input type="file" class="form-control" name="file" accept="image/*" required>
-                    <button type="submit" class="btn btn-primary">Upload</button>
+                    <button type="submit" class="btn btn-primary" style="background-color: #00285A">Upload</button>
                 </div>
             </form>
         </div>
     </div>
 
-    <!-- Friends List Section -->
+    <!-- Main Row for Friends List and Posts -->
     <div class="row">
-        <div class="col-md-12">
+        <!-- Friends List Section (Left) -->
+        <div class="col-md-4">
             <h4>Friends</h4>
             <ul class="list-group">
                 <li class="list-group-item" th:each="friend : ${friends}">
@@ -59,7 +59,34 @@
             <!-- Message if no friends available -->
             <p th:if="${friends.size() == 0}" class="mt-3 text-muted">You have no friends added yet.</p>
         </div>
+
+<!--         Posts Section (Right)-->
+        <div class="col-md-8">
+            <h4>Posts</h4>
+            <div class="post-list">
+                <div class="card mb-3" th:each="post : ${userPosts}">
+                    <div class="card-body">
+                        <img th:if="${post.png != null}"
+                             th:src="@{'/post/image?id=' + ${post.id}}"
+                             alt="Image not available"
+                             style="width:200px; height:200px; border-radius:10%;"
+                             onerror="this.onerror=null;this.src='Image/backgr.png';"
+                        />
+                        <p class="card-text" th:text="${post.content}">This is the content of the post.</p>
+                        <p class="text-muted" th:text="${#dates.format(post.createdAt, 'dd/MM/yyyy HH:mm')}">Posted on: 01/01/2023</p>
+                    </div>
+                </div>
+            </div>
+            <!-- Message if no posts available -->
+            <!-- Kiểm tra nếu userPosts không phải null -->
+            <p th:if="${userPosts != null and userPosts.size() == 0}" class="mt-3 text-muted">
+                No posts yet.
+            </p>
+
+        </div>
     </div>
+
+
 </div>
 
 <!-- Bootstrap JS for responsiveness -->

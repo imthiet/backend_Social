@@ -8,17 +8,66 @@
     <link rel="stylesheet" type="text/css" th:href="@{/css/head_cus.css}"/>
     <link rel="stylesheet" type="text/css" th:href="@{/webjars/bootstrap/css/bootstrap.min.css}"/>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <!-- Toast notification box -->
+
+
+
 
 </head>
 <body>
 <div th:replace="~{fragments/header :: header}"></div>
+<!-- Thông báo thành công -->
+
+
+<!-- What's new box -->
+<div class="whats-new-container" id="whats-new-container" >
+
+    <h3 style="color: #00285A">What's New</h3>
+    <button id="open-post-box">Share something new</button>
+
+    <!-- Hidden post box -->
+    <div id="post-box" style="display: none; margin-top: 15px;">
+        <form id="post-form" enctype="multipart/form-data" class="form">
+            <div class="form-group">
+                <textarea id="content" name="content" class="form-control" rows="2" placeholder="What's on your mind?" required></textarea>
+            </div>
+
+            <div class="form-group">
+                <!-- Hidden file input -->
+                <input type="file" id="file" name="file" accept="image/*" style="display:none;" onchange="showFileName(this)">
+
+                <!-- Icon trigger -->
+                <div style="cursor: pointer;" onclick="document.getElementById('file').click();">
+                    <img th:src="@{/Image/image_icon.png}" alt="Upload" style="width: 30px; height: 30px; margin-top: 6px">
+                    <span id="file-name" style="margin-left: 10px; color: #555;"></span>
+                </div>
+            </div>
+
+            <button type="submit" id="submit-post-box" class="btn btn-primary">Post</button>
+            <!-- Alert box for notification -->
+
+        </form>
+    </div>
+    <div id="alert-box">
+        Post created successfully!
+    </div>
+
+
+
+
+</div>
 
 <div class="newsfeed-container" id="newsfeed-container">
+
     <div th:each="post : ${posts}" class="post-card">
         <!-- Profile Image -->
         <div class="post-header">
-            <img th:src="@{/Image/home_bgr.jpg}" alt="Profile Image" class="profile-img" style="width:200px; height:200px; border-radius:10%;">
-
+            <img th:if="${post.png != null}"
+                 th:src="@{'/post/image?id=' + ${post.id}}"
+                 alt="Image not available"
+                 style="width:200px; height:200px; border-radius:10%;"
+                 onerror="this.onerror=null;this.src='Image/backgr.png';"
+            />
         </div>
 
         <!-- Post Content -->
@@ -45,10 +94,15 @@
     </div>
 </div>
 
-
 <button id="load-more" class="btn btn-primary" style="display: none;">Load More</button>
 
 <script>
+    // Toggle post box visibility
+    document.getElementById('open-post-box').addEventListener('click', function() {
+        const postBox = document.getElementById('post-box');
+        postBox.style.display = postBox.style.display === 'none' ? 'block' : 'none';
+    });
+
     let currentPage = parseInt([[${currentPage}]]);
     const size = 10;
     let isLoading = false;
@@ -95,7 +149,64 @@
             document.getElementById('load-more').click();
         }
     });
+
+    function showFileName(input) {
+        var fileName = input.files[0] ? input.files[0].name : "";
+        document.getElementById('file-name').textContent = fileName;
+    }
+
+
+
 </script>
+<script>
+    document.getElementById('post-form').addEventListener('submit', function(e) {
+        e.preventDefault(); // Ngăn không cho form submit theo cách thông thường
+
+        let formData = new FormData(this);
+
+        // Gửi dữ liệu qua Ajax sử dụng fetch
+        fetch('/post/create', {
+            method: 'POST',
+            body: formData
+        })
+            .then(response => response.json())  // Nếu server trả về JSON
+            .then(data => {
+                // Hiển thị thông báo thành công
+                showAlert('Post created successfully!', 'success');
+            })
+            .catch(error => {
+                // Hiển thị thông báo thất bại
+                showAlert('Failed to create post!', 'error');
+                console.error('Error:', error);
+            });
+    });
+
+    // Hàm hiển thị thông báo
+    function showAlert(message, type) {
+        const alertBox = document.getElementById('alert-box');
+        alertBox.textContent = message;
+
+        // Thay đổi màu sắc của thông báo dựa trên type
+        if (type === 'success') {
+            alertBox.style.backgroundColor = '#d4edda';
+            alertBox.style.color = '#155724';
+            alertBox.style.borderColor = '#c3e6cb';
+        } else {
+            alertBox.style.backgroundColor = '#f8d7da';
+            alertBox.style.color = '#721c24';
+            alertBox.style.borderColor = '#f5c6cb';
+        }
+
+        alertBox.style.display = 'block';
+
+        // Ẩn thông báo sau 3 giây
+        setTimeout(() => {
+            alertBox.style.display = 'none';
+        }, 1500);
+    }
+
+</script>
+
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>

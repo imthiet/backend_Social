@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <title>Notifications</title>
     <link rel="icon" type="image/png" th:href="@{/Image/favicon.png}">
-    <link rel="stylesheet" type="text/css" th:href="@{/css/newsfeed.css}"/>
+    <link rel="stylesheet" type="text/css" th:href="@{/css/notfi.css}"/>
     <link rel="stylesheet" type="text/css" th:href="@{/css/head_cus.css}"/>
     <link rel="stylesheet" type="text/css" th:href="@{/webjars/bootstrap/css/bootstrap.min.css}"/>
 
@@ -91,24 +91,34 @@
                         ? '/Image/unread_noti.png'  // Icon cho thông báo chưa đọc
                         : '/Image/read_noti.png';   // Icon cho thông báo đã đọc
 
+                    // Tạo HTML cho thông báo
                     const notificationHTML = `
-        <div class="post-card">
-            <div class="post-header">
-                <img src="${iconPath}" alt="Notification Icon" class="read-icon" style="width:50px; height:50px;">
-            </div>
-            <p>${noti.contentnoti}</p>
-            <div class="post-meta">
-                <span>${timeAgo(noti.timestamp)}</span> <!-- Sử dụng hàm timeAgo -->
-            </div>
-        </div>
-    `;
-                    $('#notification-container').append(notificationHTML); // Add notification to the container
-                });
+                    <div class="post-card" data-type="${noti.type}" data-sender-username="${noti.sender_username}">
+                        <div class="post-header">
+                            <img src="${iconPath}" alt="Notification Icon" class="read-icon" style="width:50px; height:50px;">
+                        </div>
+                        <p>${noti.contentnoti}</p>
+                        <div class="post-meta">
+                            <span>${timeAgo(noti.timestamp)}</span> <!-- Sử dụng hàm timeAgo -->
+                        </div>
+                    </div>
+                `;
 
+                    const $notificationElement = $(notificationHTML);
+
+                    // Nếu type là ADD_FRIEND, thêm sự kiện click để chuyển hướng đến profile
+                    if (noti.type === "ADD_FRIEND") {
+                        $notificationElement.on('click', () => {
+                           // notifyProfileView(noti.sender_username); // Gọi hàm xử lý sự kiện (nếu có)
+                            window.location.href = `/profile/${encodeURIComponent(noti.sender_username)}`;
+                        });
+                    }
+
+                    $('#notification-container').append($notificationElement); // Add notification to the container
+                });
 
                 currentPage++; // Increment page number after loading
             },
-
 
             error: function(xhr, status, error) {
                 console.error("Error fetching notifications:", error);
@@ -120,6 +130,7 @@
             }
         });
     }
+
 
     // Infinite scroll event
     window.addEventListener('scroll', function() {

@@ -1,0 +1,74 @@
+
+
+.search-bar {
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    width: 200px;
+}
+
+/* Style for search results container */
+#search-results {
+    position: absolute; /* Đặt vị trí tuyệt đối */
+    top: 45px; /* Căn chỉnh dưới ô search bar */
+    left: 0; /* Có thể chỉnh để phù hợp với vị trí mong muốn */
+    width: 200px; /* Cùng kích thước với ô search */
+    background-color: white; /* Màu nền để dễ đọc */
+    border: 1px solid #ddd;
+    z-index: 1000; /* Đảm bảo nằm trên các phần tử khác */
+    max-height: 300px; /* Giới hạn chiều cao */
+    overflow-y: auto; /* Thêm thanh cuộn nếu có quá nhiều kết quả */
+    display: none; /* Mặc định ẩn, chỉ hiện khi có kết quả */
+}
+
+/* Style cho mỗi item trong kết quả tìm kiếm */
+#search-results ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+}
+
+#search-results li {
+    padding: 8px;
+    border-bottom: 1px solid #ddd;
+    cursor: pointer;
+}
+
+#search-results li:hover {
+    background-color: #f1f1f1;
+}
+.cloud-border {
+  background: #f0f8ff; /* Light sky blue background */
+  border: 2px solid #87ceeb; /* Light blue border */
+  border-radius: 20px; /* Rounded corners for cloud effect */
+  padding: 15px 20px; /* Add some padding */
+  display: inline-block; /* Allows the background to fit the text */
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); /* Optional shadow for depth */
+  position: relative; /* To allow positioning of the pseudo-elements */
+  margin: 20px 0; /* Add some space around the heading */
+}
+
+.cloud-border::before,
+.cloud-border::after {
+  content: "";
+  position: absolute;
+  background: inherit;
+  border-radius: 50%;
+  z-index: -1; /* Behind the text */
+}
+
+.cloud-border::before {
+  width: 30px;
+  height: 30px;
+  left: -15px; /* Position it to the left */
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.cloud-border::after {
+  width: 30px;
+  height: 30px;
+  right: -15px; /* Position it to the right */
+  top: 50%;
+  transform: translateY(-50%);
+}

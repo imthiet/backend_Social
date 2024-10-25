@@ -1,7 +1,9 @@
 package com.example.manageruser.Controller;
 
+import com.example.manageruser.Model.Post;
 import com.example.manageruser.Model.User;
 import com.example.manageruser.Service.FriendService;
+import com.example.manageruser.Service.PostService;
 import com.example.manageruser.Service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -31,11 +33,17 @@ public class ProfileController {
     @Autowired
     private FriendService friendService;
 
+    @Autowired
+    private PostService postService;
+
     // Hiển thị profile của người dùng đã đăng nhập
     @GetMapping
     public String showUserProfile(Model model) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String username = authentication != null ? authentication.getName() : null;
+
+        User u = userService.findByUsername(username);
+        int u_id = u.getId();
 
         if (username == null) {
             return "redirect:/login"; // Nếu chưa đăng nhập, chuyển hướng về trang login
@@ -47,8 +55,11 @@ public class ProfileController {
         }
 
         List<User> friends = friendService.getFriends(username);
+        List<Post> userPosts = postService.findPostsByUID(u_id); // Lấy các bài post của người dùng
+
         model.addAttribute("user", user);
         model.addAttribute("friends", friends);
+        model.addAttribute("userPosts", userPosts); // Truyền danh sách bài viết cho view
 
         return "profile"; // Trả về view profile với thông tin người dùng và bạn bè
     }
@@ -57,15 +68,22 @@ public class ProfileController {
     @GetMapping("/{username}")
     public String showUserProfileByUsername(@PathVariable("username") String username, Model model) {
         User user = userService.findByUsername(username);
+        int u_id = user.getId();
+        System.out.println("user id:");
+
         if (user == null) {
             return "redirect:/search"; // Trả về trang tìm kiếm nếu không tìm thấy người dùng
         }
 
         List<User> friends = friendService.getFriends(username);
+        List<Post> userPosts = postService.findPostsByUID(u_id); // Lấy các bài post của người dùng
+//        System.out.println("user post: "+ userPosts);
+
         model.addAttribute("user", user);
         model.addAttribute("friends", friends);
+        model.addAttribute("userPosts", userPosts); // Truyền danh sách bài viết cho view
 
-        return "profile"; // Trả về view profile với thông tin người dùng và bạn bè
+        return "profile_view"; // Trả về view profile với thông tin người dùng, bạn bè, và bài viết
     }
 
     // Upload avatar cho người dùng

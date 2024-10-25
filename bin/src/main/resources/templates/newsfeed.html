@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>News Feed</title>
+    <link rel="icon" type="image/png" th:href="@{/Image/favicon.png}">
+    <link rel="stylesheet" type="text/css" th:href="@{/css/newsfeed.css}"/>
+    <link rel="stylesheet" type="text/css" th:href="@{/css/head_cus.css}"/>
+    <link rel="stylesheet" type="text/css" th:href="@{/webjars/bootstrap/css/bootstrap.min.css}"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+</head>
+<body>
+<div th:replace="~{fragments/header :: header}"></div>
+
+<div class="newsfeed-container" id="newsfeed-container">
+    <div th:each="post : ${posts}" class="post-card">
+        <!-- Profile Image -->
+        <div class="post-header">
+            <img th:src="@{/Image/home_bgr.jpg}" alt="Profile Image" class="profile-img" style="width:200px; height:200px; border-radius:10%;">
+
+        </div>
+
+        <!-- Post Content -->
+        <p th:text="${post.content}">Post Content</p>
+
+        <!-- Post Metadata (Author and Date) -->
+        <div class="post-meta">
+            <span th:text="${post.user.username}">Author Name</span>
+            <span th:text="${#dates.format(post.createdAt, 'yyyy-MM-dd HH:mm')}">Date and Time</span>
+        </div>
+
+        <!-- Post Footer (Like and Comment Icons) -->
+        <div class="post-footer">
+            <!-- Like Icon -->
+            <span class="like-icon" style="cursor:pointer;">
+                <i class="fa fa-thumbs-up"></i> Like
+            </span>
+
+            <!-- Comment Icon -->
+            <span class="comment-icon" style="cursor:pointer;">
+                <i class="fa fa-comment"></i> Comment
+            </span>
+        </div>
+    </div>
+</div>
+
+
+<button id="load-more" class="btn btn-primary" style="display: none;">Load More</button>
+
+<script>
+    let currentPage = parseInt([[${currentPage}]]);
+    const size = 10;
+    let isLoading = false;
+    let lastPage = false;
+
+    document.getElementById('load-more').addEventListener('click', loadMorePosts);
+
+    function loadMorePosts() {
+        if (isLoading || lastPage) return;
+
+        isLoading = true;
+
+        fetch(`/newsfeed?page=${currentPage + 1}&size=${size}`)
+            .then(response => response.text())
+            .then(data => {
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(data, 'text/html');
+                const newPosts = doc.querySelectorAll('.post-card');
+
+                if (newPosts.length === 0) {
+                    lastPage = true;
+                    document.getElementById('load-more').style.display = 'none';
+                } else {
+                    newPosts.forEach(post => {
+                        document.getElementById('newsfeed-container').appendChild(post);
+                    });
+                    currentPage++;
+                }
+            })
+            .catch(error => console.error('Error loading more posts:', error))
+            .finally(() => {
+                isLoading = false;
+            });
+    }
+
+    window.addEventListener('scroll', function() {
+        if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 10) {
+            loadMorePosts();
+        }
+    });
+
+    document.addEventListener('DOMContentLoaded', function() {
+        if (document.body.offsetHeight < window.innerHeight) {
+            document.getElementById('load-more').click();
+        }
+    });
+</script>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

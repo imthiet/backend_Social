@@ -1,5 +1,6 @@
 package com.example.manageruser.Controller;
 
+import com.example.manageruser.Model.FriendShip;
 import com.example.manageruser.Model.User;
 import com.example.manageruser.Dto.UserDto;
 import com.example.manageruser.Service.FriendService;
@@ -12,13 +13,17 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.security.Principal;
 import java.sql.Blob;
 import java.sql.SQLException;
 import java.util.Base64;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Controller
@@ -32,6 +37,8 @@ public class FriendShipController {
 
     @Autowired
     private SearchService service;
+    @Autowired
+    private FriendService friendService;
 
     @GetMapping("/search")
     public ResponseEntity<List<UserDto>> searchUsers(@RequestParam String keyword,
@@ -90,6 +97,27 @@ public class FriendShipController {
         }
         return null; // Return null if the image is not available
     }
+
+    //accept friend request
+    @PostMapping("/accept_friend")
+    public ResponseEntity<String> acceptFriend(@RequestParam("username") String friendUsername, Principal principal) {
+        String currentUsername = principal.getName();
+        User receiver = userService.findByUsername(currentUsername);
+        User sender = userService.findByUsername(friendUsername);
+
+        if (receiver != null && sender != null) {
+            FriendShip friendship = friendShipService.findPendingRequest(sender, receiver);
+            if (friendship != null) {
+                friendship.setAccepted(true);
+                friendShipService.save(friendship);
+                return ResponseEntity.ok("Friend request accepted");
+            }
+            return ResponseEntity.badRequest().body("No pending request found");
+        }
+        return ResponseEntity.badRequest().body("User not found");
+    }
+
+
 
 
 }

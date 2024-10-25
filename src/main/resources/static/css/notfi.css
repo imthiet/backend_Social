@@ -1,0 +1,156 @@
+body {
+    font-family: Verdana, sans-serif;
+    background-color: #f9f9f9;
+    margin: 0;
+    padding: 0;
+}
+
+header {
+    background-color: #333;
+    color: #fff;
+    padding: 10px 20px;
+    text-align: center;
+}
+
+.newsfeed-container {
+    margin: 20px auto;
+    width: 80%;
+    max-width: 800px;
+    padding-top: 120px; /* Fix header overlap issue */
+
+}
+
+.post-card {
+    background-color: #fff;
+    margin-bottom: 20px;
+    padding: 15px;
+    border-radius: 12px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    border: 1px solid #00285A;
+    position: relative;
+}
+
+
+.read-icon {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 15px;
+    height: 15px;
+}
+
+
+.post-meta {
+    font-size: 0.9em;
+    color: #555;
+    margin-top: 10px;
+    display: flex;
+    justify-content: space-between;
+}
+
+#load-more {
+    display: block;
+    margin: 20px auto;
+}
+
+@media (max-width: 768px) {
+    .newsfeed-container {
+        width: 90%;
+    }
+}
+.whats-new-container {
+    padding-top: 120px; /* Fix header overlap issue */
+    width: 80%;
+    max-width: 800px;
+    background-color: #f5f5f5;
+    margin: 20px auto; /* Căn giữa phần tử giống với newsfeed-container */
+    border-radius: 5px;
+
+}
+#open-post-box
+{
+    border-radius: 12px;
+    height: 35px;
+    display: grid;
+    width: 30%;
+    align-items: center;
+
+    font-size: 15px;
+
+    text-align: center;
+    cursor: pointer;
+    user-select: none;
+    margin-right: 12px;
+    min-width: 161px;
+    color: #ffffff;
+
+
+    margin-top: 4px;
+    background: #00285A;
+    outline: 0;
+}
+
+#submit-post-box
+{
+
+    border-radius: 12px;
+    height: 35px;
+    display: grid;
+    width: 10%;
+    align-items: center;
+
+    font-size: 15px;
+
+    text-align: center;
+    cursor: pointer;
+    user-select: none;
+    margin-right: 12px;
+    min-width: 161px;
+    color: #ffffff;
+
+
+    margin-top: 8px;
+    background: #00285A;
+    outline: 0;
+}
+
+#content
+{
+    border-radius: 12px;
+    color: #00285A;
+    width: 50%;
+}
+
+#submit-post-box:hover
+{
+    background-color: #2F4F4F;
+
+}
+#open-post-box:hover
+{
+    background-color: #2F4F4F;
+
+}
+#alert-box {
+    position: fixed; /* Giúp box cố định trên màn hình */
+    top: 50px; /* Cách đáy màn hình 20px */
+    right: 20px; /* Cách phải màn hình 20px */
+    padding: 10px;
+    background-color: #00285A; /* Màu nền cho thông báo thành công */
+    color: #ffffff; /* Màu chữ */
+    border: 1px solid #c3e6cb; /* Viền */
+    border-radius: 5px; /* Góc bo tròn */
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1); /* Đổ bóng */
+    z-index: 1000; /* Đảm bảo nó luôn nằm trên */
+    display: none; /* Ẩn mặc định */
+}
+
+/* Style cho thông báo lỗi */
+#alert-box.error {
+    background-color: #f8d7da;
+    color: #721c24;
+    border-color: #f5c6cb;
+}
+.post-card:hover {
+    background-color: #f0f0f0;
+}

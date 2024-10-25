@@ -62,6 +62,11 @@
     background: #00285A;
     outline: 0;
 }
+
+.login_btn:hover
+{
+    background-color:#2F4F4F;
+}
 .mb-2
 {
     color: #00285A;
@@ -88,3 +93,5 @@
     background: #00285A;
     outline: 0;
 }
+
+

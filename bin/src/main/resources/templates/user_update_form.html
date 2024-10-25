@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>[[${pageTitle}]]</title>
+    <link rel = "stylesheet" type = "text/css" th:href="@{/webjars/bootstrap/css/bootstrap.min.css}"/>
+</head>
+<body>
+<div class = "container-fluid text-center">
+    <div> <h2 >[[${pageTitle}]]</h2> </div>
+    <div th:if = "${error}" class="alert alert-danger text-center">
+        [[${error}]]
+    </div>
+    <form th:action="@{/users/save_edit}" method = "POST" th:object="${user}"
+        style = "max-width: 300px;margin: 0 auto;">
+        <input type = "hidden" th:field="*{id}"/>
+        <div class = "border border-secondary rounded p-3">
+            <div class="mb-3">
+                <label  class="form-label">Email address</label>
+                <input type ="email" th:field="*{email}" class = "form-control" required minlength="8"/>
+                <div  class="form-text">We'll never share your email with anyone else.</div>
+            </div>
+            <div class="mb-3">
+                <label  class="form-label">Username</label>
+                <input type ="text" th:field="*{username}" class = "form-control" required minlength="5"/>
+
+            </div>
+            <label class="form-label">Active</label>
+            <select th:field="*{enabled}" class="form-control" required>
+                <option value="true" th:selected="${user.enabled == true}">Enable</option>
+                <option value="false" th:selected="${user.enabled == false}">Disable</option>
+            </select>
+
+            <label class="form-label">Is Admin</label>
+            <select th:field="*{admin}" class="form-control" required>
+                <option value="true" th:selected="${user.admin == true}">Enable</option>
+                <option value="false" th:selected="${user.admin == false}">Disable</option>
+            </select>
+
+            <!--            <div class="mb-3">-->
+<!--                <label class="form-label">Active</label>-->
+<!--                <select th:field="*{enabled}" class="form-control" required>-->
+<!--                    &lt;!&ndash; Nếu user.enabled là true, Enable sẽ được chọn &ndash;&gt;-->
+<!--                    <option value="true" th:selected="${user.enabled}">Enable</option>-->
+<!--                    &lt;!&ndash; Nếu user.enabled là false, Disable sẽ được chọn &ndash;&gt;-->
+<!--                    <option value="false" th:selected="${!user.enabled}">Disable</option>-->
+<!--                </select>-->
+<!--            </div>-->
+
+<!--            <div class="mb-3">-->
+<!--                <label class="form-label">Admin</label>-->
+<!--                <select th:field="*{isAdmin}" class="form-control" required>-->
+
+<!--                    <option value="true" th:selected="${user.isAdmin()}">Enable</option>-->
+
+<!--                    <option value="false" th:selected="${!user.isAdmin()}">Disable</option>-->
+<!--                </select>-->
+<!--            </div>-->
+
+
+
+            <button type="submit" class="btn btn-primary">Submit</button>
+            <button type="button" class="btn btn-warning m-2" onclick="cancelForm()">Cancel</button>
+        </div>
+    </form>
+</div>
+    <script type ="text/javascript">
+        function cancelForm()
+        {
+            window.location= "[[@{/users}]]";
+        }
+    </script>
+</body>
+</html>

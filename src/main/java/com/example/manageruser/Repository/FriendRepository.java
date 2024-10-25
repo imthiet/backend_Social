@@ -24,8 +24,12 @@ public interface FriendRepository extends JpaRepository<FriendShip, Long> {
             "FROM FriendShip f WHERE f.user = :currentUser AND f.friend = :friendUser AND f.accepted = false")
     boolean existsByUserAndFriend(@Param("currentUser") User currentUser, @Param("friendUser") User friendUser);
 
-    @Query("SELECT COUNT(f) > 0 FROM FriendShip f WHERE f.user = :currentUser AND f.friend = :friendUser AND f.accepted = :accepted")
+    @Query("SELECT COUNT(f) > 0 FROM FriendShip f WHERE f.user = :currentUser AND f.friend = :friendUser AND f.accepted = true")
     boolean existsByUserAndFriendAndAccepted(@Param("currentUser") User currentUser, @Param("friendUser") User friendUser, @Param("accepted") boolean accepted);
+
+    FriendShip findByUserAndFriend(User user, User friend);
+
+
 
 }
 

@@ -27,22 +27,7 @@ public class NotificationController {
     @Autowired
     private UserService userService;
 
-//    // API to get all notifications for the currently logged-in user
-//    @GetMapping
-//    public Page<Notification> getUserNotifications(
-//            @AuthenticationPrincipal UserDetails userDetails,
-//            @RequestParam(defaultValue = "0") int page,   // Page number
-//            @RequestParam(defaultValue = "10") int size   // Page size
-//    ) {
-//        // Get username from Principal
-//        String username = userDetails.getUsername();
-//
-//        // Find user by username
-//        User currentUser = userService.findByUsername(username);
-//
-//        // Fetch notifications by user ID with pagination
-//        return notificationService.getNotificationsByReceiverId(currentUser.getId(), page, size);
-//    }
+
 
     @GetMapping("/unread")
     public ResponseEntity<List<Notification>> getUnreadNotifications(Principal principal) {
@@ -64,13 +49,14 @@ public class NotificationController {
         User currentUser = userService.findByUsername(username);
         Page<Notification> notifications = notificationService.getNotificationsByReceiverId(currentUser.getId(), page, size);
 
-        // Map notifications to NotificationDTO
+        // Map notifications to NotificationDTO using the constructor
         List<NotificationDTO> notificationDTOs = notifications.getContent().stream()
-                .map(noti -> new NotificationDTO(noti.getContentnoti(), noti.getTimestamp(),noti.getStatus()))
+                .map(NotificationDTO::new) // Sử dụng constructor NotificationDTO(Notification notification)
                 .collect(Collectors.toList());
 
-        return ResponseEntity.ok(notificationDTOs); // Return List of DTOs
+        return ResponseEntity.ok(notificationDTOs);
     }
+
 
     @PostMapping("/mark-all-read")
     public ResponseEntity<Void> markAllNotificationsAsRead(@AuthenticationPrincipal UserDetails userDetails) {

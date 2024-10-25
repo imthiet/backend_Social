@@ -27,6 +27,8 @@ import java.security.Principal;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import static com.example.manageruser.Model.NotificationType.ADD_FRIEND;
+
 @Controller
 
 public class SearchController {
@@ -91,7 +93,6 @@ public class SearchController {
         User sender = userService.findByUsername(currentUsername);
         User receiver = userService.findByUsername(friendUsername);
 
-
         if (sender != null && receiver != null) {
             // Check if a friendship already exists
             if (!friendShipService.existsBetweenUsers(sender, receiver)) {
@@ -100,21 +101,18 @@ public class SearchController {
                 friendShip.setFriend(receiver);
                 friendShip.setAccepted(false);
                 friendShipService.save(friendShip);
-// Tạo thông báo
+
+                // Tạo thông báo
                 Notification notification = new Notification();
                 notification.setContentnoti(sender.getUsername() + " đã gửi yêu cầu kết bạn cho bạn.");
-
-// Set the sender and receiver
-                notification.setSender(sender); // Make sure 'sender' is not null
+                notification.setType(ADD_FRIEND); // Thêm loại thông báo
+                notification.setSender(sender); // Đảm bảo 'sender' không null
                 notification.setReceiver(receiver);
-
-// Optionally set the status and timestamp
                 notification.setStatus("unread");
                 notification.setTimestamp(LocalDateTime.now());
 
-// Lưu thông báo
+                // Lưu thông báo
                 notificationService.save(notification);
-
             } else {
                 return ResponseEntity.badRequest().body("Friendship already exists");
             }

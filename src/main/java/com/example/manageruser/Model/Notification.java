@@ -24,8 +24,11 @@ public class Notification {
 
     private LocalDateTime timestamp; // to store the notification creation time
 
-    // Getters and Setters
+    @Enumerated(EnumType.STRING) // Sử dụng EnumType.STRING để lưu trữ giá trị enum
+    private NotificationType type;
 
+    // Getters and Setters
+    // (giữ nguyên các phương thức getter và setter, và thêm cho type)
 
     public Long getId() {
         return id;
@@ -33,14 +36,6 @@ public class Notification {
 
     public void setId(Long id) {
         this.id = id;
-    }
-
-    public User getReceiver() {
-        return receiver;
-    }
-
-    public void setReceiver(User receiver) {
-        this.receiver = receiver;
     }
 
     public String getContentnoti() {
@@ -59,6 +54,14 @@ public class Notification {
         this.sender = sender;
     }
 
+    public User getReceiver() {
+        return receiver;
+    }
+
+    public void setReceiver(User receiver) {
+        this.receiver = receiver;
+    }
+
     public String getStatus() {
         return status;
     }
@@ -75,6 +78,14 @@ public class Notification {
         this.timestamp = timestamp;
     }
 
+    public NotificationType getType() {
+        return type;
+    }
+
+    public void setType(NotificationType type) {
+        this.type = type;
+    }
+
     @Override
     public String toString() {
         return "Notification{" +
@@ -84,6 +95,7 @@ public class Notification {
                 ", receiver=" + receiver +
                 ", status='" + status + '\'' +
                 ", timestamp=" + timestamp +
+                ", type='" + type + '\'' + // thêm type vào chuỗi trả về
                 '}';
     }
 }
