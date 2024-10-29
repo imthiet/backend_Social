@@ -46,6 +46,7 @@ public class SecurityConfig {
                 )
                 .formLogin(form -> form
                         .loginPage("/login") // Custom trang login
+                        .failureUrl("/login?error")
                         .defaultSuccessUrl("/newsfeed", true)
                         .permitAll() // Cho phép truy cập vào trang login
                 )

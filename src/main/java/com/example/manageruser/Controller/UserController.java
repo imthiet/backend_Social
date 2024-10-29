@@ -194,7 +194,7 @@ public class UserController {
             model.addAttribute("error", "Invalid username or password. Please try again.");
         }
         model.addAttribute("user", new User());
-        return "login"; // template login
+        return "login";
     }
 
 

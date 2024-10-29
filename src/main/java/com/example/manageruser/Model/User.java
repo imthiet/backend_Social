@@ -11,8 +11,8 @@ import java.util.List;
 
 @Entity
 @Table(name = "user", uniqueConstraints = {
-    @UniqueConstraint(columnNames = "username"),
-    @UniqueConstraint(columnNames = "email")
+        @UniqueConstraint(columnNames = "username"),
+        @UniqueConstraint(columnNames = "email")
 })
 public class User {
     @Id
@@ -57,6 +57,10 @@ public class User {
     @Transient
     private boolean friendPending;
 
+    @Transient
+    private boolean friend;
+
+
     private String address;
 
     public String getAddress() {
@@ -82,12 +86,31 @@ public class User {
         return friendPending;
     }
 
+    private boolean friendRequestReceiver; // Thêm thuộc tính này
+
     public void setFriendPending(boolean friendPending) {
         this.friendPending = friendPending;
     }
+
+    public boolean isFriend() {
+        return friend;
+    }
+
+
 // Getters và setters
 
 
+    public boolean isFriendRequestReceiver() {
+        return friendRequestReceiver;
+    }
+
+    public void setFriendRequestReceiver(boolean friendRequestReceiver) {
+        this.friendRequestReceiver = friendRequestReceiver;
+    }
+
+    public void setFriend(boolean friend) {
+        this.friend = friend;
+    }
 
 
     public int getId() {

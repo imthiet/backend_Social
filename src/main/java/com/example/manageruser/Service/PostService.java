@@ -35,7 +35,8 @@ public class PostService {
         postRepository.save(post);
     }
 
-    public List<Post> findPostsByUID(int id) {
-        return postRepository.getPostsByUserId(id); // Thay đổi trả về List<Post>
+    public Page<Post> findPostsByUID(int id, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size); // Tạo Pageable với trang và kích thước mong muốn
+        return postRepository.getPostsByUserId(id, pageable); // Gọi phương thức repository để lấy danh sách đã phân trang
     }
 }

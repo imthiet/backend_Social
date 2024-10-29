@@ -8,26 +8,27 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface FriendRepository extends JpaRepository<FriendShip, Long> {
 
+    // Lấy danh sách bạn bè theo tên người dùng
     @Query("SELECT f.friend FROM FriendShip f WHERE f.user.username = :username")
     List<User> findFriendsByUsername(@Param("username") String username);
 
-    // Kiểm tra xem hai người dùng có tồn tại quan hệ kết bạn hay chưa
-    @Query("SELECT COUNT(f) > 0 FROM FriendShip f WHERE (f.user = :currentUser AND f.friend = :friendUser) OR (f.user = :friendUser AND f.friend = :currentUser)")
-    boolean existsBetweenUsers(@Param("currentUser") User currentUser, @Param("friendUser") User friendUser);
+    // Kiểm tra mối quan hệ bạn bè giữa hai người
+    boolean existsByUserAndFriend(User user, User friend);
 
+    boolean existsByUserAndFriendAndAccepted(User user, User friend, boolean accepted);
 
-    @Query("SELECT CASE WHEN COUNT(f) > 0 THEN true ELSE false END " +
-            "FROM FriendShip f WHERE f.user = :currentUser AND f.friend = :friendUser AND f.accepted = false")
-    boolean existsByUserAndFriend(@Param("currentUser") User currentUser, @Param("friendUser") User friendUser);
+    // Tìm kiếm mối quan hệ chưa được chấp nhận giữa hai người dùng
+    Optional<FriendShip> findByUserAndFriendAndAccepted(User user, User friend, boolean accepted);
 
-    @Query("SELECT COUNT(f) > 0 FROM FriendShip f WHERE f.user = :currentUser AND f.friend = :friendUser AND f.accepted = true")
-    boolean existsByUserAndFriendAndAccepted(@Param("currentUser") User currentUser, @Param("friendUser") User friendUser, @Param("accepted") boolean accepted);
-
+    // Lấy mối quan hệ giữa hai người dùng
     FriendShip findByUserAndFriend(User user, User friend);
+
+    FriendShip findByUserAndFriendAndAcceptedFalse(User user, User friend);
 
 
 

@@ -24,5 +24,7 @@ public interface PostRepository extends JpaRepository<Post, Long> {
             "(SELECT f.friend.id FROM FriendShip f WHERE f.user.id = :userId AND f.accepted = true)")
     Page<Post> findPostsByFriendship(@Param("userId") int userId, Pageable pageable);
 
-    List<Post> getPostsByUserId(int userId); // Lấy các bài viết của người dùng
+    // Phương thức lấy các bài viết theo userId với phân trang
+    @Query("SELECT p FROM Post p WHERE p.user.id = ?1 ORDER BY p.createdAt DESC")
+    Page<Post> getPostsByUserId(int userId, Pageable pageable);
 }

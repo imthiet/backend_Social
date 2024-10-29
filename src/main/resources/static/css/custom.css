@@ -23,6 +23,7 @@
     max-width: 700px; /* Giới hạn độ rộng tối đa của form */
     width: 100%; /* Form sẽ chiếm toàn bộ chiều ngang trên các màn hình nhỏ */
     margin: 0 auto; /* Đảm bảo form nằm giữa */
+
 }
 
 /* Tùy chỉnh thêm cho form nếu cần */
@@ -71,27 +72,28 @@
 {
     color: #00285A;
 }
-.cancel_btn
-{
-    border-radius: 12px;
-    height: 40px;
-    display: grid;
-    width: 100%;
 
 
-    font-size: 18px;
-    font-weight: bold;
-    text-align: center;
-    cursor: pointer;
-    user-select: none;
-    margin-right: 12px;
-    min-width: 161px;
-    color: #ffffff;
-
-
-    margin-top: 24px;
-    background: #00285A;
-    outline: 0;
+.loader {
+    width: 40px;
+    aspect-ratio: 2;
+    --_g: no-repeat radial-gradient(circle closest-side, #00285A 90%,#0000);
+    background:
+            var(--_g) 0%   50%,
+            var(--_g) 50%  50%,
+            var(--_g) 100% 50%;
+    background-size: calc(100%/3) 50%;
+    animation: l3 1s infinite linear;
+    display: none; /* Giữ nguyên hoặc chuyển sang 'block' khi bạn muốn hiển thị */
+    position: fixed; /* Đặt loader ở vị trí cố định */
+    top: 50%; /* Đặt loader ở giữa theo chiều dọc */
+    left: 50%; /* Đặt loader ở giữa theo chiều ngang */
+    transform: translate(-50%, -50%); /* Căn giữa chính xác */
 }
 
-
+@keyframes l3 {
+    20%{background-position:0%   0%, 50%  50%,100%  50%}
+    40%{background-position:0% 100%, 50%   0%,100%  50%}
+    60%{background-position:0%  50%, 50% 100%,100%   0%}
+    80%{background-position:0%  50%, 50%  50%,100% 100%}
+}

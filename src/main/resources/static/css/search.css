@@ -81,6 +81,15 @@
     padding: 5px 10px;
     cursor: default;
 }
+.btn-approve
+{
+    background: #00FFFF;
+    color: white;
+    border: none;
+    border-radius: 12px;
+    padding: 5px 10px;
+    cursor: default;
+}
 #keyword {
     width: 50%;
 }

@@ -141,3 +141,77 @@ header {
 .dropdown-content a:hover {
     background-color: #f1f1f1;
 }
+.btn-pending {
+    background: #e3c711;
+    color: black;
+    border: none;
+    border-radius: 12px;
+    padding: 5px 10px;
+    cursor: not-allowed;
+}
+
+.btn-accepted {
+    background: #28a745;
+    color: white;
+    border: none;
+    border-radius: 12px;
+    padding: 5px 10px;
+    cursor: default;
+}
+.btn-add-friend {
+    background: #00285A;
+    color: white;
+    border: none;
+    border-radius: 12px;
+    padding: 5px 10px;
+    cursor: pointer;
+}
+
+.btn-add-friend:hover {
+    background: #b289e1;
+}
+.btn-approve
+{
+    background: #00FFFF;
+    color: white;
+    border: none;
+    border-radius: 12px;
+    padding: 5px 10px;
+    cursor: default;
+}
+
+.three-dots-icon {
+    width: 12px  ; /* Kích thước của icon */
+    height: 12px  ;
+    margin-left: 60px; /* Khoảng cách giữa button và icon */
+    cursor: pointer;
+    position: relative;
+
+
+    /*transform: translateY(-50%);*/
+}
+/* Container cho dropdown */
+/* Dropdown menu tùy chỉnh */
+.dropdown-content-custom {
+    display: none; /* Ẩn menu mặc định */
+    position: absolute;
+    top: 50px; /* Khoảng cách từ icon xuống menu */
+    left: 5%; /* Canh menu cùng chiều trái với icon */
+    background-color: #fff;
+    min-width: 100px;
+    box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
+    z-index: 1;
+    border-radius: 12px;
+    border: 2px solid #333; /* Đường viền dày hơn với màu tối */
+}
+
+.dropdown-content-custom a {
+    color: black;
+    padding: 12px 16px;
+    text-decoration: none;
+    display: block;
+}
+
+.dropdown-content-custom a:hover {
+    background-color: #f5f5f5;
+}

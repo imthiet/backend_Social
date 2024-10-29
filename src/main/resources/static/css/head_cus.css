@@ -59,8 +59,9 @@ header {
     background-color: #fff;
     min-width: 130px;
     box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-    border-radius: 4px;
+    border-radius: 20px;
     overflow: hidden;
+    border: 2px solid #333; /* Đường viền dày hơn với màu tối */
 }
 
 .dropdown-content a {
@@ -100,4 +101,27 @@ header {
     .header-username {
         margin-right: 10px;
     }
+}
+.loader {
+    width: 40px;
+    aspect-ratio: 2;
+    --_g: no-repeat radial-gradient(circle closest-side, #00285A 90%,#0000);
+    background:
+            var(--_g) 0%   50%,
+            var(--_g) 50%  50%,
+            var(--_g) 100% 50%;
+    background-size: calc(100%/3) 50%;
+    animation: l3 1s infinite linear;
+    display: none; /* Giữ nguyên hoặc chuyển sang 'block' khi bạn muốn hiển thị */
+    position: fixed; /* Đặt loader ở vị trí cố định */
+    top: 50%; /* Đặt loader ở giữa theo chiều dọc */
+    left: 50%; /* Đặt loader ở giữa theo chiều ngang */
+    transform: translate(-50%, -50%); /* Căn giữa chính xác */
+}
+
+@keyframes l3 {
+    20%{background-position:0%   0%, 50%  50%,100%  50%}
+    40%{background-position:0% 100%, 50%   0%,100%  50%}
+    60%{background-position:0%  50%, 50% 100%,100%   0%}
+    80%{background-position:0%  50%, 50%  50%,100% 100%}
 }

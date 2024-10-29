@@ -18,9 +18,10 @@ public class FriendService {
         return friendRepository.findFriendsByUsername(username);
     }
 
-    public boolean existsBetweenUsers(User currentUser, User friendUser) {
-        return friendRepository.existsBetweenUsers(currentUser, friendUser);
+    public boolean existsBetweenUsers(User currentUser, User user) {
+        return friendRepository.existsByUserAndFriendAndAccepted(currentUser, user, true);
     }
+
     public FriendShip findByUsers(User sender, User receiver) {
         return friendRepository.findByUserAndFriend(sender, receiver);
     }
@@ -30,13 +31,28 @@ public class FriendService {
     }
 
     // Check if a friend request is pending
-    public boolean isFriendPending(User currentUser, User friendUser) {
-        return friendRepository.existsByUserAndFriend(currentUser, friendUser);
+    public boolean isFriendPending(User user1, User user2) {
+        return friendRepository.existsByUserAndFriendAndAccepted(user1, user2, false)
+                || friendRepository.existsByUserAndFriendAndAccepted(user2, user1, false);
     }
 
+
     // Check if users are friends (friendship is accepted)
-    public boolean isFriendAccepted(User currentUser, User friendUser) {
-        return friendRepository.existsByUserAndFriendAndAccepted(currentUser, friendUser, true);
+    public boolean isFriendAccepted(User user1, User user2) {
+        return friendRepository.existsByUserAndFriendAndAccepted(user1, user2, true)
+                || friendRepository.existsByUserAndFriendAndAccepted(user2, user1, true);
+    }
+
+
+    //    public FriendShip findPendingRequest(User sender, User receiver) {
+//        return friendShipRepository.findByUserAndFriendAndAcceptedFalse(sender, receiver);
+//    }
+    public FriendShip findPendingRequest(User sender, User receiver) {
+        return friendRepository.findByUserAndFriendAndAcceptedFalse(sender, receiver);
+    }
+
+    public boolean isCurrentUserFriendRequestReceiver(User sender, User receiver) {
+        return friendRepository.existsByUserAndFriendAndAccepted(sender, receiver, false);
     }
 
 

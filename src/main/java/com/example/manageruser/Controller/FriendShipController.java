@@ -1,9 +1,11 @@
 package com.example.manageruser.Controller;
 
 import com.example.manageruser.Model.FriendShip;
+import com.example.manageruser.Model.Notification;
 import com.example.manageruser.Model.User;
 import com.example.manageruser.Dto.UserDto;
 import com.example.manageruser.Service.FriendService;
+import com.example.manageruser.Service.NotificationService;
 import com.example.manageruser.Service.SearchService;
 import com.example.manageruser.Service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,11 +22,15 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import java.security.Principal;
 import java.sql.Blob;
 import java.sql.SQLException;
+import java.time.LocalDateTime;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+
+import static com.example.manageruser.Model.NotificationType.ADD_FRIEND;
+import static com.example.manageruser.Model.NotificationType.MESSAGE;
 
 @Controller
 public class FriendShipController {
@@ -39,6 +45,9 @@ public class FriendShipController {
     private SearchService service;
     @Autowired
     private FriendService friendService;
+
+    @Autowired
+    private NotificationService notificationService;
 
     @GetMapping("/search")
     public ResponseEntity<List<UserDto>> searchUsers(@RequestParam String keyword,
@@ -97,8 +106,6 @@ public class FriendShipController {
         }
         return null; // Return null if the image is not available
     }
-
-    //accept friend request
     @PostMapping("/accept_friend")
     public ResponseEntity<String> acceptFriend(@RequestParam("username") String friendUsername, Principal principal) {
         String currentUsername = principal.getName();
@@ -107,16 +114,42 @@ public class FriendShipController {
 
         if (receiver != null && sender != null) {
             FriendShip friendship = friendShipService.findPendingRequest(sender, receiver);
-            if (friendship != null) {
+            if (friendship != null && !friendship.isAccepted()) {
                 friendship.setAccepted(true);
                 friendShipService.save(friendship);
+
+                // Cập nhật isFriendPending của cả người nhận và người gửi
+                receiver.setFriendPending(false);
+                sender.setFriendPending(false);
+                userService.saveAgaint(receiver);
+                userService.saveAgaint(sender);
+
+                // Tạo thông báo cho receiver
+                Notification receiverNotification = new Notification();
+                receiverNotification.setContentnoti("You and " + sender.getUsername() + " are now friends. Lets share amazing things!");
+                receiverNotification.setType(MESSAGE);
+                receiverNotification.setSender(receiver);
+                receiverNotification.setReceiver(receiver);
+                receiverNotification.setStatus("unread");
+                receiverNotification.setTimestamp(LocalDateTime.now());
+                notificationService.save(receiverNotification);
+
+                // Tạo thông báo cho sender
+                Notification senderNotification = new Notification();
+                senderNotification.setContentnoti(receiver.getUsername() + " accepted your friend request. Lets share amazing things!");
+                senderNotification.setType(MESSAGE);
+                senderNotification.setSender(sender);
+                senderNotification.setReceiver(sender);  // Gửi thông báo đến chính sender
+                senderNotification.setStatus("unread");
+                senderNotification.setTimestamp(LocalDateTime.now());
+                notificationService.save(senderNotification);
+
                 return ResponseEntity.ok("Friend request accepted");
             }
             return ResponseEntity.badRequest().body("No pending request found");
         }
         return ResponseEntity.badRequest().body("User not found");
     }
-
 
 
 

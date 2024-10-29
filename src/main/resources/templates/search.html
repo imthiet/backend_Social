@@ -27,6 +27,7 @@
 <div th:replace="~{fragments/header :: header}"></div>
 
 <div class="search-container" align="center">
+    <div class="loader" id="loadingSpinner" style="display: none;"></div> <!-- Loader -->
     <div class="search-wrapper">
         <!-- Search form -->
         <form id="search-form" th:action="@{/search}" method="get" class="mb-4" style="margin-top: 50px" onsubmit="return false;">
@@ -89,6 +90,7 @@
     let lastPage = false;
 
     function performSearch() {
+
         currentPage = 0; // Reset current page on new search
         document.getElementById('search-results').innerHTML = ''; // Clear previous results
 
@@ -141,34 +143,71 @@
         div.addEventListener('click', () => {
             notifyProfileView(user.username);
             window.location.href = `/profile/${encodeURIComponent(user.username)}`;
-
         });
 
         div.innerHTML = `
-                <div style="display: flex; align-items: center; justify-content: space-between;">
-                    <div style="flex: 1; display: flex; align-items: center;">
-                        <img src="${user.image || 'Image/profile.png'}" alt="${user.username}'s avatar" style="width: 40px; height: 40px; border-radius: 50%; margin-right: 10px;">
-                        <div>
-                            <p>${user.username}</p>
-                            <div class="post-meta">
-                                <span>${user.email}</span>
-                                <br />
-                                <span>${user.address}</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div>
-                      <button type="button" class="btn-icon ${user.friendPending ? 'btn-pending' : user.friend ? 'btn-accepted' : 'btn-add-friend'}"
-                            onclick="addFriend('${user.username}', this, event)"
-                            ${user.friendPending || user.friend ? 'disabled' : ''}>
-                            ${user.friendPending ? 'Pending' : user.friend ? 'Accepted' : 'Add Friend'}
-                        </button>
+        <div style="display: flex; align-items: center; justify-content: space-between;">
+            <div style="flex: 1; display: flex; align-items: center;">
+                <img src="${user.image || 'Image/profile.png'}" alt="${user.username}'s avatar" style="width: 40px; height: 40px; border-radius: 50%; margin-right: 10px;">
+                <div>
+                    <p>${user.username}</p>
+                    <div class="post-meta">
+                        <span>${user.email}</span>
+                        <br />
+                        <span>${user.address}</span>
                     </div>
                 </div>
-            `;
+            </div>
+            <div>
+                ${user.friendPending ? `
+                    <button type="button" class="btn-icon btn-approve"
+                            onclick="approveFriend('${user.username}', this, event)">
+                            Approve
+                    </button>
+                ` : `
+                    <button type="button" class="btn-icon ${user.friend ? 'btn-accepted' : 'btn-add-friend'}"
+                            onclick="addFriend('${user.username}', this, event)"
+                            ${user.friend ? 'disabled' : ''}>
+                            ${user.friend ? 'Friend' : 'Add Friend'}
+                    </button>
+                `}
+            </div>
+        </div>
+    `;
 
         document.getElementById('search-results').appendChild(div);
     }
+    function approveFriend(username, button, event) {
+        event.stopPropagation(); // Ngăn việc click kích hoạt sự kiện khác
+
+        console.log('Approving friend request for username:', username);
+
+        // Gửi yêu cầu chấp nhận bạn bè
+        fetch('/accept_friend', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: new URLSearchParams({ 'username': username }),
+        })
+            .then(response => {
+                if (response.ok) {
+                    // Cập nhật trạng thái nút sau khi thành công
+                    button.textContent = 'Friend';
+                    button.disabled = true;
+                    button.classList.remove('btn-approve');
+                    button.classList.add('btn-accepted');
+                    button.style.backgroundColor = '#4CAF50'; // Đổi màu nút để biểu thị trạng thái đã chấp nhận
+                } else {
+                    return response.text().then(text => {
+                        console.error('Error approving friend request:', text);
+                        alert('Error approving friend request: ' + text);
+                    });
+                }
+            })
+            .catch(error => console.error('Error:', error));
+    }
+
 
     function addFriend(username, button, event) {
         event.stopPropagation(); // Ngăn việc click kích hoạt sự kiện khác
@@ -226,6 +265,7 @@
         // Check for notifications every 10 seconds
         // setInterval(checkForNotifications, 3000);
     });
+
 </script>
 
 </body>

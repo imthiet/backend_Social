@@ -1,11 +1,13 @@
 package com.example.manageruser.Controller;
 
+import com.example.manageruser.Model.FriendShip;
 import com.example.manageruser.Model.Post;
 import com.example.manageruser.Model.User;
 import com.example.manageruser.Service.FriendService;
 import com.example.manageruser.Service.PostService;
 import com.example.manageruser.Service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -19,6 +21,7 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.sql.rowset.serial.SerialBlob;
 import java.awt.*;
 import java.io.IOException;
+import java.security.Principal;
 import java.sql.Blob;
 import java.sql.SQLException;
 import java.util.List;
@@ -36,9 +39,54 @@ public class ProfileController {
     @Autowired
     private PostService postService;
 
-    // Hiển thị profile của người dùng đã đăng nhập
+     // profile của người dùng đã đăng nhập
+    @GetMapping("/{username}")
+    public String showUserProfileByUsername(@PathVariable("username") String username,
+                                            @RequestParam(defaultValue = "0") int page,
+                                            @RequestParam(defaultValue = "10") int size,
+                                            Model model,
+                                            Principal principal) {
+        User currentUser = userService.findByUsername(principal.getName());
+        User user = userService.findByUsername(username);
+
+        if (user == null) {
+            return "redirect:/noti_list"; // Trả về trang tìm kiếm nếu không tìm thấy người dùng
+        }
+
+        // Lấy danh sách bạn bè của người dùng
+        List<User> friends = friendService.getFriends(username);
+        model.addAttribute("friends", friends);
+
+        user.setFriend(friendService.isFriendAccepted(currentUser, user));
+        System.out.println("curent Use setfrr: " + currentUser + "User: " + user);
+        System.out.println(("isFriend: " + user.isFriend()));
+
+        user.setFriendPending(friendService.isFriendPending(currentUser, user));
+        System.out.println("curent User pending: " + currentUser + "User: " + user);
+        System.out.println("isFriendPending: " + user.isFriendPending());
+
+        boolean isReceiver = friendService.isCurrentUserFriendRequestReceiver(user, currentUser);
+
+
+        user.setFriendRequestReceiver(isReceiver);
+
+        Page<Post> userPostsPage = postService.findPostsByUID(user.getId(), page, size); // Lấy các bài post của người dùng với phân trang
+
+        model.addAttribute("user", user);
+        model.addAttribute("userPosts", userPostsPage.getContent()); // Truyền danh sách bài viết cho view
+        model.addAttribute("currentPage", userPostsPage.getNumber()); // Trang hiện tại
+        model.addAttribute("totalPages", userPostsPage.getTotalPages()); // Tổng số trang
+
+        return "profile_view"; // Trả về view profile với thông tin người dùng, bạn bè, và bài viết
+    }
+
+
+
+    // Hiển thị profile của người dùng khác dựa trên username
     @GetMapping
-    public String showUserProfile(Model model) {
+    public String showUserProfile(@RequestParam(defaultValue = "0") int page,
+                                  @RequestParam(defaultValue = "10") int size,
+                                  Model model) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String username = authentication != null ? authentication.getName() : null;
 
@@ -55,36 +103,19 @@ public class ProfileController {
         }
 
         List<User> friends = friendService.getFriends(username);
-        List<Post> userPosts = postService.findPostsByUID(u_id); // Lấy các bài post của người dùng
+        Page<Post> userPostsPage = postService.findPostsByUID(u_id, page, size); // Lấy các bài post của người dùng với phân trang
 
         model.addAttribute("user", user);
         model.addAttribute("friends", friends);
-        model.addAttribute("userPosts", userPosts); // Truyền danh sách bài viết cho view
+        model.addAttribute("userPosts", userPostsPage.getContent()); // Truyền danh sách bài viết cho view
+        model.addAttribute("currentPage", userPostsPage.getNumber()); // Trang hiện tại
+        model.addAttribute("totalPages", userPostsPage.getTotalPages()); // Tổng số trang
 
         return "profile"; // Trả về view profile với thông tin người dùng và bạn bè
     }
 
-    // Hiển thị profile của người dùng khác dựa trên username
-    @GetMapping("/{username}")
-    public String showUserProfileByUsername(@PathVariable("username") String username, Model model) {
-        User user = userService.findByUsername(username);
-        int u_id = user.getId();
-        System.out.println("user id:");
 
-        if (user == null) {
-            return "redirect:/search"; // Trả về trang tìm kiếm nếu không tìm thấy người dùng
-        }
 
-        List<User> friends = friendService.getFriends(username);
-        List<Post> userPosts = postService.findPostsByUID(u_id); // Lấy các bài post của người dùng
-//        System.out.println("user post: "+ userPosts);
-
-        model.addAttribute("user", user);
-        model.addAttribute("friends", friends);
-        model.addAttribute("userPosts", userPosts); // Truyền danh sách bài viết cho view
-
-        return "profile_view"; // Trả về view profile với thông tin người dùng, bạn bè, và bài viết
-    }
 
     // Upload avatar cho người dùng
     @PostMapping("/{id}/avatar")

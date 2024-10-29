@@ -104,7 +104,7 @@ public class SearchController {
 
                 // Tạo thông báo
                 Notification notification = new Notification();
-                notification.setContentnoti(sender.getUsername() + " đã gửi yêu cầu kết bạn cho bạn.");
+                notification.setContentnoti(sender.getUsername() + " đã gửi yêu cầu kết bạn cho bạn.!!!!");
                 notification.setType(ADD_FRIEND); // Thêm loại thông báo
                 notification.setSender(sender); // Đảm bảo 'sender' không null
                 notification.setReceiver(receiver);
@@ -122,5 +122,6 @@ public class SearchController {
 
         return ResponseEntity.ok("Friend request sent");
     }
+
 
 }
