@@ -5,6 +5,7 @@
     <title>User Search</title>
     <link rel="stylesheet" type="text/css" th:href="@{/css/head_cus.css}"/>
     <link rel="stylesheet" type="text/css" th:href="@{/css/search.css}"/>
+    <link rel="stylesheet" type="text/css" th:href="@{/css/noti.css}"/>
     <link rel="stylesheet" type="text/css" th:href="@{/webjars/bootstrap/css/bootstrap.min.css}"/>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 
@@ -27,6 +28,12 @@
 <div th:replace="~{fragments/header :: header}"></div>
 
 <div class="search-container" align="center">
+    <!-- Phần tử thông báo, ban đầu sẽ bị ẩn -->
+    <div id="notification" class="notification hidden">
+        <span id="notification-message"></span>
+        <button onclick="hideNotification()" class="close-btn">✖</button>
+    </div>
+
     <div class="loader" id="loadingSpinner" style="display: none;"></div> <!-- Loader -->
     <div class="search-wrapper">
         <!-- Search form -->
@@ -65,14 +72,36 @@
         });
     }
 
-    function showNotification(message) {
-        alert(message); // Hiển thị thông báo (có thể thay bằng UI notification đẹp hơn)
-    }
+    // function showNotification(message) {
+    //     alert(message); // Hiển thị thông báo (có thể thay bằng UI notification đẹp hơn)
+    // }
 
     function notifyProfileView(sender) {
         console.log("sending", sender);
         stompClient.send("/app/sendRequest", {}, JSON.stringify({'sender': sender}));
     }
+    // Hiển thị thông báo
+    function showNotification(message) {
+        const notification = document.getElementById("notification");
+        const notificationMessage = document.getElementById("notification-message");
+
+        notificationMessage.textContent = message; // Đặt nội dung thông báo
+        notification.classList.remove("hidden");
+        notification.classList.add("show");
+
+        setTimeout(() => {
+            notification.classList.add("fade-out"); // Thêm lớp để mờ dần
+            setTimeout(hideNotification, 3000); // Ẩn hoàn toàn sau khi mờ dần (thời gian phù hợp với CSS transition)
+        }, 2000);
+    }
+
+    // Ẩn thông báo
+    function hideNotification() {
+        const notification = document.getElementById("notification");
+        notification.classList.remove("show", "fade-out");
+        notification.classList.add("hidden");
+    }
+
 
     // Đảm bảo mã chạy sau khi DOM đã được tải
     window.onload = function() {
@@ -138,6 +167,7 @@
         const div = document.createElement('div');
         div.className = 'post-card';
         div.setAttribute('data-username', user.username);
+
 
         // Add click listener to navigate to the user's profile
         div.addEventListener('click', () => {

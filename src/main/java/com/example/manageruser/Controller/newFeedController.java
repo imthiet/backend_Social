@@ -1,7 +1,11 @@
 package com.example.manageruser.Controller;
 
+import com.example.manageruser.Model.Like;
+import com.example.manageruser.Model.Notification;
 import com.example.manageruser.Model.Post;
 import com.example.manageruser.Model.User;
+import com.example.manageruser.Service.LikeService;
+import com.example.manageruser.Service.NotificationService;
 import com.example.manageruser.Service.PostService;
 import com.example.manageruser.Service.UserService;
 import jakarta.servlet.http.HttpServletResponse;
@@ -11,14 +15,19 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.io.IOException;
 import java.security.Principal;
 import java.sql.SQLException;
+import java.time.LocalDateTime;
 import java.util.List;
 
-@Controller
+import static com.example.manageruser.Model.NotificationType.LIKE_COMMENT_SHARE;
+
+@RestController
 public class newFeedController {
 
     @Autowired
@@ -26,6 +35,11 @@ public class newFeedController {
     @Autowired
     private UserService userService;
 
+    @Autowired
+    private LikeService likeService;
+
+    @Autowired
+    NotificationService notificationService;
     // Hiển thị trang newsfeed
     @GetMapping("/newsfeed")
     public String showNewsFeed(Model model, HttpServletResponse response,
@@ -72,4 +86,39 @@ public class newFeedController {
 
    
     }
+
+
+    @PostMapping("/like")
+    public ResponseEntity<String> likePost(@RequestParam("postId") Long postId, Principal principal) {
+        String currentUsername = principal.getName();
+        User user = userService.findByUsername(currentUsername);
+        Post post = postService.findById(postId);
+
+        if (user != null && post != null) {
+            // Kiểm tra xem người dùng đã like bài đăng chưa
+            if (!likeService.existsByUserAndPost(user, post)) {
+                // Thực hiện like
+                Like like = new Like();
+                like.setUser(user);
+                like.setPost(post);
+                likeService.save(like);
+
+                // Tạo thông báo
+                Notification notification = new Notification();
+                notification.setContentnoti(user.getUsername() + " đã thích bài đăng của bạn.");
+                notification.setType(LIKE_COMMENT_SHARE);
+                notification.setSender(user);
+                notification.setReceiver(post.getUser());
+                notification.setStatus("unread");
+                notification.setTimestamp(LocalDateTime.now());
+                notificationService.save(notification);
+
+                return ResponseEntity.ok("Post liked");
+            } else {
+                return ResponseEntity.badRequest().body("Post already liked");
+            }
+        }
+        return ResponseEntity.badRequest().body("User or post not found");
+    }
+
 }

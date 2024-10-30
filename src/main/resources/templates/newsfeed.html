@@ -6,6 +6,7 @@
     <link rel="icon" type="image/png" th:href="@{/Image/favicon.png}">
     <link rel="stylesheet" type="text/css" th:href="@{/css/newsfeed.css}"/>
     <link rel="stylesheet" type="text/css" th:href="@{/css/head_cus.css}"/>
+    <link rel="stylesheet" type="text/css" th:href="@{/css/noti.css}"/>
     <link rel="stylesheet" type="text/css" th:href="@{/webjars/bootstrap/css/bootstrap.min.css}"/>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <!-- Toast notification box -->
@@ -48,8 +49,9 @@
 
         </form>
     </div>
-    <div id="alert-box">
-        Post created successfully!
+    <div id="notification" class="notification hidden" onclick="goToProfile()">
+        <span id="notification-message"></span>
+
     </div>
 
 
@@ -60,6 +62,8 @@
 <div class="newsfeed-container" id="newsfeed-container">
 
     <div th:each="post : ${posts}" class="post-card">
+        <!-- Post Content -->
+        <p th:text="${post.content}">Post Content</p>
         <!-- Profile Image -->
         <div class="post-header">
             <img th:if="${post.png != null}"
@@ -70,25 +74,29 @@
             />
         </div>
 
-        <!-- Post Content -->
-        <p th:text="${post.content}">Post Content</p>
+
 
         <!-- Post Metadata (Author and Date) -->
-        <div class="post-meta">
+        <div class="post-meta" style="display: flex; justify-content: space-between;">
             <span th:text="${post.user.username}">Author Name</span>
-            <span th:text="${#dates.format(post.createdAt, 'yyyy-MM-dd HH:mm')}">Date and Time</span>
+<!--            <span class="post-time" data-timestamp="${post.created_at}"></span>-->
+<!--            <span th:text="${#dates.format(post.createdAt, 'yyyy-MM-dd HH:mm')}">Create at</span>-->
+            <span class="post-time" th:attr="data-timestamp=${#dates.format(post.createdAt,'yyyy-MM-dd HH:mm')}">Times!</span>
         </div>
 
+
         <!-- Post Footer (Like and Comment Icons) -->
-        <div class="post-footer">
+        <div class="post-action">
             <!-- Like Icon -->
             <span class="like-icon" style="cursor:pointer;">
-                <i class="fa fa-thumbs-up"></i> Like
+                <img th:src="@{/Image/like.png}" alt="Like" style="width: 35px; height: 35px; margin-top: 20px" onclick="toggleLike(postId)"/>
+                 <span id="like-count">0</span>
+
             </span>
 
-            <!-- Comment Icon -->
-            <span class="comment-icon" style="cursor:pointer;">
-                <i class="fa fa-comment"></i> Comment
+            <span class="cmt-icon" style="cursor:pointer;">
+                <img th:src="@{/Image/cmt.png}" alt="comment" style="width: 35px; height: 35px;  margin-left: 50px; margin-top: 27px"/>
+
             </span>
         </div>
     </div>
@@ -97,6 +105,10 @@
 <button id="load-more" class="btn btn-primary" style="display: none;">Load More</button>
 
 <script>
+    function goToProfile() {
+        window.location.href = "/profile"; // Chuyển hướng đến trang hồ sơ
+    }
+
     // Toggle post box visibility
     document.getElementById('open-post-box').addEventListener('click', function() {
         const postBox = document.getElementById('post-box');
@@ -155,7 +167,21 @@
         document.getElementById('file-name').textContent = fileName;
     }
 
-
+    function toggleLike(postId) {
+        console.log("Toggle Like Icon");
+        fetch(`/like?postId=${postId}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' }
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.message === 'Post liked') {
+                    document.getElementById('like-icon').src = '/Image/like_after.png';
+                    document.getElementById('like-count').innerText = parseInt(document.getElementById('like-count').innerText) + 1;
+                }
+            })
+            .catch(error => console.error('Error:', error));
+    }
 
 </script>
 <script>
@@ -181,29 +207,74 @@
             });
     });
 
-    // Hàm hiển thị thông báo
-    function showAlert(message, type) {
-        const alertBox = document.getElementById('alert-box');
-        alertBox.textContent = message;
 
-        // Thay đổi màu sắc của thông báo dựa trên type
-        if (type === 'success') {
-            alertBox.style.backgroundColor = '#d4edda';
-            alertBox.style.color = '#155724';
-            alertBox.style.borderColor = '#c3e6cb';
-        } else {
-            alertBox.style.backgroundColor = '#f8d7da';
-            alertBox.style.color = '#721c24';
-            alertBox.style.borderColor = '#f5c6cb';
+
+    // Hiển thị thông báo
+    function showAlert(message) {
+        const notification = document.getElementById("notification");
+        const notificationMessage = document.getElementById("notification-message");
+
+        notificationMessage.textContent = message; // Đặt nội dung thông báo
+        notification.classList.remove("hidden");
+        notification.classList.add("show");
+
+        setTimeout(() => {
+            notification.classList.add("fade-out"); // Thêm lớp để mờ dần
+            setTimeout(hideNotification, 3000); // Ẩn hoàn toàn sau khi mờ dần (thời gian phù hợp với CSS transition)
+        }, 2000);
+    }
+
+    // Ẩn thông báo
+    function hideNotification(event) {
+        const notification = document.getElementById("notification");
+        notification.classList.remove("show", "fade-out");
+        notification.classList.add("hidden");
+    }
+
+
+    function timeAgo(timestamp) {
+        const currentTime = new Date();
+        const notiTime = new Date(timestamp); // Timestamp should now be in ISO format
+
+        if (isNaN(notiTime)) {
+            console.error("Invalid timestamp format:", timestamp);
+            return "Invalid date";
         }
 
-        alertBox.style.display = 'block';
+        const diff = currentTime - notiTime;
 
-        // Ẩn thông báo sau 3 giây
-        setTimeout(() => {
-            alertBox.style.display = 'none';
-        }, 1500);
+        const seconds = Math.floor(diff / 1000);
+        const minutes = Math.floor(seconds / 60);
+        const hours = Math.floor(minutes / 60);
+        const days = Math.floor(hours / 24);
+
+        if (days > 1) {
+            return days + " days ago";
+        } else if (days === 1) {
+            return "1 day ago";
+        } else if (hours > 1) {
+            return hours + " hours ago";
+        } else if (hours === 1) {
+            return "1 hour ago";
+        } else if (minutes > 1) {
+            return minutes + " minutes ago";
+        } else if (minutes === 1) {
+            return "1 minute ago";
+        } else {
+            return "just now";
+        }
     }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        const postTimes = document.querySelectorAll('.post-time');
+        postTimes.forEach(function (element) {
+            const timestamp = element.getAttribute('data-timestamp');
+            console.log("Timestamp:", timestamp); // Debug: Check timestamp in console
+            element.textContent = timeAgo(timestamp);
+        });
+    });
+
+
 
 </script>
 

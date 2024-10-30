@@ -39,4 +39,11 @@ public class PostService {
         Pageable pageable = PageRequest.of(page, size); // Tạo Pageable với trang và kích thước mong muốn
         return postRepository.getPostsByUserId(id, pageable); // Gọi phương thức repository để lấy danh sách đã phân trang
     }
+
+
+    public Post findById(Long postId) {
+        // Sử dụng Optional để xử lý trường hợp không tìm thấy Post
+        return postRepository.findById(postId)
+                .orElseThrow(() -> new RuntimeException("Post not found with id " + postId));
+    }
 }
