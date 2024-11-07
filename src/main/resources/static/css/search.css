@@ -92,13 +92,16 @@
 }
 #keyword {
     width: 50%;
+    box-shadow: -4px -4px 5px rgba(18, 3, 3, 0.1); /* X Offset, Y Offset, Blur, Màu */
 }
 
 .search-results {
-    border: 1px solid #00285A;
-    border-radius: 12px;
+    border: 0.5px solid #00285A;
+    border-radius: 4px;
     padding: 15px;
     margin-top: 10px;
+
+    box-shadow: -9px -9px 5px rgba(18, 3, 3, 0.1); /* X Offset, Y Offset, Blur, Màu */
 }
 
 .search-wrapper {
@@ -106,4 +109,6 @@
     border-radius: 12px; /* Bo góc cho khung */
     padding: 15px; /* Khoảng cách bên trong khung */
     margin-top: 20px; /* Khoảng cách với phần tử trên */
+
+    box-shadow: -9px -9px 5px rgba(18, 3, 3, 0.1); /* X Offset, Y Offset, Blur, Màu */
 }

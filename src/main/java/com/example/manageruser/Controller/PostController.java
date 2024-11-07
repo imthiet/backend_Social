@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.sql.Blob;
 import java.sql.SQLException;
 import java.sql.Date;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import javax.sql.rowset.serial.SerialBlob;
@@ -78,6 +79,19 @@ public class PostController {
             response.put("success", false);
             response.put("message", "Failed to create post");
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response); // Trả về JSON với thông báo lỗi
+        }
+    }
+    @DeleteMapping("/delete/{id}")
+    public ResponseEntity<Map<String, String>> deletePost(@PathVariable Long id) {
+        boolean isDeleted = postService.deletePostById(id);
+
+        if (isDeleted) {
+            Map<String, String> response = new HashMap<>();
+            response.put("message", "Post deleted successfully");
+            return ResponseEntity.ok(response);
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Collections.singletonMap("message", "Post not found"));
         }
     }
 

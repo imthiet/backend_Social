@@ -12,8 +12,6 @@
     <!-- Toast notification box -->
 
 
-
-
 </head>
 <body>
 <div th:replace="~{fragments/header :: header}"></div>
@@ -21,7 +19,7 @@
 
 
 <!-- What's new box -->
-<div class="whats-new-container" id="whats-new-container" >
+<div class="whats-new-container" id="whats-new-container">
 
     <h3 style="color: #00285A">What's New</h3>
     <button id="open-post-box">Share something new</button>
@@ -30,16 +28,19 @@
     <div id="post-box" style="display: none; margin-top: 15px;">
         <form id="post-form" enctype="multipart/form-data" class="form">
             <div class="form-group">
-                <textarea id="content" name="content" class="form-control" rows="2" placeholder="What's on your mind?" required></textarea>
+                <textarea id="content" name="content" class="form-control" rows="2" placeholder="What's on your mind?"
+                          required></textarea>
             </div>
 
             <div class="form-group">
                 <!-- Hidden file input -->
-                <input type="file" id="file" name="file" accept="image/*" style="display:none;" onchange="showFileName(this)">
+                <input type="file" id="file" name="file" accept="image/*" style="display:none;"
+                       onchange="showFileName(this)">
 
                 <!-- Icon trigger -->
                 <div style="cursor: pointer;" onclick="document.getElementById('file').click();">
-                    <img th:src="@{/Image/image_icon.png}" alt="Upload" style="width: 30px; height: 30px; margin-top: 6px">
+                    <img th:src="@{/Image/image_icon.png}" alt="Upload"
+                         style="width: 30px; height: 30px; margin-top: 6px">
                     <span id="file-name" style="margin-left: 10px; color: #555;"></span>
                 </div>
             </div>
@@ -55,12 +56,9 @@
     </div>
 
 
-
-
 </div>
 
 <div class="newsfeed-container" id="newsfeed-container">
-
     <div th:each="post : ${posts}" class="post-card">
         <!-- Post Content -->
         <p th:text="${post.content}">Post Content</p>
@@ -70,47 +68,186 @@
                  th:src="@{'/post/image?id=' + ${post.id}}"
                  alt="Image not available"
                  style="width:200px; height:200px; border-radius:10%;"
-                 onerror="this.onerror=null;this.src='Image/backgr.png';"
-            />
+                 onerror="this.onerror=null;this.src='Image/backgr.png';" />
         </div>
-
-
 
         <!-- Post Metadata (Author and Date) -->
         <div class="post-meta" style="display: flex; justify-content: space-between;">
             <span th:text="${post.user.username}">Author Name</span>
-<!--            <span class="post-time" data-timestamp="${post.created_at}"></span>-->
-<!--            <span th:text="${#dates.format(post.createdAt, 'yyyy-MM-dd HH:mm')}">Create at</span>-->
-            <span class="post-time" th:attr="data-timestamp=${#dates.format(post.createdAt,'yyyy-MM-dd HH:mm')}">Times!</span>
+            <span class="post-time"
+                  th:attr="data-timestamp=${#dates.format(post.createdAt,'yyyy-MM-dd HH:mm')}">Times!</span>
         </div>
-
 
         <!-- Post Footer (Like and Comment Icons) -->
         <div class="post-action">
             <!-- Like Icon -->
             <span class="like-icon" style="cursor:pointer;">
-                <img th:src="@{/Image/like.png}" alt="Like" style="width: 35px; height: 35px; margin-top: 20px" onclick="toggleLike(postId)"/>
-                 <span id="like-count">0</span>
-
+                <img th:src="${post.liked ? '/Image/heart.png' : '/Image/like.png'}"
+                     alt="Like" style="width: 30px; height: 30px; margin-top: 20px"
+                     th:onclick="'toggleLike(' + ${post.id} + ')'" />
+                <span th:id="'like-count-' + ${post.id}" th:text="${likeCounts[post.id]}">0</span>
             </span>
 
-            <span class="cmt-icon" style="cursor:pointer;">
-                <img th:src="@{/Image/cmt.png}" alt="comment" style="width: 35px; height: 35px;  margin-left: 50px; margin-top: 27px"/>
-
+            <!-- Comment Icon and Toggle -->
+            <span class="cmt-icon" style="cursor:pointer;" th:onclick="'toggleComments(' + ${post.id} + ')'">
+                <img th:src="@{/Image/cmt.png}" alt="comment" style="width: 35px; height: 35px; margin-left: 50px; margin-top: 27px"/>
             </span>
         </div>
+
+
+
+
+        <!-- Comment Section -->
+        <div class="comment-section" th:id="'comment-section-'+ ${post.id}" style="display: none;">
+            <input type="text" th:id="'new-comment-' + ${post.id}" placeholder="Show what you think..." required />
+            <button type="button" id="submit-cmt-box" th:onclick="'submitComment(' + ${post.id} + ')'">Submit</button>
+
+            <div class="comments-list" th:id="'comments-list-'+ ${post.id}" >
+                <!-- Comments will be dynamically inserted here -->
+            </div>
+            <button type="button" id="load-more-cmt" th:onclick="'loadMoreComments(' + ${post.id} + ')'">Load More</button>
+        </div>
+
+
+
+
+
     </div>
 </div>
 
 <button id="load-more" class="btn btn-primary" style="display: none;">Load More</button>
 
 <script>
+
+
+    // Move the toggleComments function to the top
+    function toggleComments(postId) {
+        const commentSection = document.getElementById(`comment-section-${postId}`);
+        const commentsList = document.getElementById(`comments-list-${postId}`);
+
+        if (commentSection.style.display === 'block') {
+            commentSection.style.display = 'none';
+        } else if (commentSection.style.display === 'none') {
+            commentSection.style.display = 'block';
+            // If it's hidden, fetch and display comments
+            fetch(`/comments/post/${postId}?page=0&size=3`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok ' + response.statusText);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    const comments = data.content; // Get only the content part of the response
+                    console.log("Fetched comments:", comments); // Log the fetched comments
+                    // Clear previous comments
+                    commentsList.innerHTML = ''; // Clear existing comments
+
+                    // Check if there are comments
+                    if (Array.isArray(comments) && comments.length === 0) {
+                        const noCommentsMessage = document.createElement('div');
+                        noCommentsMessage.textContent = 'No comments yet. Be the first to comment!';
+                        commentsList.appendChild(noCommentsMessage);
+                    } else if (Array.isArray(comments)) {
+                        comments.forEach(comment => {
+                            const commentElement = document.createElement('div');
+                            commentElement.className = 'comment';
+
+                            // Create a div for the avatar and username
+                            const header = document.createElement('div');
+                            header.innerHTML = `
+                            ${comment.image ? `<img src="data:image/jpeg;base64,${comment.image}" alt="${comment.username}'s avatar" style="width: 30px; height: 30px; border-radius: 50%; margin-right: 5px;" />` : ''}
+                            <strong>${comment.username}</strong>
+                        `;
+
+                            // Create a div for the content
+                            const content = document.createElement('div');
+                            content.textContent = comment.content;
+
+                            // Append header and content to the comment element
+                            commentElement.appendChild(header);
+                            commentElement.appendChild(content);
+
+                            // Append the comment element to the comments list
+                            commentsList.appendChild(commentElement);
+                        });
+                    } else {
+                        console.error("Expected an array of comments but received:", comments);
+                    }
+                    commentsList.style.display = 'block'; // Show comments list
+                })
+                .catch(error => console.error('Error fetching comments:', error));
+        }
+
+        console.log("Toggle comment section for post ID:", postId);
+    }
+
+    function submitComment(postId) {
+        const commentInput = document.getElementById(`new-comment-${postId}`);
+        console.log(`Input value for post ID ${postId}:`, commentInput.value); // Log the input value
+
+        if (!commentInput) {
+            console.error(`No input found for post ID ${postId}`);
+            return; // Exit if the input is not found
+        }
+
+        const content = commentInput.value;
+
+        if (!content) {
+            console.error('Comment content cannot be empty');
+            return; // Exit if content is empty
+        }
+
+        fetch(`/comments/add?postId=${postId}&content=${encodeURIComponent(content)}`, {
+            method: 'POST',
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok ' + response.statusText);
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log(data);
+                commentInput.value = ''; // Clear input after sending
+
+                // Append the new comment to the comments list
+                const commentsList = document.getElementById(`comments-list-${postId}`);
+                const commentElement = document.createElement('div');
+                commentElement.className = 'comment'; // Add a class for styling
+
+                // Create a div for the avatar and username if needed
+                const header = document.createElement('div');
+                header.innerHTML = `<strong>${data.username}</strong>`; // Assuming your response contains the username
+
+                // Create a div for the content
+                const contentDiv = document.createElement('div');
+                contentDiv.textContent = content;
+
+                // Append header and content to the comment element
+                commentElement.appendChild(header);
+                commentElement.appendChild(contentDiv);
+
+                // Append the comment element to the comments list
+                commentsList.appendChild(commentElement);
+                commentsList.style.display = 'block'; // Ensure comments list is shown
+            })
+            .catch(error => console.error('Error:', error));
+    }
+
+
+
+
     function goToProfile() {
         window.location.href = "/profile"; // Chuyển hướng đến trang hồ sơ
     }
+    function loadMoreComments(postId) {
+        currentPage++; // Increment page number
+        loadComments(postId); // Load comments for the next page
+    }
 
     // Toggle post box visibility
-    document.getElementById('open-post-box').addEventListener('click', function() {
+    document.getElementById('open-post-box').addEventListener('click', function () {
         const postBox = document.getElementById('post-box');
         postBox.style.display = postBox.style.display === 'none' ? 'block' : 'none';
     });
@@ -150,13 +287,13 @@
             });
     }
 
-    window.addEventListener('scroll', function() {
+    window.addEventListener('scroll', function () {
         if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 10) {
             loadMorePosts();
         }
     });
 
-    document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', function () {
         if (document.body.offsetHeight < window.innerHeight) {
             document.getElementById('load-more').click();
         }
@@ -167,25 +304,36 @@
         document.getElementById('file-name').textContent = fileName;
     }
 
+
     function toggleLike(postId) {
-        console.log("Toggle Like Icon");
         fetch(`/like?postId=${postId}`, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' }
+            headers: {
+                'Content-Type': 'application/json'
+            }
         })
             .then(response => response.json())
             .then(data => {
-                if (data.message === 'Post liked') {
-                    document.getElementById('like-icon').src = '/Image/like_after.png';
-                    document.getElementById('like-count').innerText = parseInt(document.getElementById('like-count').innerText) + 1;
+                const likeCountElement = document.getElementById(`like-count-${postId}`);
+                let currentLikeCount = parseInt(likeCountElement.innerText);
+
+                if (data.isLiked) {
+                    // Nếu người dùng đã like, tăng số lượng like và đổi icon
+                    likeCountElement.innerText = currentLikeCount + 1;
+                    document.querySelector(`img[onclick="toggleLike(${postId})"]`).src = "/Image/heart.png";
+                } else {
+                    // Nếu người dùng unlike, giảm số lượng like và đổi icon
+                    likeCountElement.innerText = currentLikeCount - 1;
+                    document.querySelector(`img[onclick="toggleLike(${postId})"]`).src = "/Image/like.png";
                 }
             })
             .catch(error => console.error('Error:', error));
     }
 
+
 </script>
 <script>
-    document.getElementById('post-form').addEventListener('submit', function(e) {
+    document.getElementById('post-form').addEventListener('submit', function (e) {
         e.preventDefault(); // Ngăn không cho form submit theo cách thông thường
 
         let formData = new FormData(this);
@@ -206,7 +354,6 @@
                 console.error('Error:', error);
             });
     });
-
 
 
     // Hiển thị thông báo
@@ -274,9 +421,63 @@
         });
     });
 
+    let currentPagecmt = 0; // Initialize current page outside of the function
+
+    function loadMoreComments(postId) {
+        currentPagecmt++; // Increment the page number
+
+        const commentsList = document.getElementById(`comments-list-${postId}`);
+
+        // Fetch additional comments for the specified postId
+        fetch(`/comments/post/${postId}?page=${currentPagecmt}&size=5`) // Adjust size as needed
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok ' + response.statusText);
+                }
+                return response.json();
+            })
+            .then(data => {
+                const comments = data.content; // Extract only the comments content
+                console.log("Loaded more comments:", comments); // Log the loaded comments
+
+                // Check if there are comments
+                if (Array.isArray(comments) && comments.length === 0) {
+                    const noMoreCommentsMessage = document.createElement('div');
+                    noMoreCommentsMessage.textContent = 'No more comments to load.';
+                    commentsList.appendChild(noMoreCommentsMessage);
+                } else if (Array.isArray(comments)) {
+                    comments.forEach(comment => {
+                        const commentElement = document.createElement('div');
+                        commentElement.className = 'comment';
+
+                        // Create a div for the avatar and username
+                        const header = document.createElement('div');
+                        header.innerHTML = `
+                        ${comment.image ? `<img src="data:image/jpeg;base64,${comment.image}" alt="${comment.username}'s avatar" style="width: 30px; height: 30px; border-radius: 50%; margin-right: 5px;" />` : ''}
+                        <strong>${comment.username}</strong>
+                    `;
+
+                        // Create a div for the content
+                        const content = document.createElement('div');
+                        content.textContent = comment.content;
+
+                        // Append header and content to the comment element
+                        commentElement.appendChild(header);
+                        commentElement.appendChild(content);
+
+                        // Append the comment element to the comments list
+                        commentsList.appendChild(commentElement);
+                    });
+                } else {
+                    console.error("Expected an array of comments but received:", comments);
+                }
+            })
+            .catch(error => console.error('Error fetching comments:', error));
+    }
 
 
 </script>
+
 
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>

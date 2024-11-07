@@ -13,6 +13,9 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 @Configuration
 @EnableWebSecurity
@@ -37,10 +40,20 @@ public class SecurityConfig {
     }
 
     @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+        configuration.addAllowedOrigin("http://localhost:3000"); // Thay thế bằng địa chỉ của frontend
+        configuration.addAllowedMethod("*");
+        configuration.addAllowedHeader("*");
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+        return source;
+    }
+    @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/css/**", "/js/**", "/Image/**", "/webjars/**", "/users/**", "/avartar/**","/ws/**","/viewProfile").permitAll()
+                        .requestMatchers("/css/**", "/js/**", "/Image/**", "/webjars/**", "/users/**", "/avartar/**","/ws/**","/viewProfile","post/**","post/update/**","/comments/post/**").permitAll()
                         .requestMatchers("/users").hasRole("ADMIN")// Cho phép admin dang nhap
                         .anyRequest().authenticated() // Các URL còn lại yêu cầu xác thực
                 )

@@ -1,0 +1,222 @@
+
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Chat Box</title>
+    <link rel="stylesheet" th:href="@{/css/chatbox.css}"/>
+
+    <script src="/js/sockjs.min.js"></script>
+    <script src="/js/stomp.min.js"></script>
+    <script>
+        // Kết nối WebSocket đến server
+        var socket = new SockJS('/websocket'); // Địa chỉ endpoint WebSocket trên server
+        var stompClient = Stomp.over(socket);
+
+        // Kết nối đến WebSocket server
+        stompClient.connect({}, function (frame) {
+            console.log('Connected: ' + frame);
+
+            // Đăng ký để nhận tin nhắn từ server (subscribe đến topic)
+            stompClient.subscribe('/topic/messages', function (messageOutput) {
+                var message = JSON.parse(messageOutput.body);
+                displayMessage(message);
+            });
+        });
+        const chatId = [[${chatId}]];
+        console.log("chat id::::"+ chatId);
+
+        const crName = '[[${currentUserName}]]';
+        // Gửi tin nhắn đến server
+        async function sendMessage() {
+            var content = document.getElementById("message-input").value;
+            var chatId = [[${chatId}]]; // Thay bằng ID của chat thực tế
+            var senderId = [[${currentUserId}]]; // Thay bằng ID của người gửi
+
+            // Lấy receiverId từ tin nhắn
+            let receiverId = null;
+
+            try {
+                // Gọi API để lấy tin nhắn
+                const response = await fetch(`/api/chat/${chatId}`);
+                const data = await response.json();
+                const messages = data.content;
+                // Kiểm tra tất cả các tin nhắn để lấy receiverId
+                messages.forEach(message => {
+                    if (message.receiverId !== senderId) {
+                        receiverId = message.receiverId; // Lưu receiverId nếu nó khác senderId
+                    }
+                });
+
+                if (receiverId === null) {
+                    console.error("Không tìm thấy receiverId!");
+                    return;
+                }
+
+                // Tạo đối tượng message với receiverId
+                var message = {
+                    content: content,
+                    chatId: chatId,
+                    senderId: senderId,
+                    receiverId: receiverId
+                };
+
+                console.log(message);
+
+                // Gửi tin nhắn
+                stompClient.send("/app/sendMessage", {}, JSON.stringify(message));
+
+                // Xóa nội dung hộp nhập sau khi gửi
+                document.getElementById("message-input").value = '';
+
+            } catch (error) {
+                console.error("Error loading messages or sending message:", error);
+            }
+        }
+
+
+        // Hiển thị tin nhắn trên giao diện
+        function displayMessage(message) {
+            var chatContainer = document.getElementById("chat-container");
+
+            var messageElement = document.createElement("div");
+            messageElement.classList.add("message");
+
+            if (message.senderUsername === crName) {
+                messageElement.classList.add("sender");
+            } else {
+                messageElement.classList.add("receiver");
+            }
+
+            messageElement.innerHTML = `
+            <div><strong>${message.senderUsername}</strong>: ${message.content}</div>
+            <span class="timestamp">${new Date(message.timestamp).toLocaleTimeString()}</span>
+        `;
+
+            chatContainer.prepend(messageElement);
+            chatContainer.scrollTop = 0; // Cuộn xuống dưới cùng khi có tin nhắn mới
+        }
+    </script>
+
+
+
+</head>
+<body>
+<h1>Chat Box</h1>
+<!-- Chat box wrapper -->
+<div id="chat-container" class="chat-container">
+    <!-- Tin nhắn sẽ được render vào đây qua JavaScript -->
+
+
+</div>
+<div class="message-input-container">
+    <textarea id="message-input" placeholder="Type your message..." rows="3"></textarea>
+    <button onclick="sendMessage()">Send</button>
+</div>
+
+<script>
+    // async function loadMessages() {
+    //     const chatId = [[${chatId}]];
+    //     const currentUserId = [[${currentUserId}]];
+    //      const crName = '[[${currentUserName}]]';
+    //
+    //     console.log(crName);
+    //
+    //     try {
+    //         const response = await fetch(`/api/chat/${chatId}`);
+    //         const messages = await response.json();
+    //         const chatContainer = document.getElementById("chat-container");
+    //
+    //         messages.forEach(message => {
+    //             const messageElement = document.createElement("div");
+    //             messageElement.classList.add("message");
+    //
+    //
+    //             // Căn chỉnh tin nhắn dựa vào senderUsername và currentUserId
+    //             if (message.senderUsername === crName) {
+    //                 console.log(crName);
+    //                 messageElement.classList.add("sender"); // Tin nhắn của người dùng hiện tại nằm bên phải
+    //             } else {
+    //                 messageElement.classList.add("receiver"); // Tin nhắn của người nhận nằm bên trái
+    //             }
+    //
+    //             messageElement.innerHTML = `
+    //             <div><strong>${message.senderUsername}</strong>: ${message.content}</div>
+    //             <span class="timestamp">${new Date(message.timestamp).toLocaleTimeString()}</span>
+    //         `;
+    //             chatContainer.appendChild(messageElement);
+    //         });
+    //     } catch (error) {
+    //         console.error("Error loading messages:", error);
+    //     }
+    // }
+    let currentPage = 0;  // Bắt đầu từ trang 0
+    let isLoading = false; // Tránh việc tải lại tin nhắn khi đang tải
+
+    async function loadMessages() {
+        if (isLoading) return; // Nếu đang tải tin nhắn thì không làm gì
+        isLoading = true; // Đánh dấu là đang tải
+
+        const chatId = [[${chatId}]];  // ID của chat
+        const currentUserId = [[${currentUserId}]];  // ID của người dùng hiện tại
+        const crName = '[[${currentUserName}]]';  // Tên người dùng
+
+        try {
+            const response = await fetch(`/api/chat/${chatId}?page=${currentPage}&size=8`);
+            const data = await response.json();
+            const messages = data.content; // Lấy phần 'content' từ dữ liệu trả về
+            const chatContainer = document.getElementById("chat-container");
+
+
+
+            // Đảm bảo không có tin nhắn nào trùng lặp khi load thêm
+            if (messages.length > 0) {
+                messages.forEach(message => {
+                    const messageElement = document.createElement("div");
+                    messageElement.classList.add("message");
+
+                    // Căn chỉnh tin nhắn dựa vào senderUsername và currentUserId
+                    if (message.senderUsername === crName) {
+                        messageElement.classList.add("sender"); // Tin nhắn của người dùng hiện tại nằm bên phải
+                    } else {
+                        messageElement.classList.add("receiver"); // Tin nhắn của người nhận nằm bên trái
+                    }
+
+                    messageElement.innerHTML = `
+                    <div><strong>${message.senderUsername}</strong>:</div> <div>
+
+                        </div>${message.content}</div>
+                    <span class="timestamp">${new Date(message.timestamp).toLocaleTimeString()}</span>
+                `;
+                    chatContainer.appendChild(messageElement);
+                });
+                // chatContainer.scrollTop = chatContainer.scrollHeight;
+                currentPage++;  // Tăng trang sau khi tải xong
+            }
+        } catch (error) {
+            console.error("Error loading messages:", error);
+        } finally {
+            isLoading = false;  // Đánh dấu tải xong
+        }
+
+    }
+
+    // Hàm này sẽ được gọi khi người dùng cuộn đến cuối trang
+    function onScroll() {
+        const chatContainer = document.getElementById("chat-container");
+        if (chatContainer.scrollTop === 0) {  // Nếu cuộn đến đầu trang
+            loadMessages();  // Tải thêm tin nhắn
+        }
+    }
+
+    // // Thêm sự kiện cuộn để tải tin nhắn khi cuộn lên
+    document.getElementById("chat-container").addEventListener("scroll", onScroll);
+
+    // Tải 10 tin nhắn đầu tiên khi trang được tải
+
+
+    // Load messages khi trang được load
+    window.onload = loadMessages;
+</script>
+</body>
+</html>

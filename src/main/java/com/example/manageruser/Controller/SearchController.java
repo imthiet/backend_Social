@@ -72,6 +72,7 @@ public class SearchController {
         model.addAttribute("listUser", usersPage.getContent());
         model.addAttribute("currentPage", usersPage.getNumber());
         model.addAttribute("totalPages", usersPage.getTotalPages());
+        model.addAttribute("usn", currentUsername);
 
         return "search";
     }

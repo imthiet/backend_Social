@@ -4,17 +4,22 @@
     <meta charset="UTF-8">
     <title>Messages</title>
 
-    <link rel="stylesheet" type="text/css" th:href="@{/css/newsfeed.css}"/>
+
     <link rel="stylesheet" type="text/css" th:href="@{/css/head_cus.css}"/>
     <link rel="stylesheet" type="text/css" th:href="@{/webjars/bootstrap/css/bootstrap.min.css}"/>
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="/js/sockjs.min.js"></script>
+    <script src="/js/stomp.min.js"></script>
 
     <style>
         .user-message-card {
             display: flex;
             align-items: center;
             margin-bottom: 20px;
+            border-radius: 8px;
+
+            box-shadow: -9px -9px 5px rgba(18, 3, 3, 0.1); /* X Offset, Y Offset, Blur, Màu */
         }
         .profile-img {
             border-radius: 50%;
@@ -24,6 +29,7 @@
         }
         .message-content {
             flex-grow: 1;
+
         }
         .last-message-time {
             font-size: 0.85rem;
@@ -33,15 +39,19 @@
         {
 
             padding-top: 100px;
+            width: 45%;
         }
+
+
     </style>
 </head>
 <body>
 <div th:replace="~{fragments/header :: header}"></div>
 
 <div class="container mt-4" id="message-container">
-    <h3>Messages</h3>
-    <div th:each="userMessage : ${usersWithMessages}" class="user-message-card">
+
+<!--    <span class="cmt-icon" style="cursor:pointer;" th:onclick="'toggleComments(' + ${post.id} + ')'">-->
+    <div th:each="userMessage : ${usersWithMessages}" class="user-message-card"  th:onclick="'openChatBox('+${userMessage.user.id}+')'">
         <!-- Profile Image Placeholder -->
         <div class="post-header">
             <img th:src="@{/Image/home_bgr.jpg}" alt="User Image" class="profile-img">
@@ -50,7 +60,7 @@
         <!-- User and Last Message Content -->
         <div class="message-content">
             <h5 th:text="${userMessage.user.username}">Username</h5>
-            <p th:text="${userMessage.lastMessage.content}">Last message content...</p>
+            <p th:text="${userMessage.lastMessage.content}" style="font-weight:normal">Last message content...</p>
         </div>
 
         <!-- Timestamp -->
@@ -59,9 +69,59 @@
             <span class="time-ago" th:attr="data-time=${userMessage.lastMessage.timestamp}"></span>
         </div>
 
+        <!-- Chat Box -->
+        <div th:each="userMessage : ${usersWithMessages}" class="chat-box" id="chat-box-[[${userMessage.user.id}]]" style="display: none;">
+            <h5>Chat with <span th:text="${userMessage.user.username}"></span></h5>
+            <div class="chat-messages" id="chat-messages-[[${userMessage.user.id}]]">
+                <!-- Messages will be displayed here -->
+            </div>
+            <input type="text" id="message-input-[[${userMessage.user.id}]]" placeholder="Type a message..." onkeypress="sendMessage(event, [[${userMessage.user.id}]])">
+        </div>
+
     </div>
 </div>
+<script>
+    // Kết nối WebSocket khi trang được load
+    const socket = new SockJS('/websocket');
+    const stompClient = Stomp.over(socket);
 
+    stompClient.connect({}, function () {
+        console.log('WebSocket Connected');
+    });
+    const currentUserId = '[[${usn}]]';
+    console.log("nguoi htai:"+currentUserId);
+    function sendMessage(event, userId) {
+        if (event.key === "Enter") {
+            const input = document.getElementById(`message-input-${userId}`);
+            const messageContent = input.value.trim();
+
+            if (messageContent) {
+                // Gửi tin nhắn đến server thông qua WebSocket
+                stompClient.send(`/app/chat/${userId}`, {}, JSON.stringify({
+                    content: messageContent,
+                    senderId: currentUserId/* ID của người dùng hiện tại */
+                }));
+
+                // Xóa input sau khi gửi
+                input.value = '';
+            }
+        }
+    }
+
+    // Nhận tin nhắn từ server
+    stompClient.subscribe('/user/queue/messages', function (message) {
+        const messageData = JSON.parse(message.body);
+
+        const chatMessages = document.getElementById(`chat-messages-${messageData.senderId}`);
+        if (chatMessages) {
+            // Thêm tin nhắn vào box chat tương ứng
+            const messageElement = document.createElement('p');
+            messageElement.textContent = messageData.content;
+            chatMessages.appendChild(messageElement);
+        }
+    });
+
+</script>
 <script>
     // Function to calculate "time ago"
     function timeAgo(timestamp) {
@@ -75,17 +135,17 @@
         var days = Math.floor(hours / 24);
 
         if (days > 1) {
-            return days + " days ago";
+            return days + " days";
         } else if (days === 1) {
-            return "1 day ago";
+            return "1 day ";
         } else if (hours > 1) {
-            return hours + " hours ago";
+            return hours + " h";
         } else if (hours === 1) {
-            return "1 hour ago";
+            return "1 hour";
         } else if (minutes > 1) {
-            return minutes + " minutes ago";
+            return minutes + " m";
         } else if (minutes === 1) {
-            return "1 minute ago";
+            return "1 minute";
         } else {
             return "just now";
         }
@@ -104,6 +164,33 @@
     document.addEventListener('DOMContentLoaded', function() {
         updateTimes();
     });
+
+    function openChatBox(userId) {
+        // Ẩn tất cả các hộp chat hiện tại
+        document.querySelectorAll('.chat-box').forEach(box => box.style.display = 'none');
+
+        // Hiện hộp chat của user đã chọn
+        const chatBox = document.getElementById(`chat-box-${userId}`);
+        if (chatBox) {
+            chatBox.style.display = 'block';
+
+            // // Cuộn xuống dưới cùng của hộp chat để xem tin nhắn mới nhất
+            // const chatMessages = document.getElementById(`chat-messages-${userId}`);
+            // if (chatMessages) {
+            //     chatMessages.scrollTop = chatMessages.scrollHeight;
+            // }
+
+            // Đặt focus vào ô nhập tin nhắn để có thể gõ ngay
+            const messageInput = document.getElementById(`message-input-${userId}`);
+            if (messageInput) {
+                messageInput.focus();
+            }
+        } else {
+            console.error(`Hộp chat không tồn tại cho userId: ${userId}`);
+        }
+    }
+
+
 </script>
 
 

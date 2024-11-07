@@ -48,7 +48,7 @@ public class UserService {
         return repo.findByUsername(username).isPresent(); // Cập nhật
     }
 
-    public User findById(int id) {
+    public User findById(long id) {
         return repo.findById(id).orElse(null);
 
     }
@@ -70,11 +70,11 @@ public class UserService {
     }
 
 
-    public void deleteById(Integer id) {
+    public void deleteById(long id) {
         repo.deleteById(id);
     }
 
-    public User get(Integer id) throws UserNotFoundException {
+    public User get(long id) throws UserNotFoundException {
         Optional<User> userById = repo.findById(id);
         if (userById.isPresent()) {
             return userById.get();
@@ -140,4 +140,7 @@ public class UserService {
     }
 
 
+    public String getUsernameById(long id) {
+       return repo.findById(id).get().getUsername();
+    }
 }

@@ -4,6 +4,7 @@ import com.example.manageruser.Model.FriendShip;
 import com.example.manageruser.Model.Post;
 import com.example.manageruser.Model.User;
 import com.example.manageruser.Service.FriendService;
+import com.example.manageruser.Service.LikeService;
 import com.example.manageruser.Service.PostService;
 import com.example.manageruser.Service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +26,8 @@ import java.security.Principal;
 import java.sql.Blob;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/profile")
@@ -39,7 +42,10 @@ public class ProfileController {
     @Autowired
     private PostService postService;
 
-     // profile của người dùng đã đăng nhập
+    @Autowired
+    private LikeService likeService;
+
+     // profile của người dùng khac
     @GetMapping("/{username}")
     public String showUserProfileByUsername(@PathVariable("username") String username,
                                             @RequestParam(defaultValue = "0") int page,
@@ -58,12 +64,15 @@ public class ProfileController {
         model.addAttribute("friends", friends);
 
         user.setFriend(friendService.isFriendAccepted(currentUser, user));
-        System.out.println("curent Use setfrr: " + currentUser + "User: " + user);
-        System.out.println(("isFriend: " + user.isFriend()));
+//        System.out.println("curent Use setfrr: " + currentUser + "User: " + user);
+//        System.out.println(("isFriend: " + user.isFriend()));
 
         user.setFriendPending(friendService.isFriendPending(currentUser, user));
-        System.out.println("curent User pending: " + currentUser + "User: " + user);
-        System.out.println("isFriendPending: " + user.isFriendPending());
+//        System.out.println("curent User pending: " + currentUser + "User: " + user);
+//        System.out.println("isFriendPending: " + user.isFriendPending());
+
+
+
 
         boolean isReceiver = friendService.isCurrentUserFriendRequestReceiver(user, currentUser);
 
@@ -72,7 +81,18 @@ public class ProfileController {
 
         Page<Post> userPostsPage = postService.findPostsByUID(user.getId(), page, size); // Lấy các bài post của người dùng với phân trang
 
+        // Đếm like cho từng bài post và thêm vào model
+        Map<Long, Long> likeCounts = userPostsPage.stream()
+                .collect(Collectors.toMap(Post::getId, post -> likeService.countLikesByPostId(post.getId())));
+
+        // Kiểm tra xem từng bài post có được like bởi người dùng hay không
+        for (Post post : userPostsPage) {
+            boolean isLiked = likeService.existsByUserIdAndPostId(currentUser.getId(), post.getId());
+            post.setLiked(isLiked); // Cần thêm phương thức setLiked vào class Post
+        }
+
         model.addAttribute("user", user);
+        model.addAttribute("likeCounts",likeCounts);
         model.addAttribute("userPosts", userPostsPage.getContent()); // Truyền danh sách bài viết cho view
         model.addAttribute("currentPage", userPostsPage.getNumber()); // Trang hiện tại
         model.addAttribute("totalPages", userPostsPage.getTotalPages()); // Tổng số trang
@@ -82,7 +102,7 @@ public class ProfileController {
 
 
 
-    // Hiển thị profile của người dùng khác dựa trên username
+    // Hiển thị profile của người dùng hien tai
     @GetMapping
     public String showUserProfile(@RequestParam(defaultValue = "0") int page,
                                   @RequestParam(defaultValue = "10") int size,
@@ -91,7 +111,7 @@ public class ProfileController {
         String username = authentication != null ? authentication.getName() : null;
 
         User u = userService.findByUsername(username);
-        int u_id = u.getId();
+        long u_id = u.getId();
 
         if (username == null) {
             return "redirect:/login"; // Nếu chưa đăng nhập, chuyển hướng về trang login
@@ -106,6 +126,7 @@ public class ProfileController {
         Page<Post> userPostsPage = postService.findPostsByUID(u_id, page, size); // Lấy các bài post của người dùng với phân trang
 
         model.addAttribute("user", user);
+
         model.addAttribute("friends", friends);
         model.addAttribute("userPosts", userPostsPage.getContent()); // Truyền danh sách bài viết cho view
         model.addAttribute("currentPage", userPostsPage.getNumber()); // Trang hiện tại

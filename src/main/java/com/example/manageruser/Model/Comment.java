@@ -22,8 +22,7 @@ public class Comment {
     @Column(nullable = false)
     private String content;
 
-    @Column(nullable = false)
-    private Date createdAt;
+
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
@@ -32,4 +31,10 @@ public class Comment {
     @ManyToOne
     @JoinColumn(name = "post_id", nullable = false)
     private Post post;
+
+    @Column(nullable = false, updatable = false)
+    @Temporal(TemporalType.TIMESTAMP)
+    @org.hibernate.annotations.CreationTimestamp
+    private Date createdAt;
+
 }

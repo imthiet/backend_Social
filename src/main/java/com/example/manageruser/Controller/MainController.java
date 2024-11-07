@@ -29,7 +29,8 @@ public class MainController {
 
        return "login";
     }
-     @GetMapping("/noti_list")
+
+    @GetMapping("/noti_list")
     public String viewNotificationsPage(@AuthenticationPrincipal UserDetails userDetails, Model model) {
         // Get username from Principal
         String username = userDetails.getUsername();
@@ -39,8 +40,12 @@ public class MainController {
 
         // Add user ID to the model
         model.addAttribute("userId", currentUser.getId());
+        model.addAttribute("usn", username);
 
         return "notifications";  // this points to notifications.html in the templates directory
     }
+
+
+
 
 }

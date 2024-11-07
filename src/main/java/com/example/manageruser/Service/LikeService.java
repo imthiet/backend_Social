@@ -12,12 +12,21 @@ public class LikeService {
     @Autowired
     private LikeRepository likeRepository;
 
-    public boolean existsByUserAndPost(User user, Post post) {
-        return likeRepository.existsByUserAndPost(user, post);
+    public boolean existsByUserIdAndPostId(long userId, Long postId) {
+        return likeRepository.existsByUserIdAndPostId(userId, postId);
     }
-
     public void save(Like like) {
         likeRepository.save(like);
     }
+
+    public Long countLikesByPostId(Long postId) {
+        return likeRepository.countByPostId(postId);
+    }
+
+    // LikeService
+    public void deleteByUserIdAndPostId(long userId, Long postId) {
+        likeRepository.deleteByUserIdAndPostId(userId, postId);
+    }
+
 }
 

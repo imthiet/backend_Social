@@ -1,7 +1,5 @@
 package com.example.manageruser.Model;
 
-
-
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -36,4 +34,3 @@ public class Chat {
     )
     private List<User> participants;
 }
-

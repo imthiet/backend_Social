@@ -19,7 +19,7 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
 
 
         //List<Notification> findByReceiver_Username(String username); // Sử dụng underscore để truy vấn
-        List<Notification> findByReceiverIdAndStatus(int receiverId, String status);
+        List<Notification> findByReceiverIdAndStatus(long receiverId, String status);
     List<Notification> findByReceiverAndStatus(User receiver, String status);
 
     List<Notification> findByReceiver(User receiver);
@@ -27,7 +27,7 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
 
 
         // Add pagination support
-        Page<Notification> findByReceiverId(int receiverId, Pageable pageable);
+        Page<Notification> findByReceiverId(long receiverId, Pageable pageable);
 
 
 

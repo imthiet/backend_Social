@@ -10,6 +10,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
@@ -33,7 +34,7 @@ public class NotificationController {
     public ResponseEntity<List<Notification>> getUnreadNotifications(Principal principal) {
         User user = userService.findByUsername(principal.getName()); // Get the currently logged-in user
         List<Notification> notifications = notificationService.getUnreadNotifications(user); // Fetch unread notifications
-        System.out.println("thong bao: " + notifications);
+
         return ResponseEntity.ok(notifications); // Return the notifications as a response
     }
     // Fetch all notifications for the current user
@@ -55,6 +56,7 @@ public class NotificationController {
                 .collect(Collectors.toList());
 
         return ResponseEntity.ok(notificationDTOs);
+
     }
 
 

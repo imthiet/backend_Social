@@ -66,7 +66,7 @@ public class UserRepositoryTests {
     @Test
     public void testUpdate()
     {
-        Integer id = 1;
+        long id = 1;
         Optional<User> findU = repo.findById(id);
         User user = findU.get();
         user.setUsername("changed usname");
@@ -80,7 +80,7 @@ public class UserRepositoryTests {
     @Test
     public void Get()
     {
-        Integer id = 3;
+        long id = 3;
         Optional<User> findU = repo.findById(id);
         assertThat(findU).isPresent();
         System.out.println(findU.get());
@@ -97,7 +97,7 @@ public class UserRepositoryTests {
     @Test
     public void delete()
     {
-        Integer id = 3;
+        long id = 3;
         repo.deleteById(id);
         Optional<User> findU = repo.findById(id);
         assertThat(findU).isNotPresent();

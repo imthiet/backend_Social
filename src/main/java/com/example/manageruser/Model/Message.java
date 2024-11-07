@@ -3,10 +3,10 @@ package com.example.manageruser.Model;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "message")
+@Table(name = "messages")
 @Getter
 @Setter
 @NoArgsConstructor
@@ -17,20 +17,23 @@ public class Message {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
-	@Enumerated(EnumType.STRING)
-	@Column(nullable = false)
-	private MsgType type;
-
 	@Column(nullable = false)
 	private String content;
 
 	@Column(nullable = false)
-	private String sender;
+	private LocalDateTime timestamp;
 
-	@Column(nullable = false)
-	private Date timestamp;
-
-	@ManyToOne
-	@JoinColumn(name = "chat_id", nullable = false)
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "chat_id")
 	private Chat chat;
+
+	// Người gửi
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "sender_id", nullable = false)
+	private User sender;
+
+	// Người nhận
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "receiver_id", nullable = false)
+	private User receiver;
 }

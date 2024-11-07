@@ -13,7 +13,7 @@
 <body>
 <div th:replace="~{fragments/header :: header}"></div>
 
-<div class="container mt-5">
+<div class="container mt-5" style="width: 50%">
     <div class="row mb-4">
         <div class="col-md-4">
             <img th:src="@{/profile/display(id=${user.id})}" alt="User Avatar" class="img-fluid rounded-circle"
@@ -57,14 +57,17 @@
                             onclick="approveFriendRequest(this.getAttribute('data-username'))">
                         Approve
                     </button>
+<!--                    <a href="#" th:onclick="'deletePost(' + ${post.id} + ')'">Delete</a>-->
+                    <button type = "button" class = "btn-approve" style="margin-left: 10px" th:attr="data-username=${user.username}" onclick="createChat(this.getAttribute('data-username'))">
+                        Chat
+                    </button>
 
-                    <!-- Thêm icon dấu 3 chấm ở bên phải -->
                     <!-- Icon để mở dropdown -->
-                    <img src="/Image/block-chain.png" alt="More" class="dropdown-icon" onclick="toggleDropdown()">
+                    <img src="/Image/block-chain.png" alt="More" class="dropdown-icon" style="margin-left: 10px" onclick="toggleDropdown()">
 
                     <!-- Dropdown menu -->
                     <div id="custom-dropdown" class="dropdown-content-custom">
-                        <a href="#">Option 1</a>
+                        <a href="#">Cancel FriendShip</a>
                         <a href="#">Option 2</a>
                         <a href="#">Option 3</a>
                     </div>
@@ -94,14 +97,39 @@
             <div class="post-list">
                 <div class="card mb-3" th:each="post : ${userPosts}">
                     <div class="card-body">
-                        <img th:if="${post.png != null}"
-                             th:src="@{'/post/image?id=' + ${post.id}}"
-                             alt="Image not available"
-                             style="width:200px; height:200px; border-radius:10%;"
-                             onerror="this.onerror=null;this.src='Image/backgr.png';"/>
-                        <p class="card-text" th:text="${post.content}">This is the content of the post.</p>
-                        <p class="text-muted" th:text="${#dates.format(post.createdAt, 'dd/MM/yyyy HH:mm')}">Posted on:
-                            01/01/2023</p>
+                            <img th:if="${post.png != null}"
+                                 th:src="@{'/post/image?id=' + ${post.id}}"
+                                 alt="Image not available"
+                                 style="width:200px; height:200px; border-radius:10%;"
+                                 onerror="this.onerror=null;this.src='Image/backgr.png';"/>
+                            <p class="card-text" th:text="${post.content}">This is the content of the post.</p>
+                            <p class="text-muted" th:text="${#dates.format(post.createdAt, 'dd/MM/yyyy HH:mm')}">Posted on:
+                                01/01/2023</p>
+                    </div>
+
+                    <div class="post-action">
+                        <!-- Like Icon -->
+                                    <span class="like-icon" style="cursor:pointer;">
+                                        <img th:src="${post.liked ? '/Image/heart.png' : '/Image/like.png'}"
+                                             alt="Like" style="width: 20px; height: 20px; margin-top: 20px"
+                                             th:onclick="'toggleLike(' + ${post.id} + ')'" />
+                                                    <span th:id="'like-count-' + ${post.id}" th:text="${likeCounts[post.id]}">0</span>
+                                    </span>
+
+                                    <span class="cmt-icon" style="cursor:pointer;" th:onclick="'toggleComments(' + ${post.id} + ')'">
+                                            <img th:src="@{/Image/cmt.png}" alt="comment" style="width: 25px; height: 25px; margin-left: 50px; margin-top: 27px"/>
+                                     </span>
+
+                                    <!-- Comment Section -->
+                                    <div class="comment-section" th:id="'comment-section-'+ ${post.id}" style="display: none;">
+                                        <input type="text" th:id="'new-comment-' + ${post.id}" placeholder="Show what you think..." required />
+                                        <button type="button" id="submit-cmt-box" th:onclick="'submitComment(' + ${post.id} + ')'">Submit</button>
+
+                                        <div class="comments-list" th:id="'comments-list-'+ ${post.id}" >
+                                            <!-- Comments will be dynamically inserted here -->
+                                        </div>
+                                        <button type="button" id="load-more-btn" th:onclick="'loadMoreComments(' + ${post.id} + ')'">Load More</button>
+                                    </div>
                     </div>
                 </div>
             </div>
@@ -144,10 +172,148 @@
             }))
             .catch(error => alert('Error: ' + error.message));
     }
+    function createChat(receiverUsername) {
+        console.log("Reciever name:" +receiverUsername);
+        fetch('/api/chat/createChat/' + receiverUsername, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data) {
+                    // Chuyển đến trang chatbox với ID chat mới
+                    window.location.href = '/chat/' + data; // Giả sử URL chatbox là /chat/{chatId}
+                } else {
+                    alert('Không thể tạo chat');
+                }
+            })
+            .catch(error => {
+                console.error('Lỗi khi tạo chat:', error);
+                alert('Có lỗi xảy ra');
+            });
+    }
 
     function updateButton(button, text, className) {
         button.innerText = text;
         button.className = `btn ${className}`;
+    }
+    function toggleComments(postId) {
+        const commentSection = document.getElementById(`comment-section-${postId}`);
+        const commentsList = document.getElementById(`comments-list-${postId}`);
+
+        if (commentSection.style.display === 'block') {
+            commentSection.style.display = 'none';
+        } else if (commentSection.style.display === 'none') {
+            commentSection.style.display = 'block';
+            // If it's hidden, fetch and display comments
+            fetch(`/comments/post/${postId}?page=0&size=3`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok ' + response.statusText);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    const comments = data.content; // Get only the content part of the response
+                    console.log("Fetched comments:", comments); // Log the fetched comments
+                    // Clear previous comments
+                    commentsList.innerHTML = ''; // Clear existing comments
+
+                    // Check if there are comments
+                    if (Array.isArray(comments) && comments.length === 0) {
+                        const noCommentsMessage = document.createElement('div');
+                        noCommentsMessage.textContent = 'No comments yet. Be the first to comment!';
+                        commentsList.appendChild(noCommentsMessage);
+                    } else if (Array.isArray(comments)) {
+                        comments.forEach(comment => {
+                            const commentElement = document.createElement('div');
+                            commentElement.className = 'comment';
+
+                            // Create a div for the avatar and username
+                            const header = document.createElement('div');
+                            header.innerHTML = `
+                            ${comment.image ? `<img src="data:image/jpeg;base64,${comment.image}" alt="${comment.username}'s avatar" style="width: 30px; height: 30px; border-radius: 50%; margin-right: 5px;" />` : ''}
+                            <strong>${comment.username}</strong>
+                        `;
+
+                            // Create a div for the content
+                            const content = document.createElement('div');
+                            content.textContent = comment.content;
+
+                            // Append header and content to the comment element
+                            commentElement.appendChild(header);
+                            commentElement.appendChild(content);
+
+                            // Append the comment element to the comments list
+                            commentsList.appendChild(commentElement);
+                        });
+                    } else {
+                        console.error("Expected an array of comments but received:", comments);
+                    }
+                    commentsList.style.display = 'block'; // Show comments list
+                })
+                .catch(error => console.error('Error fetching comments:', error));
+        }
+
+        console.log("Toggle comment section for post ID:", postId);
+    }
+    function loadMoreComments(postId) {
+        currentPage++; // Increment page number
+        loadComments(postId); // Load comments for the next page
+    }
+    function submitComment(postId) {
+        const commentInput = document.getElementById(`new-comment-${postId}`);
+        console.log(`Input value for post ID ${postId}:`, commentInput.value); // Log the input value
+
+        if (!commentInput) {
+            console.error(`No input found for post ID ${postId}`);
+            return; // Exit if the input is not found
+        }
+
+        const content = commentInput.value;
+
+        if (!content) {
+            console.error('Comment content cannot be empty');
+            return; // Exit if content is empty
+        }
+
+        fetch(`/comments/add?postId=${postId}&content=${encodeURIComponent(content)}`, {
+            method: 'POST',
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok ' + response.statusText);
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log(data);
+                commentInput.value = ''; // Clear input after sending
+
+                // Append the new comment to the comments list
+                const commentsList = document.getElementById(`comments-list-${postId}`);
+                const commentElement = document.createElement('div');
+                commentElement.className = 'comment'; // Add a class for styling
+
+                // Create a div for the avatar and username if needed
+                const header = document.createElement('div');
+                header.innerHTML = `<strong>${data.username}</strong>`; // Assuming your response contains the username
+
+                // Create a div for the content
+                const contentDiv = document.createElement('div');
+                contentDiv.textContent = content;
+
+                // Append header and content to the comment element
+                commentElement.appendChild(header);
+                commentElement.appendChild(contentDiv);
+
+                // Append the comment element to the comments list
+                commentsList.appendChild(commentElement);
+                commentsList.style.display = 'block'; // Ensure comments list is shown
+            })
+            .catch(error => console.error('Error:', error));
     }
 
 
@@ -191,6 +357,81 @@
                 }
             }
         }
+    }
+    function toggleLike(postId) {
+        fetch(`/like?postId=${postId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+            .then(response => response.json())
+            .then(data => {
+                const likeCountElement = document.getElementById(`like-count-${postId}`);
+                let currentLikeCount = parseInt(likeCountElement.innerText);
+
+                if (data.isLiked) {
+                    // Nếu người dùng đã like, tăng số lượng like và đổi icon
+                    likeCountElement.innerText = currentLikeCount + 1;
+                    document.querySelector(`img[onclick="toggleLike(${postId})"]`).src = "/Image/heart.png";
+                } else {
+                    // Nếu người dùng unlike, giảm số lượng like và đổi icon
+                    likeCountElement.innerText = currentLikeCount - 1;
+                    document.querySelector(`img[onclick="toggleLike(${postId})"]`).src = "/Image/like.png";
+                }
+            })
+            .catch(error => console.error('Error:', error));
+    }
+    function loadMoreComments(postId) {
+        currentPagecmt++; // Increment the page number
+
+        const commentsList = document.getElementById(`comments-list-${postId}`);
+
+        // Fetch additional comments for the specified postId
+        fetch(`/comments/post/${postId}?page=${currentPagecmt}&size=5`) // Adjust size as needed
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok ' + response.statusText);
+                }
+                return response.json();
+            })
+            .then(data => {
+                const comments = data.content; // Extract only the comments content
+                console.log("Loaded more comments:", comments); // Log the loaded comments
+
+                // Check if there are comments
+                if (Array.isArray(comments) && comments.length === 0) {
+                    const noMoreCommentsMessage = document.createElement('div');
+                    noMoreCommentsMessage.textContent = 'No more comments to load.';
+                    commentsList.appendChild(noMoreCommentsMessage);
+                } else if (Array.isArray(comments)) {
+                    comments.forEach(comment => {
+                        const commentElement = document.createElement('div');
+                        commentElement.className = 'comment';
+
+                        // Create a div for the avatar and username
+                        const header = document.createElement('div');
+                        header.innerHTML = `
+                        ${comment.image ? `<img src="data:image/jpeg;base64,${comment.image}" alt="${comment.username}'s avatar" style="width: 30px; height: 30px; border-radius: 50%; margin-right: 5px;" />` : ''}
+                        <strong>${comment.username}</strong>
+                    `;
+
+                        // Create a div for the content
+                        const content = document.createElement('div');
+                        content.textContent = comment.content;
+
+                        // Append header and content to the comment element
+                        commentElement.appendChild(header);
+                        commentElement.appendChild(content);
+
+                        // Append the comment element to the comments list
+                        commentsList.appendChild(commentElement);
+                    });
+                } else {
+                    console.error("Expected an array of comments but received:", comments);
+                }
+            })
+            .catch(error => console.error('Error fetching comments:', error));
     }
 
 </script>

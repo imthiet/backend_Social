@@ -22,9 +22,9 @@ public interface PostRepository extends JpaRepository<Post, Long> {
 
     @Query("SELECT p FROM Post p WHERE p.user.id IN " +
             "(SELECT f.friend.id FROM FriendShip f WHERE f.user.id = :userId AND f.accepted = true)")
-    Page<Post> findPostsByFriendship(@Param("userId") int userId, Pageable pageable);
+    Page<Post> findPostsByFriendship(@Param("userId") long userId, Pageable pageable);
 
     // Phương thức lấy các bài viết theo userId với phân trang
     @Query("SELECT p FROM Post p WHERE p.user.id = ?1 ORDER BY p.createdAt DESC")
-    Page<Post> getPostsByUserId(int userId, Pageable pageable);
+    Page<Post> getPostsByUserId(long userId, Pageable pageable);
 }

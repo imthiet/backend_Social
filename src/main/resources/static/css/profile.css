@@ -196,7 +196,7 @@ header {
     display: none; /* Ẩn menu mặc định */
     position: absolute;
     top: 50px; /* Khoảng cách từ icon xuống menu */
-    left: 5%; /* Canh menu cùng chiều trái với icon */
+    left: 25%; /* Canh menu cùng chiều trái với icon */
     background-color: #fff;
     min-width: 100px;
     box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);

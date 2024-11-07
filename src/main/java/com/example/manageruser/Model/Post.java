@@ -19,6 +19,9 @@ public class Post {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Transient // Thêm annotation này để không lưu vào DB
+    private boolean liked;
+
     @Column(nullable = false)
     private String content;
 
@@ -28,6 +31,14 @@ public class Post {
     @Lob
     @JsonIgnore
     private Blob png;
+
+    public boolean isLiked() {
+        return liked;
+    }
+
+    public void setLiked(boolean liked) {
+        this.liked = liked;
+    }
 
     public Long getId() {
         return id;

@@ -47,13 +47,13 @@ public class NotificationService {
     }
 
     // Get notifications by receiver's ID
-    public Page<Notification> getNotificationsByReceiverId(int userId, int page, int size) {
+    public Page<Notification> getNotificationsByReceiverId(long userId, int page, int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("timestamp").descending());
         return notificationRepository.findByReceiverId(userId, pageable);
     }
 
 
-    public void markAllAsRead(int userId) {
+    public void markAllAsRead(long userId) {
         List<Notification> notifications = notificationRepository.findByReceiverIdAndStatus(userId, "unread");
         notifications.forEach(notification -> notification.setStatus("read"));
         notificationRepository.saveAll(notifications); // Lưu tất cả các thông báo đã cập nhật

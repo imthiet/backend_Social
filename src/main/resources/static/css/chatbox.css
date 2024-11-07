@@ -1,0 +1,90 @@
+body {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+}
+
+.chat-container {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 10px;
+    border: #00285A solid 2px;
+    border-radius: 12px;
+    height: 80%; /* Điều chỉnh độ cao của khu vực chat */
+    overflow-y: auto;
+    box-shadow: -12px -15px 5px rgba(18, 3, 3, 0.1); /* X Offset, Y Offset, Blur, Màu */
+}
+
+.message {
+    margin: 10px 0;
+    padding: 10px;
+    border-radius: 8px;
+    max-width: 70%;
+}
+
+.sender {
+    align-self: flex-end;
+    background-color: #d1e7dd;
+}
+
+.receiver {
+    align-self: flex-start;
+    background-color: #f8d7da;
+}
+
+.timestamp {
+    font-size: 0.8em;
+    color: gray;
+    display: block;
+    text-align: right;
+    margin-top: 5px;
+}
+
+.message-input-container {
+    display: flex;
+    justify-content: center; /* Căn giữa cả textarea và button */
+    align-items: center; /* Căn giữa theo chiều dọc */
+    width: 40%; /* Chiều rộng 100% của màn hình */
+    padding: 10px;
+}
+
+textarea {
+    width: 60%; /* Điều chỉnh chiều rộng của textarea */
+    padding: 10px;
+    border-radius: 8px;
+    resize: none;
+    height: 30%;
+    box-shadow: -5px -5px 5px rgba(18, 3, 3, 0.1); /* X Offset, Y Offset, Blur, Màu */
+}
+
+button {
+    width: 20%; /* Điều chỉnh chiều rộng của button */
+    padding: 10px;
+    background-color: #00285A;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    margin-left: 20px;
+}
+
+button:hover {
+    background-color: #04519e;
+}
+.message {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 10px;
+}
+
+.timestamp {
+    font-size: 0.9em;
+    color: #888;
+    margin-top: 5px; /* Thêm khoảng cách giữa nội dung và thời gian */
+}
