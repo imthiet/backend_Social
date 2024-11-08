@@ -45,7 +45,7 @@ public class ProfileController {
     @Autowired
     private LikeService likeService;
 
-     // profile của người dùng khac
+    // profile của người dùng khac
     @GetMapping("/{username}")
     public String showUserProfileByUsername(@PathVariable("username") String username,
                                             @RequestParam(defaultValue = "0") int page,
@@ -72,8 +72,6 @@ public class ProfileController {
 //        System.out.println("isFriendPending: " + user.isFriendPending());
 
 
-
-
         boolean isReceiver = friendService.isCurrentUserFriendRequestReceiver(user, currentUser);
 
 
@@ -92,14 +90,13 @@ public class ProfileController {
         }
 
         model.addAttribute("user", user);
-        model.addAttribute("likeCounts",likeCounts);
+        model.addAttribute("likeCounts", likeCounts);
         model.addAttribute("userPosts", userPostsPage.getContent()); // Truyền danh sách bài viết cho view
         model.addAttribute("currentPage", userPostsPage.getNumber()); // Trang hiện tại
         model.addAttribute("totalPages", userPostsPage.getTotalPages()); // Tổng số trang
 
         return "profile_view"; // Trả về view profile với thông tin người dùng, bạn bè, và bài viết
     }
-
 
 
     // Hiển thị profile của người dùng hien tai
@@ -134,8 +131,6 @@ public class ProfileController {
 
         return "profile"; // Trả về view profile với thông tin người dùng và bạn bè
     }
-
-
 
 
     // Upload avatar cho người dùng

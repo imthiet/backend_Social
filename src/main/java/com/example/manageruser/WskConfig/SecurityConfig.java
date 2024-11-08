@@ -53,13 +53,13 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/css/**", "/js/**", "/Image/**", "/webjars/**", "/users/**", "/avartar/**","/ws/**","/viewProfile","post/**","post/update/**","/comments/post/**").permitAll()
+                        .requestMatchers("/css/**","/verify", "/js/**", "/Image/**", "/webjars/**", "/users/**", "/avartar/**","/ws/**","/viewProfile","post/**","post/update/**","/comments/post/**").permitAll()
                         .requestMatchers("/users").hasRole("ADMIN")// Cho phép admin dang nhap
                         .anyRequest().authenticated() // Các URL còn lại yêu cầu xác thực
                 )
                 .formLogin(form -> form
                         .loginPage("/login") // Custom trang login
-                        .failureUrl("/login?error")
+                        .failureHandler(new CustomAuthenticationFailureHandler())
                         .defaultSuccessUrl("/newsfeed", true)
                         .permitAll() // Cho phép truy cập vào trang login
                 )

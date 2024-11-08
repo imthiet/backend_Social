@@ -15,10 +15,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
+import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+
 
 @RestController
 @RequestMapping("/api/chat")
@@ -99,6 +101,27 @@ public class MessageRestController {
                 .build();
 
         chatRepository.save(newChat);
+        // Gửi tin nhắn mặc định sau khi tạo chat
+        String defaultMessage = "We are friends! Let's talk!";
+
+        Message message = new Message();
+        message.setChat(newChat);
+        message.setSender(sender);
+        message.setReceiver(receiver);
+        message.setContent(defaultMessage);
+        message.setTimestamp(LocalDateTime.now());
+
+        Message message1 = new Message();
+        message1.setChat(newChat);
+        message1.setSender(receiver);
+        message1.setReceiver(sender);
+        message1.setContent(defaultMessage);
+        message1.setTimestamp(LocalDateTime.now());
+
+        messageRepository.save(message);
+        messageRepository.save(message1);
+        // Lưu tin nhắn vào cơ sở dữ liệu
+
 
         return ResponseEntity.ok(newChat.getId());  // Trả về ID của chat mới
     }

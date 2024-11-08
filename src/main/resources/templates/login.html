@@ -35,9 +35,9 @@
             Welcome to Now Feed
         </div>
 
-        <!-- Error message inside the form -->
-        <div th:if="${error}" class="alert alert-danger text-center">
-            [[${error}]]
+        <!-- login.html -->
+        <div th:if="${param.error}" style="color:red;">
+            <p th:text="${param.error}"></p>
         </div>
 
         <div class="mb-3">

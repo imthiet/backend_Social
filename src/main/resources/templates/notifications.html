@@ -109,8 +109,16 @@
                     // Nếu type là ADD_FRIEND, thêm sự kiện click để chuyển hướng đến profile
                     if (noti.type === "ADD_FRIEND") {
                         $notificationElement.on('click', () => {
-                           // notifyProfileView(noti.sender_username); // Gọi hàm xử lý sự kiện (nếu có)
+
                             window.location.href = `/profile/${encodeURIComponent(noti.sender_username)}`;
+                        });
+                    }
+                    else if (noti.type == "MESSAGE")
+                    {
+                        $notificationElement.on('click', () => {
+
+
+                            opennotiChat(noti.sender_username);
                         });
                     }
 
@@ -157,6 +165,40 @@
             }
         });
     });
+
+    function opennotiChat(receiverUsername) {
+        console.log("clicked: "+receiverUsername);
+        if(receiverUsername != null)
+        {
+            console.log(receiverUsername);
+        }
+        else {
+            console.log("Name is Null");
+        }
+        fetch('/api/chat/createChat/' + receiverUsername, {
+
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Failed to create or find chat');
+                }
+                return response.json(); // Chuyển kết quả thành JSON
+            })
+            .then(data => {
+                const chatId = data; // Nếu API trả về chatId trực tiếp, dùng dòng này
+                // const chatId = data.chatId; // Nếu API trả về dưới dạng { "chatId": 123 }, bỏ comment dòng này
+
+                window.location.href = `/chat/${chatId}`;
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Unable to open chat.');
+            });
+    }
 
 </script>
 

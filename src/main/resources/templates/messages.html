@@ -6,80 +6,44 @@
 
 
     <link rel="stylesheet" type="text/css" th:href="@{/css/head_cus.css}"/>
+    <link rel="stylesheet" type="text/css" th:href="@{/css/msglist.css}"/>
     <link rel="stylesheet" type="text/css" th:href="@{/webjars/bootstrap/css/bootstrap.min.css}"/>
+
+
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="/js/sockjs.min.js"></script>
     <script src="/js/stomp.min.js"></script>
 
     <style>
-        .user-message-card {
-            display: flex;
-            align-items: center;
-            margin-bottom: 20px;
-            border-radius: 8px;
-
-            box-shadow: -9px -9px 5px rgba(18, 3, 3, 0.1); /* X Offset, Y Offset, Blur, Màu */
-        }
-        .profile-img {
-            border-radius: 50%;
-            width: 50px;
-            height: 50px;
-            margin-right: 15px;
-        }
-        .message-content {
-            flex-grow: 1;
-
-        }
-        .last-message-time {
-            font-size: 0.85rem;
-            color: gray;
-        }
-        #message-container
-        {
-
-            padding-top: 100px;
-            width: 45%;
-        }
-
 
     </style>
 </head>
 <body>
 <div th:replace="~{fragments/header :: header}"></div>
 
-<div class="container mt-4" id="message-container">
+        <div class="container mt-4" id="message-container">
 
-<!--    <span class="cmt-icon" style="cursor:pointer;" th:onclick="'toggleComments(' + ${post.id} + ')'">-->
-    <div th:each="userMessage : ${usersWithMessages}" class="user-message-card"  th:onclick="'openChatBox('+${userMessage.user.id}+')'">
-        <!-- Profile Image Placeholder -->
-        <div class="post-header">
-            <img th:src="@{/Image/home_bgr.jpg}" alt="User Image" class="profile-img">
-        </div>
+            <div th:each="userMessage : ${usersWithMessages}" class="user-message-card"
+                 th:attr="data-username=${userMessage.user.username}" onclick="openChat(this.getAttribute('data-username'))">
+                    <!-- Nội dung cho từng user message card -->
+                        <div class="post-header">
+                            <img th:src="@{/Image/home_bgr.jpg}" alt="User Image" class="profile-img">
+                        </div>
+                        <div class="message-content">
+                            <h5 th:text="${userMessage.user.username}">Username</h5>
+                            <p th:text="${userMessage.lastMessage.content}" style="font-weight:normal">Last message content...</p>
+                        </div>
+<!--                <input type="text" th:id="'new-comment-' + ${post.id}" placeholder="Show what you think..." required />-->
+<!--                <div class="online-indicator" th:id="'online-'+${userMessage.user.username}" style="display: none;"></div>-->
+                        <div class="last-message-time">
+                            <span class="time-ago" th:attr="data-time=${userMessage.lastMessage.timestamp}"></span>
+                    </div>
 
-        <!-- User and Last Message Content -->
-        <div class="message-content">
-            <h5 th:text="${userMessage.user.username}">Username</h5>
-            <p th:text="${userMessage.lastMessage.content}" style="font-weight:normal">Last message content...</p>
-        </div>
-
-        <!-- Timestamp -->
-        <!-- Timestamp -->
-        <div class="last-message-time">
-            <span class="time-ago" th:attr="data-time=${userMessage.lastMessage.timestamp}"></span>
-        </div>
-
-        <!-- Chat Box -->
-        <div th:each="userMessage : ${usersWithMessages}" class="chat-box" id="chat-box-[[${userMessage.user.id}]]" style="display: none;">
-            <h5>Chat with <span th:text="${userMessage.user.username}"></span></h5>
-            <div class="chat-messages" id="chat-messages-[[${userMessage.user.id}]]">
-                <!-- Messages will be displayed here -->
             </div>
-            <input type="text" id="message-input-[[${userMessage.user.id}]]" placeholder="Type a message..." onkeypress="sendMessage(event, [[${userMessage.user.id}]])">
-        </div>
 
-    </div>
-</div>
+
+        </div>
 <script>
     // Kết nối WebSocket khi trang được load
     const socket = new SockJS('/websocket');
@@ -90,9 +54,39 @@
     });
     const currentUserId = '[[${usn}]]';
     console.log("nguoi htai:"+currentUserId);
+
+    // function checkUserStatus(username) {git
+    //     fetch(`/api/status/${username}`)
+    //         .then(response => response.json())
+    //         .then(data => {
+    //             console.log("Trạng thái người dùng đã được cập nhật:", data);
+    //             updateChatListStatus(data.username, data.online);
+    //         })
+    //         .catch(error => console.error('Lỗi khi kiểm tra trạng thái người dùng:', error));
+    // }
+    //
+    // function updateChatListStatus(username, isOnline) {
+    //     const onlineIndicator = document.getElementById(`online-${username}`);
+    //     if (onlineIndicator) {
+    //         console.log("Cap nhat indicator");
+    //         onlineIndicator.style.display = isOnline ? 'inline-block' : 'none';
+    //     }
+    //     else {
+    //         console.log("Khong thay id indicator");
+    //     }
+    //
+    // }
+    //
+    // // Kiểm tra trạng thái mỗi 5 giây
+    // setInterval(() => {
+    //     const username = '[[${usn}]]';  // Thay thế bằng tên người dùng thực tế
+    //     checkUserStatus(username);
+    // }, 2000);
+
+
     function sendMessage(event, userId) {
         if (event.key === "Enter") {
-            const input = document.getElementById(`message-input-${userId}`);
+            const input = document.getElementById('message-input-${userId}');
             const messageContent = input.value.trim();
 
             if (messageContent) {
@@ -112,7 +106,7 @@
     stompClient.subscribe('/user/queue/messages', function (message) {
         const messageData = JSON.parse(message.body);
 
-        const chatMessages = document.getElementById(`chat-messages-${messageData.senderId}`);
+        const chatMessages = document.getElementById('chat-messages-${messageData.senderId}');
         if (chatMessages) {
             // Thêm tin nhắn vào box chat tương ứng
             const messageElement = document.createElement('p');
@@ -120,6 +114,40 @@
             chatMessages.appendChild(messageElement);
         }
     });
+    function openChat(receiverUsername) {
+        console.log("clicked: "+receiverUsername);
+        if(receiverUsername != null)
+        {
+            console.log(receiverUsername);
+        }
+        else {
+            console.log("Name is Null");
+        }
+        fetch('/api/chat/createChat/' + receiverUsername, {
+
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Failed to create or find chat');
+                }
+                return response.json(); // Chuyển kết quả thành JSON
+            })
+            .then(data => {
+                const chatId = data; // Nếu API trả về chatId trực tiếp, dùng dòng này
+                // const chatId = data.chatId; // Nếu API trả về dưới dạng { "chatId": 123 }, bỏ comment dòng này
+
+                window.location.href = `/chat/${chatId}`;
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Unable to open chat.');
+            });
+    }
+
 
 </script>
 <script>
@@ -161,34 +189,12 @@
     }
 
     // Run the updateTimes function when the DOM is fully loaded
-    document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', function () {
         updateTimes();
     });
 
-    function openChatBox(userId) {
-        // Ẩn tất cả các hộp chat hiện tại
-        document.querySelectorAll('.chat-box').forEach(box => box.style.display = 'none');
 
-        // Hiện hộp chat của user đã chọn
-        const chatBox = document.getElementById(`chat-box-${userId}`);
-        if (chatBox) {
-            chatBox.style.display = 'block';
 
-            // // Cuộn xuống dưới cùng của hộp chat để xem tin nhắn mới nhất
-            // const chatMessages = document.getElementById(`chat-messages-${userId}`);
-            // if (chatMessages) {
-            //     chatMessages.scrollTop = chatMessages.scrollHeight;
-            // }
-
-            // Đặt focus vào ô nhập tin nhắn để có thể gõ ngay
-            const messageInput = document.getElementById(`message-input-${userId}`);
-            if (messageInput) {
-                messageInput.focus();
-            }
-        } else {
-            console.error(`Hộp chat không tồn tại cho userId: ${userId}`);
-        }
-    }
 
 
 </script>

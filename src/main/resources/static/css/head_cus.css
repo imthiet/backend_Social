@@ -17,6 +17,8 @@ header {
     justify-content: center;
     gap: 35px;
     margin-top: 2px;
+
+
 }
 
 .header-icons .icon img {
@@ -29,8 +31,9 @@ header {
 }
 
 .header-icons .icon img:hover {
-    transform: scale(1.15);
+    transform: scale(1.3);
     opacity: 1;
+
 }
 
 .header-username {

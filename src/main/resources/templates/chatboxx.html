@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <title>Chat Box</title>
     <link rel="stylesheet" th:href="@{/css/chatbox.css}"/>
+    <link rel="stylesheet" th:href="@{/css/head_cus.css}"/>
 
     <script src="/js/sockjs.min.js"></script>
     <script src="/js/stomp.min.js"></script>
@@ -41,8 +42,11 @@
                 const response = await fetch(`/api/chat/${chatId}`);
                 const data = await response.json();
                 const messages = data.content;
+
+                console.log("msg: "+messages);
                 // Kiểm tra tất cả các tin nhắn để lấy receiverId
                 messages.forEach(message => {
+                    console.log(message);
                     if (message.receiverId !== senderId) {
                         receiverId = message.receiverId; // Lưu receiverId nếu nó khác senderId
                     }
@@ -102,7 +106,8 @@
 
 </head>
 <body>
-<h1>Chat Box</h1>
+<div th:replace="~{fragments/header :: header}"></div>
+
 <!-- Chat box wrapper -->
 <div id="chat-container" class="chat-container">
     <!-- Tin nhắn sẽ được render vào đây qua JavaScript -->
@@ -115,41 +120,7 @@
 </div>
 
 <script>
-    // async function loadMessages() {
-    //     const chatId = [[${chatId}]];
-    //     const currentUserId = [[${currentUserId}]];
-    //      const crName = '[[${currentUserName}]]';
-    //
-    //     console.log(crName);
-    //
-    //     try {
-    //         const response = await fetch(`/api/chat/${chatId}`);
-    //         const messages = await response.json();
-    //         const chatContainer = document.getElementById("chat-container");
-    //
-    //         messages.forEach(message => {
-    //             const messageElement = document.createElement("div");
-    //             messageElement.classList.add("message");
-    //
-    //
-    //             // Căn chỉnh tin nhắn dựa vào senderUsername và currentUserId
-    //             if (message.senderUsername === crName) {
-    //                 console.log(crName);
-    //                 messageElement.classList.add("sender"); // Tin nhắn của người dùng hiện tại nằm bên phải
-    //             } else {
-    //                 messageElement.classList.add("receiver"); // Tin nhắn của người nhận nằm bên trái
-    //             }
-    //
-    //             messageElement.innerHTML = `
-    //             <div><strong>${message.senderUsername}</strong>: ${message.content}</div>
-    //             <span class="timestamp">${new Date(message.timestamp).toLocaleTimeString()}</span>
-    //         `;
-    //             chatContainer.appendChild(messageElement);
-    //         });
-    //     } catch (error) {
-    //         console.error("Error loading messages:", error);
-    //     }
-    // }
+
     let currentPage = 0;  // Bắt đầu từ trang 0
     let isLoading = false; // Tránh việc tải lại tin nhắn khi đang tải
 

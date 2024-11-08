@@ -91,26 +91,7 @@ public class ChatController {
         return "messages";
     }
 
-//    @GetMapping("/chat1/{chatId}")
-//    public String openChatBox1(@PathVariable("chatId") Long chatId, Model model, Principal principal) {
-//        Optional<Chat> chatOpt = chatRepository.findById(chatId);
-//        System.out.println(chatOpt);
-//        User currentUser = userService.findByUsername(principal.getName());
-//        //System.out.println(currentUser);
-//
-//        if (chatOpt.isPresent()) {
-//            Chat chat = chatOpt.get();
-//
-//            List<Message> messages = messageRepository.findByChatIdOrderByTimestampAsc(chatId);
-//            System.out.println("msgs: " + messages);
-//            model.addAttribute("chat", chat);
-//            model.addAttribute("messages", messages);
-//            model.addAttribute("currentUser", currentUser); // Thêm thông tin người dùng hiện tại
-//            return "chatboxx";
-//        } else {
-//            return "redirect:/login";
-//        }
-//    }
+
     @GetMapping("/chat/{chatId}")
     public String openChatBox(@PathVariable Long chatId, Model model, Principal principal) {
         User currentUser = userService.findByUsername(principal.getName());

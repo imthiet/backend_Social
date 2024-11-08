@@ -60,6 +60,8 @@ public class User {
     @Transient
     private boolean friend;
 
+    private boolean isOnline;
+
 
     private String address;
 
@@ -119,6 +121,14 @@ public class User {
 
     public void setId(long id) {
         this.id = id;
+    }
+    // getter và setter cho isOnline
+    public boolean isOnline() {
+        return isOnline;
+    }
+
+    public void setOnline(boolean online) {
+        isOnline = online;
     }
 
     public String getUsername() {
