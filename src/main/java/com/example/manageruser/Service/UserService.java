@@ -5,6 +5,7 @@ import com.example.manageruser.Model.UserNotFoundException;
 import com.example.manageruser.Model.User;
 import com.example.manageruser.Repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.sql.Blob;
@@ -18,6 +19,10 @@ import java.util.stream.Collectors;
 public class UserService {
     @Autowired
     private UserRepository repo;
+
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     @Autowired
     public UserService(UserRepository userRepository) {
@@ -51,6 +56,10 @@ public class UserService {
     public User findById(long id) {
         return repo.findById(id).orElse(null);
 
+    }
+    public User addUser(User user){
+//        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        return repo.save(user);
     }
 
 //   public User findByEmail(String email) {

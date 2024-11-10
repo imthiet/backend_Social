@@ -22,7 +22,7 @@ public class PostRestController {
     private PostService postService;
 
     @GetMapping("/all")
-    public ResponseEntity<List<PostDTO>> getAllCourses()  {
+    public ResponseEntity<List<PostDTO>> getAllPost()  {
         return new ResponseEntity<List<PostDTO>>(postService.getAllPosts(), HttpStatus.FOUND);
     }
 

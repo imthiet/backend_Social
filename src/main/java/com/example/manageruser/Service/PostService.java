@@ -3,6 +3,7 @@ package com.example.manageruser.Service;
 import com.example.manageruser.Dto.PostDTO;
 import com.example.manageruser.Model.Post;
 import com.example.manageruser.Repository.PostRepository;
+import com.example.manageruser.WskConfig.BlobUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 
 import java.io.IOException;
 import java.sql.SQLException;
+import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Date;
 import java.util.List;
@@ -28,12 +30,21 @@ public class PostService {
 
 
 
+
+
+
+
+
+//    public List<Post> getAllPosts() {
+//        List<Post> posts = postRepository.findAll();
+//        return posts;
+//
+//    }
+
     public List<PostDTO> getAllPosts() {
         List<Post> posts = postRepository.findAll();
         return posts.stream().map(this::convertToDTO).collect(Collectors.toList());
     }
-
-
     private PostDTO convertToDTO(Post post) {
         byte[] imageBytes = null;
         try {
@@ -41,18 +52,24 @@ public class PostService {
                 imageBytes = post.getPng().getBytes(1, (int) post.getPng().length());
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            e.printStackTrace(); // Consider logging this error or handling it in a more user-friendly way
         }
+
+        // Ensure createdAt is safely converted and defaults if null
+        LocalDateTime createdAt = post.getCreatedAt() != null ?
+                post.getCreatedAt().toInstant().atZone(java.time.ZoneId.systemDefault()).toLocalDateTime() :
+                LocalDateTime.now(); // Default to current time if createdAt is null
 
         return new PostDTO(
                 post.getId(),
-                null, // Vì `Post` không có thuộc tính `title`, bạn có thể bỏ qua hoặc thiết lập giá trị khác nếu cần
+                null, // Handle this if you need a title, otherwise leave it as null
                 post.getContent(),
                 imageBytes,
-                post.getUser() != null ? post.getUser().getUsername() : null,
-                post.getCreatedAt().toInstant().atZone(java.time.ZoneId.systemDefault()).toLocalDateTime()
+                post.getUser() != null ? post.getUser().getUsername() : "Unknown", // Handle null user
+                createdAt
         );
     }
+
     public List<Post> getPostsByFriendShip(long userId, int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
         return postRepository.findPostsByFriendship(userId, pageable).getContent();

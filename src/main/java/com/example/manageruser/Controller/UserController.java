@@ -188,7 +188,7 @@ public class UserController {
 
     }
 
-    @GetMapping("/login")
+    @GetMapping("/tologin")
     public String showUserLoginForm(@RequestParam(value = "error", required = false) String error, Model model) {
         if (error != null) {
             model.addAttribute("error", "Invalid username or password. Please try again.");

@@ -21,7 +21,7 @@ public class CustomAuthenticationFailureHandler implements AuthenticationFailure
         } else if (exception.getMessage().equals("Account not enabled. Please verify your email.")) {
             errorMessage = "Your account is not enabled. Please verify your email.";
         } else if (exception instanceof BadCredentialsException) {
-            errorMessage = "Invalid username or password!";
+            errorMessage = "Invalid error get!!";
         } else {
             errorMessage = "Login failed. Please check your info or verify your email and try again.";
         }
