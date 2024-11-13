@@ -2,16 +2,20 @@ package com.example.manageruser.RestAPI;
 
 
 import com.example.manageruser.Dto.MessageDTO;
+import com.example.manageruser.Dto.UserWithLastMessageDTO;
 import com.example.manageruser.Model.Chat;
 import com.example.manageruser.Model.Message;
 import com.example.manageruser.Model.User;
 import com.example.manageruser.Repository.ChatRepository;
 import com.example.manageruser.Repository.MessageRepository;
 import com.example.manageruser.Repository.UserRepository;
+import com.example.manageruser.Service.ChatService;
 import com.example.manageruser.Service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.*;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
@@ -37,6 +41,9 @@ public class MessageRestController {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private ChatService chatService;
 
     // Lấy danh sách các tin nhắn theo chatId
     @GetMapping("/{chatId}")
@@ -125,5 +132,22 @@ public class MessageRestController {
 
         return ResponseEntity.ok(newChat.getId());  // Trả về ID của chat mới
     }
+
+
+    // API trả về danh sách người dùng với tin nhắn cuối cùng của họ
+    @GetMapping("/messages")
+    public ResponseEntity<List<UserWithLastMessageDTO>> getMessagesForUser(Authentication authentication) {
+        String username = authentication != null ? authentication.getName() : null;
+
+        if (username == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build(); // Nếu người dùng chưa đăng nhập
+        }
+
+        // Lấy danh sách người dùng với tin nhắn cuối cùng
+        List<UserWithLastMessageDTO> usersWithMessages = chatService.getUsersWithMessages(username);
+
+        return ResponseEntity.ok(usersWithMessages); // Trả về danh sách người dùng và tin nhắn
+    }
+
 }
 

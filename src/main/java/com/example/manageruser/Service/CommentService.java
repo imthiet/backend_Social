@@ -43,15 +43,16 @@ public class CommentService {
 
     // Phương thức lấy danh sách bình luận theo postId với phân trang
     public Page<CommentDTO> getCommentsForPost(Long postId, int page, int size) {
-        Pageable pageable = PageRequest.of(page, size); // Tạo đối tượng Pageable với số trang và kích thước
-        Page<Comment> commentsPage = commentRepository.findByPostId(postId, pageable); // Lấy danh sách bình luận phân trang
+        Pageable pageable = PageRequest.of(page, size); // Tạo Pageable với số trang và kích thước
+        Page<Comment> commentsPage = commentRepository.findByPostId(postId, pageable); // Lấy Page<Comment> với phân trang
 
         return commentsPage.map(comment -> {
             String username = comment.getUser().getUsername();
             String image = BlobUtil.blobToBase64(comment.getUser().getImage());
-            return new CommentDTO(username, comment.getContent(), image); // Chuyển đổi sang CommentDTO
+            return new CommentDTO(username, comment.getContent(), image); // Ánh xạ Comment thành CommentDTO
         });
     }
+
     // Phương thức lưu bình luận
     public Comment save(Comment comment) {
         return commentRepository.save(comment);

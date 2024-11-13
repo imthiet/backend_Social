@@ -6,6 +6,7 @@ import lombok.*;
 
 import java.sql.Blob;
 import java.util.Date;
+import java.util.List;
 
 @Entity
 @Table(name = "post")
@@ -31,6 +32,13 @@ public class Post {
     @Lob
     @JsonIgnore
     private Blob png;
+
+    @OneToMany(mappedBy = "post")
+    private List<Like> likes;
+
+    @OneToMany(mappedBy = "post")
+    private List<Comment> comments;
+
 
     public boolean isLiked() {
         return liked;

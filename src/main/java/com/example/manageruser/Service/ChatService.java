@@ -27,7 +27,7 @@ public class ChatService {
         return messages.isEmpty() ? Optional.empty() : Optional.of(messages.get(0));
     }
 
-    // Retrieve users with their last message
+    // Phương thức lấy người dùng và tin nhắn cuối cùng
     public List<UserWithLastMessageDTO> getUsersWithMessages(String username) {
         List<Chat> chats = chatRepository.findByParticipantsUsername(username);
         List<UserWithLastMessageDTO> userWithMessages = new ArrayList<>();
@@ -35,19 +35,27 @@ public class ChatService {
         for (Chat chat : chats) {
             for (User participant : chat.getParticipants()) {
                 if (!participant.getUsername().equals(username)) {
-                    // Call the service method to fetch the last message
+                    // Lấy tin nhắn cuối cùng
                     Optional<Message> lastMessageOpt = findLastMessageByChatId(chat.getId());
+                    if (lastMessageOpt.isPresent()) {
+                        Message lastMessage = lastMessageOpt.get();
+                        // Tạo DTO
+                        UserWithLastMessageDTO dto = new UserWithLastMessageDTO(
+                                participant.getUsername(),
+                                lastMessage.getContent(),
+                                lastMessage.getTimestamp()
 
-                    UserWithLastMessageDTO dto = new UserWithLastMessageDTO();
-                    dto.setUser(participant);
-                    lastMessageOpt.ifPresent(dto::setLastMessage); // Set the last message if found
-
-                    userWithMessages.add(dto);
+                        );
+                        userWithMessages.add(dto);
+                    }
                 }
             }
         }
         return userWithMessages;
     }
+
+
+
 
 
 

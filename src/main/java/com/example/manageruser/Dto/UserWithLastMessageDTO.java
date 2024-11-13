@@ -1,27 +1,22 @@
 package com.example.manageruser.Dto;
 
 import com.example.manageruser.Model.Message;
-import com.example.manageruser.Model.User;
+import lombok.Data;
 
+import java.time.LocalDateTime;
+
+@Data
 public class UserWithLastMessageDTO {
-    private User user;
-    private Message lastMessage;
+    private String username;
+    private String lastMessageContent;
+    private LocalDateTime lastMessageTimestamp; // Thêm trường thời gian
 
-    // Getters and setters
 
-    public User getUser() {
-        return user;
-    }
+    // Constructor
+    public UserWithLastMessageDTO(String username, String lastMessageContent, LocalDateTime lastMessageTimestamp) {
+        this.username = username;
+        this.lastMessageContent = lastMessageContent;
+        this.lastMessageTimestamp = lastMessageTimestamp;
 
-    public void setUser(User user) {
-        this.user = user;
-    }
-
-    public Message getLastMessage() {
-        return lastMessage;
-    }
-
-    public void setLastMessage(Message lastMessage) {
-        this.lastMessage = lastMessage;
     }
 }

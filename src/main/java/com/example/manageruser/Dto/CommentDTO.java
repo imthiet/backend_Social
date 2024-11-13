@@ -10,6 +10,9 @@ public class CommentDTO {
     private String image; // Add image field
 
 
+  
+
+
     public CommentDTO(String username, String content, String image) {
         this.username = username;
         this.content = content;
