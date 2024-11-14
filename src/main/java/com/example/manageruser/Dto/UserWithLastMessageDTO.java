@@ -9,14 +9,17 @@ import java.time.LocalDateTime;
 public class UserWithLastMessageDTO {
     private String username;
     private String lastMessageContent;
+    private Long chatId;
+
     private LocalDateTime lastMessageTimestamp; // Thêm trường thời gian
 
 
     // Constructor
-    public UserWithLastMessageDTO(String username, String lastMessageContent, LocalDateTime lastMessageTimestamp) {
+    public UserWithLastMessageDTO(String username, String lastMessageContent, LocalDateTime lastMessageTimestamp, Long chatId) {
         this.username = username;
         this.lastMessageContent = lastMessageContent;
         this.lastMessageTimestamp = lastMessageTimestamp;
+        this.chatId = chatId;
 
     }
 }

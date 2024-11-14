@@ -43,7 +43,9 @@ public class ChatService {
                         UserWithLastMessageDTO dto = new UserWithLastMessageDTO(
                                 participant.getUsername(),
                                 lastMessage.getContent(),
-                                lastMessage.getTimestamp()
+                                lastMessage.getTimestamp(),
+                                lastMessage.getChat().getId()
+
 
                         );
                         userWithMessages.add(dto);
@@ -55,11 +57,8 @@ public class ChatService {
     }
 
 
-
-
-
-
-
-
+    public Chat findById(Long chatId) {
+        return chatRepository.findById(chatId).orElseThrow(() -> new RuntimeException("Chat not found"));
+    }
 
 }

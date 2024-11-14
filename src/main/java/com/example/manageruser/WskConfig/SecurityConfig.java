@@ -60,7 +60,7 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .cors(Customizer.withDefaults())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/login/**", "/register").permitAll()
+                        .requestMatchers("/login/**", "/register","/ws/**","/websocket/**").permitAll()
                         .anyRequest().authenticated()
                 )
 //                .authenticationProvider(authenticationProvider(userDetailsService(), passwordEncoder())) // Thêm AuthenticationProvider

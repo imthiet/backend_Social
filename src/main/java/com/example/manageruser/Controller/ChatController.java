@@ -113,13 +113,30 @@ public class ChatController {
     }
 
 
-    @MessageMapping("/sendMessage")  // Ký tự /app/sendMessage
-    @SendTo("/topic/messages")      // Gửi lại tin nhắn cho những người dùng đang subscribe vào /topic/messages
+    @MessageMapping("/sendMessage")
+    @SendTo("/topic/messages")
     public MessageDTO sendMessage(MessageDTO messageDTO) {
+        // Log dữ liệu nhận được
+        System.out.println("Received messageDTO: " + messageDTO);
+        System.out.println("Chat ID: " + messageDTO.getChatId());
+        System.out.println("Sender ID: " + messageDTO.getSenderId());
+        System.out.println("Receiver ID: " + messageDTO.getReceiverId());
+
+        // Kiểm tra các giá trị
+        if (messageDTO.getSenderId() == null) {
+            throw new IllegalArgumentException("Sender ID must not be null");
+        }
+        if (messageDTO.getReceiverId() == null) {
+            throw new IllegalArgumentException("Receiver ID must not be null");
+        }
+
         // Tìm đối tượng Chat, Sender và Receiver từ cơ sở dữ liệu
-        Chat chat = chatRepository.findById(messageDTO.getChatId()).orElseThrow(() -> new RuntimeException("Chat not found"));
-        User sender = userRepository.findById(messageDTO.getSenderId()).orElseThrow(() -> new RuntimeException("Sender not found"));
-        User receiver = userRepository.findById(messageDTO.getReceiverId()).orElseThrow(() -> new RuntimeException("Receiver not found"));
+        Chat chat = chatRepository.findById(messageDTO.getChatId())
+                .orElseThrow(() -> new RuntimeException("Chat not found"));
+        User sender = userRepository.findById(messageDTO.getSenderId())
+                .orElseThrow(() -> new RuntimeException("Sender not found"));
+        User receiver = userRepository.findById(messageDTO.getReceiverId())
+                .orElseThrow(() -> new RuntimeException("Receiver not found"));
 
         // Lưu tin nhắn vào DB
         Message message = new Message();

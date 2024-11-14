@@ -10,6 +10,7 @@ import com.example.manageruser.Repository.ChatRepository;
 import com.example.manageruser.Repository.MessageRepository;
 import com.example.manageruser.Repository.UserRepository;
 import com.example.manageruser.Service.ChatService;
+import com.example.manageruser.Service.MessageService;
 import com.example.manageruser.Service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.*;
@@ -45,12 +46,17 @@ public class MessageRestController {
     @Autowired
     private ChatService chatService;
 
+    @Autowired
+    private MessageService messageService;
+
+
+
     // Lấy danh sách các tin nhắn theo chatId
     @GetMapping("/{chatId}")
     public ResponseEntity<Page<MessageDTO>> getMessagesByChatId(
             @PathVariable Long chatId,
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "20") int size) {
+            @RequestParam(defaultValue = "5") int size) {
 
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Order.desc("timestamp"))); // Sắp xếp theo thời gian giảm dần
         Page<Message> messagesPage = messageRepository.findByChatId(chatId, pageable);
@@ -76,6 +82,7 @@ public class MessageRestController {
             return ResponseEntity.noContent().build();
         }
     }
+
 
 
     @PostMapping("/createChat/{receiverUsername}")
@@ -148,6 +155,35 @@ public class MessageRestController {
 
         return ResponseEntity.ok(usersWithMessages); // Trả về danh sách người dùng và tin nhắn
     }
+
+//    @PostMapping("/api/chat/{chatId}/messages")
+//    public ResponseEntity<MessageDTO> sendMessage(
+//            @PathVariable Long chatId,
+//            @RequestBody MessageDTO messageDTO) {
+//        Chat chat = chatService.findById(chatId); // Sử dụng phương thức findById đã được sửa
+//        if (chat == null) {
+//            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null); // Trả về 404 nếu chat không tồn tại
+//        }
+//
+//        User sender = userService.findById(messageDTO.getSenderId());
+//        User receiver = userService.findById(messageDTO.getReceiverId());
+//
+//        if (sender == null || receiver == null) {
+//            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null); // Trả về 404 nếu sender hoặc receiver không tồn tại
+//        }
+//
+//        Message message = new Message();
+//        message.setContent(messageDTO.getContent());
+//        message.setTimestamp(LocalDateTime.now());
+//        message.setChat(chat);
+//        message.setSender(sender);
+//        message.setReceiver(receiver);
+//
+//        Message savedMessage = messageService.save(message); // Lưu và nhận lại Message đã được lưu
+//        return ResponseEntity.ok(MessageDTO.fromMessage(savedMessage)); // Trả về MessageDTO
+//    }
+
+
 
 }
 
