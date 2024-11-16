@@ -13,7 +13,12 @@ import com.example.manageruser.Service.ChatService;
 import com.example.manageruser.Service.NotificationService;
 import com.example.manageruser.Service.UserService;
 import jakarta.servlet.http.HttpSession;
+import org.hibernate.type.descriptor.jdbc.LocalDateTimeJdbcType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
@@ -30,14 +35,13 @@ import org.springframework.web.bind.annotation.PathVariable;
 
 import java.security.Principal;
 import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
-import static com.example.manageruser.Model.NotificationType.LIKE_COMMENT_SHARE;
-import static com.example.manageruser.Model.NotificationType.MESSAGE;
-
 @Controller
 public class ChatController {
+
     @Autowired
     ChatService chatService;
 
@@ -59,6 +63,8 @@ public class ChatController {
     @Autowired
     NotificationService notificationService;
 
+    private static final Logger logger = LoggerFactory.getLogger(ChatController.class);
+
     @MessageMapping("chat.sendMessage")
     @SendTo("/topic/chat")
     public Message sendMsg(@Payload Message msg) {
@@ -72,26 +78,6 @@ public class ChatController {
         return msg;
     }
 
-
-
-    @GetMapping("/messages")
-    public String showMessagesPage(HttpSession session, Model model) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String username = authentication != null ? authentication.getName() : null;
-
-        if (username == null) {
-            return "redirect:/login"; // If not logged in, redirect to login
-        }
-
-        // Get users with their last message
-        List<UserWithLastMessageDTO> usersWithMessages = chatService.getUsersWithMessages(username);
-        model.addAttribute("usersWithMessages", usersWithMessages);
-        model.addAttribute("usn", username);
-
-        return "messages";
-    }
-
-
     @GetMapping("/chat/{chatId}")
     public String openChatBox(@PathVariable Long chatId, Model model, Principal principal) {
         User currentUser = userService.findByUsername(principal.getName());
@@ -102,65 +88,47 @@ public class ChatController {
         return "chatboxx";
     }
 
-
-
-
     @MessageMapping("/chat/{receiverId}")
     @SendToUser("/queue/messages")
     public Message sendMessage(@DestinationVariable String receiverId, Message message) {
-        // Lưu trữ tin nhắn vào database hoặc xử lý tùy ý tại đây
-        return message; // Trả tin nhắn lại cho receiver
+        return message;
     }
 
+    @MessageMapping("/chat/{chatId}/sendMessage")
+    @SendTo("/topic/chat/{chatId}")
+    public MessageDTO sendMessage(@DestinationVariable Long chatId, @Payload MessageDTO messageDTO) {
+        Chat chat = chatRepository.findById(chatId).orElseThrow(() -> new RuntimeException("Chat not found"));
+        User sender = userRepository.findById(messageDTO.getSenderId()).orElseThrow(() -> new RuntimeException("Sender not found"));
+        User receiver = userRepository.findById(messageDTO.getReceiverId()).orElseThrow(() -> new RuntimeException("Receiver not found"));
 
-    @MessageMapping("/sendMessage")
-    @SendTo("/topic/messages")
-    public MessageDTO sendMessage(MessageDTO messageDTO) {
-        // Log dữ liệu nhận được
-        System.out.println("Received messageDTO: " + messageDTO);
-        System.out.println("Chat ID: " + messageDTO.getChatId());
-        System.out.println("Sender ID: " + messageDTO.getSenderId());
-        System.out.println("Receiver ID: " + messageDTO.getReceiverId());
-
-        // Kiểm tra các giá trị
-        if (messageDTO.getSenderId() == null) {
-            throw new IllegalArgumentException("Sender ID must not be null");
-        }
-        if (messageDTO.getReceiverId() == null) {
-            throw new IllegalArgumentException("Receiver ID must not be null");
-        }
-
-        // Tìm đối tượng Chat, Sender và Receiver từ cơ sở dữ liệu
-        Chat chat = chatRepository.findById(messageDTO.getChatId())
-                .orElseThrow(() -> new RuntimeException("Chat not found"));
-        User sender = userRepository.findById(messageDTO.getSenderId())
-                .orElseThrow(() -> new RuntimeException("Sender not found"));
-        User receiver = userRepository.findById(messageDTO.getReceiverId())
-                .orElseThrow(() -> new RuntimeException("Receiver not found"));
-
-        // Lưu tin nhắn vào DB
         Message message = new Message();
-        message.setContent(messageDTO.getContent());
-        message.setTimestamp(LocalDateTime.now());
         message.setChat(chat);
         message.setSender(sender);
         message.setReceiver(receiver);
+        message.setContent(messageDTO.getContent());
+        message.setTimestamp(LocalDateTime.now());
 
-        // Lưu vào database
         messageRepository.save(message);
 
-        Notification notification = new Notification();
-        notification.setContentnoti(sender.getUsername() + " sent you a message");
-        notification.setType(MESSAGE);
-        notification.setSender(sender);
-        notification.setReceiver(receiver);
-        notification.setStatus("unread");
-        notification.setTimestamp(LocalDateTime.now());
-        notificationService.save(notification);
+        notificationService.createNotification(sender, receiver, "New message");
 
-        // Trả lại tin nhắn dưới dạng DTO
-        return MessageDTO.fromMessage(message);
+        messageDTO.setTimestamp(message.getTimestamp());
+        // Gửi thông báo tin nhắn tới người gửi và người nhận
+//        messagingTemplate.convertAndSendToUser(sender.getUsername(), "/queue/messages", messageDTO);
+//        messagingTemplate.convertAndSend("/topic/" + chatId, messageDTO);
+        return messageDTO;
     }
 
+    @GetMapping("/messages")
+    public ResponseEntity<List<UserWithLastMessageDTO>> getMessagesForUser(Authentication authentication) {
+        String username = authentication != null ? authentication.getName() : null;
 
+        if (username == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        List<UserWithLastMessageDTO> usersWithMessages = chatService.getUsersWithMessages(username);
+
+        return ResponseEntity.ok(usersWithMessages);
+    }
 }

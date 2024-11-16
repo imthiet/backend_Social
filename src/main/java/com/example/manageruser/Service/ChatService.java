@@ -35,18 +35,17 @@ public class ChatService {
         for (Chat chat : chats) {
             for (User participant : chat.getParticipants()) {
                 if (!participant.getUsername().equals(username)) {
-                    // Lấy tin nhắn cuối cùng
+                    // Get the last message in the chat
                     Optional<Message> lastMessageOpt = findLastMessageByChatId(chat.getId());
                     if (lastMessageOpt.isPresent()) {
                         Message lastMessage = lastMessageOpt.get();
-                        // Tạo DTO
+                        // Create DTO with userId and other information
                         UserWithLastMessageDTO dto = new UserWithLastMessageDTO(
                                 participant.getUsername(),
-                                lastMessage.getContent(),
                                 lastMessage.getTimestamp(),
-                                lastMessage.getChat().getId()
-
-
+                                participant.getId(), // Set userId of the participant
+                                chat.getId(),
+                                lastMessage.getContent()
                         );
                         userWithMessages.add(dto);
                     }
@@ -55,6 +54,7 @@ public class ChatService {
         }
         return userWithMessages;
     }
+
 
 
     public Chat findById(Long chatId) {

@@ -10,16 +10,14 @@ public class UserWithLastMessageDTO {
     private String username;
     private String lastMessageContent;
     private Long chatId;
+    private Long userId; // Added field for userId
+    private LocalDateTime lastMessageTimestamp; // Field for last message timestamp
 
-    private LocalDateTime lastMessageTimestamp; // Thêm trường thời gian
-
-
-    // Constructor
-    public UserWithLastMessageDTO(String username, String lastMessageContent, LocalDateTime lastMessageTimestamp, Long chatId) {
+    public UserWithLastMessageDTO(String username, LocalDateTime lastMessageTimestamp, Long userId, Long chatId, String lastMessageContent) {
         this.username = username;
-        this.lastMessageContent = lastMessageContent;
         this.lastMessageTimestamp = lastMessageTimestamp;
+        this.userId = userId; // Initialize userId
         this.chatId = chatId;
-
+        this.lastMessageContent = lastMessageContent;
     }
 }

@@ -56,7 +56,7 @@ public class MessageRestController {
     public ResponseEntity<Page<MessageDTO>> getMessagesByChatId(
             @PathVariable Long chatId,
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "5") int size) {
+            @RequestParam(defaultValue = "8") int size) {
 
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Order.desc("timestamp"))); // Sắp xếp theo thời gian giảm dần
         Page<Message> messagesPage = messageRepository.findByChatId(chatId, pageable);

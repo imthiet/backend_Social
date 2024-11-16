@@ -16,10 +16,14 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 @RestController
@@ -47,7 +51,7 @@ public class AuthController {
     @CrossOrigin(origins = "http://localhost:3000", allowCredentials = "true")
     public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest) {
         try {
-            // Use authenticationManager to authenticate
+            // Authenticate using authenticationManager
             Authentication authentication = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(
                             loginRequest.getUsername(),
@@ -55,16 +59,28 @@ public class AuthController {
                     )
             );
 
-            // If successful, set the authenticated user in the SecurityContext
+            // Set the authenticated user in the SecurityContext
             SecurityContextHolder.getContext().setAuthentication(authentication);
 
-            return ResponseEntity.ok("Login successful");
+            // Get UserDetails from authentication
+            UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+
+            // Retrieve User entity from the database using username
+            User user = userRepository.findByUsername(userDetails.getUsername())
+                    .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+
+            // Return username and userId as JSON
+            Map<String, Object> response = new HashMap<>();
+            response.put("username", user.getUsername());
+            response.put("userId", user.getId());
+
+            return ResponseEntity.ok(response);
         } catch (Exception e) {
-            // If authentication fails, return UNAUTHORIZED status
             System.out.println("Error during authentication: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid username or password");
         }
     }
+
     @PostMapping("/register")
     public ResponseEntity<?> newUser(@RequestBody User user, HttpServletRequest request) {
         try {

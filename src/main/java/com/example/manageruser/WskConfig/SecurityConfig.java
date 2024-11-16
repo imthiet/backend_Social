@@ -72,15 +72,15 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.addAllowedOriginPattern("http://localhost:3000"); // Thay thế bằng addAllowedOriginPattern
+        configuration.addAllowedOriginPattern("http://localhost:3000"); // Ensure this matches your React app's URL
         configuration.addAllowedMethod("*");
         configuration.addAllowedHeader("*");
-        configuration.setAllowCredentials(true); // Bật AllowCredentials để gửi cookie
-
+        configuration.setAllowCredentials(true); // Allow credentials for cookies/session
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
         return source;
     }
+
 
     @Bean
     public HttpFirewall allowSemicolonInUrl() {
