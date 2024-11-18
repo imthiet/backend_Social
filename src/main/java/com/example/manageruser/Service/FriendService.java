@@ -52,7 +52,7 @@ public class FriendService {
     }
 
     public boolean isCurrentUserFriendRequestReceiver(User sender, User receiver) {
-        return friendRepository.existsByUserAndFriendAndAccepted(sender, receiver, false);
+        return friendRepository.existsByUserAndFriendAndAccepted(receiver, sender, false);
     }
 
 

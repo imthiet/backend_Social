@@ -25,7 +25,9 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.security.Principal;
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static com.example.manageruser.Model.NotificationType.ADD_FRIEND;
 
@@ -89,40 +91,49 @@ public class SearchController {
     private NotificationService notificationService; // Thêm dịch vụ thông báo
 
     @PostMapping("/add_friend")
-    public ResponseEntity<String> addFriend(@RequestParam("username") String friendUsername, Principal principal) {
+    public ResponseEntity<Map<String, Object>> addFriend(@RequestParam("username") String friendUsername, Principal principal) {
         String currentUsername = principal.getName();
         User sender = userService.findByUsername(currentUsername);
         User receiver = userService.findByUsername(friendUsername);
+        Map<String, Object> response = new HashMap<>();
 
         if (sender != null && receiver != null) {
             // Check if a friendship already exists
             if (!friendShipService.existsBetweenUsers(sender, receiver)) {
+                // Create a new friendship request
                 FriendShip friendShip = new FriendShip();
                 friendShip.setUser(sender);
                 friendShip.setFriend(receiver);
-                friendShip.setAccepted(false);
+                friendShip.setAccepted(false);  // Set as not accepted initially
                 friendShipService.save(friendShip);
 
-                // Tạo thông báo
+                // Create a notification for the receiver
                 Notification notification = new Notification();
-                notification.setContentnoti(sender.getUsername() + " đã gửi yêu cầu kết bạn cho bạn.!!!!");
-                notification.setType(ADD_FRIEND); // Thêm loại thông báo
-                notification.setSender(sender); // Đảm bảo 'sender' không null
+                notification.setContentnoti(sender.getUsername() + " đã gửi yêu cầu kết bạn cho bạn.");
+                notification.setType(ADD_FRIEND); // Type of notification
+                notification.setSender(sender);
                 notification.setReceiver(receiver);
                 notification.setStatus("unread");
                 notification.setTimestamp(LocalDateTime.now());
-
-                // Lưu thông báo
                 notificationService.save(notification);
+
+                // Return response with updated friend request status
+                boolean isReceiver = friendShipService.isCurrentUserFriendRequestReceiver(sender, receiver);
+                response.put("message", "Friend request sent successfully");
+                response.put("friendRequestReceiver", isReceiver); // true if the current user is a friend request receiver
+                response.put("friendPending", true); // true to show pending state in the frontend
             } else {
-                return ResponseEntity.badRequest().body("Friendship already exists");
+                response.put("message", "Friendship already exists");
+                return ResponseEntity.badRequest().body(response);
             }
         } else {
-            return ResponseEntity.badRequest().body("User not found");
+            response.put("message", "User not found");
+            return ResponseEntity.badRequest().body(response);
         }
 
-        return ResponseEntity.ok("Friend request sent");
+        return ResponseEntity.ok(response); // Return updated status in the response
     }
+
 
 
 }

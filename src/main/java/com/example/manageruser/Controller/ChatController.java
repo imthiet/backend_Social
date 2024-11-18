@@ -113,9 +113,7 @@ public class ChatController {
         notificationService.createNotification(sender, receiver, "New message");
 
         messageDTO.setTimestamp(message.getTimestamp());
-        // Gửi thông báo tin nhắn tới người gửi và người nhận
-//        messagingTemplate.convertAndSendToUser(sender.getUsername(), "/queue/messages", messageDTO);
-//        messagingTemplate.convertAndSend("/topic/" + chatId, messageDTO);
+
         return messageDTO;
     }
 

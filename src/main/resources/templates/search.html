@@ -37,7 +37,7 @@
     <div class="loader" id="loadingSpinner" style="display: none;"></div> <!-- Loader -->
     <div class="search-wrapper">
         <!-- Search form -->
-        <form id="search-form" th:action="@{/search}" method="get" class="mb-4" style="margin-top: 50px" onsubmit="return false;">
+        <form id="search-form" th:action="@{/search}" method="get" class="mb-4" style=thietmargin-top: 50px" onsubmit="return false;">
             <input type="text" name="keyword" id="keyword" th:value="${keyword}" placeholder="Enter username or email"
                    required class="form-control" style="border-radius: 12px; border: 1px solid #00285A;"/>
             <input type="submit" value="Search" class="btn btn-primary mt-2" style="border-radius: 12px; background: #00285A" onclick="performSearch()"/>

@@ -17,6 +17,7 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.MessagingException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -223,7 +224,7 @@ public class UserController {
 
     // Xử lý yêu cầu POST để thực hiện logout
     @GetMapping("/users/logout")
-    public String logout(HttpServletRequest request, HttpServletResponse response) {
+    public ResponseEntity<Void> logout(HttpServletRequest request, HttpServletResponse response) {
         // Hủy session hiện tại
         HttpSession session = request.getSession(false);
         if (session != null) {
@@ -241,8 +242,8 @@ public class UserController {
             }
         }
 
-        // Chuyển hướng đến trang đăng nhập
-        return "redirect:/users/login";
+        // Trả về trạng thái OK
+        return ResponseEntity.ok().build();
     }
 
 
