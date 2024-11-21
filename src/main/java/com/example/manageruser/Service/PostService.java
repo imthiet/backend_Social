@@ -53,6 +53,8 @@ private LikeService likeService;
     }
 
 
+
+
     private PostDTO convertToDTO(Post post, Long userId) {
         byte[] imageBytes = null;
         try {
@@ -126,8 +128,18 @@ private LikeService likeService;
         Pageable pageable = PageRequest.of(page, size); // Tạo Pageable với trang và kích thước mong muốn
         return postRepository.getPostsByUserId(id, pageable); // Gọi phương thức repository để lấy danh sách đã phân trang
     }
+    public List<PostDTO> getUserPosts(Long userId, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size); // Tạo Pageable với trang và kích thước mong muốn
+        Page<Post> postsPage = postRepository.getPostsByUserId(userId, pageable); // Lấy dữ liệu phân trang
+        List<Post> posts = postsPage.getContent(); // Chuyển đổi từ Page sang List
+        return posts.stream().map(post -> convertToDTO(post, userId)).collect(Collectors.toList());
+    }
 
-//old
+
+
+
+
+    //old
     public Post findById(Long postId) {
         // Sử dụng Optional để xử lý trường hợp không tìm thấy Post
         return postRepository.findById(postId)

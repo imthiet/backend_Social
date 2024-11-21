@@ -1,5 +1,6 @@
 package com.example.manageruser.Repository;
 
+import com.example.manageruser.Dto.UserDto;
 import com.example.manageruser.Model.FriendShip;
 import com.example.manageruser.Model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -14,8 +15,17 @@ import java.util.Optional;
 public interface FriendRepository extends JpaRepository<FriendShip, Long> {
 
     // Lấy danh sách bạn bè theo tên người dùng
-    @Query("SELECT f.friend FROM FriendShip f WHERE f.user.username = :username")
+//    @Query("SELECT f.friend FROM FriendShip f WHERE f.user.username = :username")
+//    List<User> findFriendsByUsername(@Param("username") String username);
+    // Truy vấn để lấy danh sách bạn bè theo cả hai chiều
+    @Query("SELECT f.friend FROM FriendShip f WHERE f.user.username = :username " +
+            "UNION " +
+            "SELECT f.user FROM FriendShip f WHERE f.friend.username = :username")
     List<User> findFriendsByUsername(@Param("username") String username);
+
+    @Query("SELECT new com.example.manageruser.Dto.UserDto(f.friend.username, f.friend.email, false, false, null) " +
+            "FROM FriendShip f WHERE f.user.username = :username")
+    List<UserDto> findFriendsByUsername_dto(@Param("username") String username);
 
     // Kiểm tra mối quan hệ bạn bè giữa hai người
     boolean existsByUserAndFriend(User user, User friend);

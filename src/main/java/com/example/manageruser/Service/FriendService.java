@@ -1,5 +1,7 @@
 package com.example.manageruser.Service;
 
+import com.example.manageruser.Dto.FriendDTO;
+import com.example.manageruser.Dto.UserDto;
 import com.example.manageruser.Model.FriendShip;
 import com.example.manageruser.Model.User;
 import com.example.manageruser.Repository.FriendRepository;
@@ -7,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class FriendService {
@@ -16,6 +19,18 @@ public class FriendService {
 
     public List<User> getFriends(String username) {
         return friendRepository.findFriendsByUsername(username);
+    }
+
+    public List<FriendDTO> getFriendlists(String username) {
+        List<User> friends = friendRepository.findFriendsByUsername(username);
+        return friends.stream()
+                .map(user -> new FriendDTO(user.getId(), user.getUsername(), user.getEmail()))
+                .collect(Collectors.toList());
+    }
+
+
+    public List<UserDto> getFriends_dto(String username) {
+        return friendRepository.findFriendsByUsername_dto(username);
     }
 
     public boolean existsBetweenUsers(User currentUser, User user) {

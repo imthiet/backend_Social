@@ -1,5 +1,6 @@
 package com.example.manageruser.Repository;
 
+import com.example.manageruser.Dto.PostDTO;
 import com.example.manageruser.Model.Post;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -27,4 +28,7 @@ public interface PostRepository extends JpaRepository<Post, Long> {
     // Phương thức lấy các bài viết theo userId với phân trang
     @Query("SELECT p FROM Post p WHERE p.user.id = ?1 ORDER BY p.createdAt DESC")
     Page<Post> getPostsByUserId(long userId, Pageable pageable);
+
+    @Query("SELECT p FROM Post p WHERE p.user.id = ?1 ORDER BY p.createdAt DESC")
+    Page<PostDTO> getPostsByUserId2(long userId, Pageable pageable);
 }
