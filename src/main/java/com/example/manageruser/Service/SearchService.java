@@ -50,7 +50,8 @@ public class SearchService {
 
                                 currentUser.getFriends().contains(user), // isFriend
                                 user.isFriendPending(),                 // isFriendPending
-                                BlobUtil.blobToBase64(user.getImage())                    // image
+                                BlobUtil.blobToBase64(user.getImage()),                    // image
+                                user.isFriendRequestReceiver()
                         ))
                         .collect(Collectors.toList()),
                 pageable,

@@ -6,7 +6,7 @@ public class UserDto {
     private boolean isFriend;
     private boolean isFriendPending;
     private String image;
-
+    private boolean friendRequestReceiver; // Là người nhận lời mời kết bạn
     public String getImage() {
         return image;
     }
@@ -16,13 +16,16 @@ public class UserDto {
     }
 
     // Constructor
-    public UserDto(String username, String email, boolean isFriend, boolean isFriendPending, String image) {
+
+    public UserDto(String username, String email, boolean isFriend, boolean isFriendPending, String image, boolean friendRequestReceiver) {
         this.username = username;
         this.email = email;
         this.isFriend = isFriend;
         this.isFriendPending = isFriendPending;
         this.image = image;
+        this.friendRequestReceiver = friendRequestReceiver;
     }
+
     public UserDto() {
         // No-argument constructor
     }
@@ -59,5 +62,13 @@ public class UserDto {
 
     public void setFriendPending(boolean isFriendPending) {
         this.isFriendPending = isFriendPending;
+    }
+
+    public boolean isFriendRequestReceiver() {
+        return friendRequestReceiver;
+    }
+
+    public void setFriendRequestReceiver(boolean friendRequestReceiver) {
+        this.friendRequestReceiver = friendRequestReceiver;
     }
 }

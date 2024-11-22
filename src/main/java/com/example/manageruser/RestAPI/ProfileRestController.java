@@ -10,8 +10,13 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import javax.sql.rowset.serial.SerialBlob;
+import java.io.IOException;
 import java.security.Principal;
+import java.sql.Blob;
+import java.sql.SQLException;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -71,6 +76,29 @@ public class ProfileRestController {
 
         return new ResponseEntity<>(friends, HttpStatus.OK);
     }
+
+    @GetMapping("/{username}/friends")
+    public ResponseEntity<List<FriendDTO>> getUserFr(@PathVariable String username) {
+        // Lấy danh sách bạn bè của người dùng với username tương ứng
+        List<FriendDTO> friends = friendService.getFriendlists(username);
+
+        return new ResponseEntity<>(friends, HttpStatus.OK);
+    }
+    @GetMapping("/{username}/posts")
+    public ResponseEntity<List<PostDTO>> getUserPost(
+            @PathVariable String username, // Lấy username từ URL
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        // Tìm kiếm user theo username
+        User user = userService.findByUsername(username);
+
+        // Gọi service để lấy danh sách PostDTO (dạng List)
+        List<PostDTO> postDTOs = postService.getUserPosts(user.getId(), page, size);
+
+        return new ResponseEntity<>(postDTOs, HttpStatus.OK);
+    }
+
+
     //get user post by id
     @GetMapping("/post")
     public ResponseEntity<List<PostDTO>> getUserPost(
@@ -86,6 +114,75 @@ public class ProfileRestController {
         List<PostDTO> postDTOs = postService.getUserPosts(userId, page, size);
 
         return new ResponseEntity<>(postDTOs, HttpStatus.OK);
+    }
+
+    @PostMapping("/avatar")
+    public ResponseEntity<?> uploadAvatar(@RequestParam("file") MultipartFile file, Principal principal) {
+        try {
+            // Lấy username từ Principal
+            String username = principal.getName();
+
+            // Tìm user theo username
+            User user = userService.findByUsername(username);
+            if (user == null) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
+            }
+
+            // Validate file type
+            if (!file.getContentType().startsWith("image/")) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid file format. Only images are allowed.");
+            }
+
+            // Convert file to Blob and save it
+            byte[] bytes = file.getBytes();
+            Blob blob = new SerialBlob(bytes);
+            user.setImage(blob);
+
+            // Lưu user với avatar mới
+            userService.saveAgaint(user);
+
+            return ResponseEntity.ok("Avatar updated successfully");
+        } catch (IOException | SQLException e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to upload avatar");
+        }
+    }
+
+    @GetMapping("/{username}")
+    public ResponseEntity<UserDto> getUserProfile(@PathVariable("username") String username, Principal principal) {
+        // Kiểm tra người dùng đang đăng nhập
+        User currentUser = userService.findByUsername(principal.getName());
+        if (currentUser == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
+        }
+
+        // Lấy thông tin người dùng được yêu cầu
+        User user = userService.findByUsername(username);
+        if (user == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        }
+
+        // Kiểm tra quan hệ bạn bè hoặc yêu cầu kết bạn
+        boolean friend = friendService.isFriendAccepted(currentUser, user);
+        boolean friendPending = friendService.isFriendPending(currentUser, user);
+        boolean friendRequestReceiver = friendService.isCurrentUserFriendRequestReceiver(user, currentUser);
+
+        // Tạo UserDto
+        UserDto userDto = new UserDto();
+        userDto.setUsername(user.getUsername());
+        userDto.setEmail(user.getEmail());
+        userDto.setFriend(friend);
+        userDto.setFriendPending(friendPending);
+        userDto.setFriendRequestReceiver(friendRequestReceiver);
+
+        // Chuyển đổi hình ảnh từ Blob sang Base64
+        if (user.getImage() != null) {
+            userDto.setImage(BlobUtil.blobToBase64(user.getImage()));
+        } else {
+            userDto.setImage(null); // Đặt ảnh mặc định nếu không có ảnh
+        }
+
+        return new ResponseEntity<>(userDto, HttpStatus.OK);
     }
 
 

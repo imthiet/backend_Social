@@ -23,9 +23,7 @@ public interface FriendRepository extends JpaRepository<FriendShip, Long> {
             "SELECT f.user FROM FriendShip f WHERE f.friend.username = :username")
     List<User> findFriendsByUsername(@Param("username") String username);
 
-    @Query("SELECT new com.example.manageruser.Dto.UserDto(f.friend.username, f.friend.email, false, false, null) " +
-            "FROM FriendShip f WHERE f.user.username = :username")
-    List<UserDto> findFriendsByUsername_dto(@Param("username") String username);
+
 
     // Kiểm tra mối quan hệ bạn bè giữa hai người
     boolean existsByUserAndFriend(User user, User friend);

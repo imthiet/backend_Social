@@ -118,7 +118,8 @@ public class SearchController {
                 notificationService.save(notification);
 
                 // Return response with updated friend request status
-                boolean isReceiver = friendShipService.isCurrentUserFriendRequestReceiver(sender, receiver);
+                boolean isReceiver = friendShipService.isCurrentUserFriendRequestReceiver(sender, receiver); // tra ve true false
+                System.out.println("sender: " + sender + "receiver: " + receiver );
                 response.put("message", "Friend request sent successfully");
                 response.put("friendRequestReceiver", isReceiver); // true if the current user is a friend request receiver
                 response.put("friendPending", true); // true to show pending state in the frontend

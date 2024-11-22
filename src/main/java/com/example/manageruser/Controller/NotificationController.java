@@ -29,7 +29,7 @@ public class NotificationController {
     private UserService userService;
 
 
-
+    // lay noti voi trang thai ủunread de thay doi icon tren navbar
     @GetMapping("/unread")
     public ResponseEntity<List<Notification>> getUnreadNotifications(Principal principal) {
         User user = userService.findByUsername(principal.getName()); // Get the currently logged-in user
@@ -39,7 +39,7 @@ public class NotificationController {
     }
     // Fetch all notifications for the current user
 
-
+    // tra ra noti của nguoi dunùng hien tai
     @GetMapping("")
     public ResponseEntity<List<NotificationDTO>> getNotifications(
             @AuthenticationPrincipal UserDetails userDetails,
@@ -60,6 +60,7 @@ public class NotificationController {
     }
 
 
+    // response khi nguoi duùng truy cap vao trang noti( chuyen tat ca ve trang thai read
     @PostMapping("/mark-all-read")
     public ResponseEntity<Void> markAllNotificationsAsRead(@AuthenticationPrincipal UserDetails userDetails) {
         String username = userDetails.getUsername();

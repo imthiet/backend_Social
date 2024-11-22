@@ -77,7 +77,7 @@ public class FriendShipController {
 
 
     private UserDto createUserDto(User user, User currentUser) {
-        UserDto userDTO = new UserDto(user.getUsername(), user.getEmail(), false, false, null);
+        UserDto userDTO = new UserDto(user.getUsername(), user.getEmail(), false, false, null,false);
 
         // Check friendship status
         boolean isFriendPending = friendShipService.isFriendPending(currentUser, user);

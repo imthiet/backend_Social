@@ -29,9 +29,7 @@ public class FriendService {
     }
 
 
-    public List<UserDto> getFriends_dto(String username) {
-        return friendRepository.findFriendsByUsername_dto(username);
-    }
+
 
     public boolean existsBetweenUsers(User currentUser, User user) {
         return friendRepository.existsByUserAndFriendAndAccepted(currentUser, user, true);
