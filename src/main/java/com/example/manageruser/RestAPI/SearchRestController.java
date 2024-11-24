@@ -51,7 +51,7 @@ public class SearchRestController {
             boolean friendPending = friendService.isFriendPending(currentUser, user);
             boolean friendRequestReceiver = friendService.isCurrentUserFriendRequestReceiver(user, currentUser);
 
-            return new SearchDTO(user.getUsername(), user.getEmail(), friend, friendPending, friendRequestReceiver);
+            return new SearchDTO(user.getUsername(), user.getEmail(), friend, friendPending, friendRequestReceiver,user.isEnabled(),user.isAdmin());
         }).collect(Collectors.toList());
 
         return ResponseEntity.ok(userDtos);

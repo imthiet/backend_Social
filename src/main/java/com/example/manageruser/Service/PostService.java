@@ -120,6 +120,11 @@ private LikeService likeService;
         return post.orElse(null);
     }
 
+    public Optional<Post> findByPId(Long postId) {
+        return postRepository.findById(postId);
+    }
+
+
     public void save(Post post) {
         postRepository.save(post);
     }
@@ -158,18 +163,12 @@ private LikeService likeService;
 
     }
 
-    public Post updatePost(PostDTO postDTO, Long id) {
-        return postRepository.findById(id)
-                .map(existingPost -> {
-                    // Map fields from PostDTO to Post
-                    existingPost.setContent(postDTO.getContent());
-
-
-
-                    return postRepository.save(existingPost);
-                })
-                .orElseThrow(() -> new RuntimeException("Post not found with id " + id));
+    public Post updatePost(Optional<Post> optionalPost, PostDTO postDTO) {
+        Post existingPost = optionalPost.get(); // Lấy đối tượng Post từ Optional
+        existingPost.setContent(postDTO.getContent()); // Cập nhật nội dung
+        return postRepository.save(existingPost); // Lưu vào cơ sở dữ liệu
     }
+
 
 
     public boolean deletePostById(Long id) {

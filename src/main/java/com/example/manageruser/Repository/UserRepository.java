@@ -1,5 +1,6 @@
 package com.example.manageruser.Repository;
 
+import com.example.manageruser.Dto.UserManageDto;
 import com.example.manageruser.Model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.repository.CrudRepository;

@@ -1,6 +1,7 @@
 package com.example.manageruser.Service;
 
 import com.example.manageruser.Dto.UserDto;
+import com.example.manageruser.Dto.UserManageDto;
 import com.example.manageruser.Model.UserNotFoundException;
 import com.example.manageruser.Model.User;
 import com.example.manageruser.Repository.UserRepository;
@@ -44,6 +45,17 @@ public class UserService {
 //
 //        repo.save(user);
 //    }
+// Phương thức chuyển đổi từ User sang UserManageDTO
+ public UserManageDto convertToUserManageDTO(User user) {
+    return new UserManageDto(
+            user.getId(),
+            user.getUsername(),
+            user.getVerificationCode(),
+            user.isEnabled(),
+            user.getEmail(),
+            user.isAdmin()
+    );
+}
 
     public boolean emailExists(String email) {
         return repo.findByEmail(email) != null;
@@ -77,6 +89,7 @@ public class UserService {
         return repo.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("User not found with username: " + username));
     }
+
 
 
     public void deleteById(long id) {

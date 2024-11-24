@@ -1,5 +1,6 @@
 package com.example.manageruser.Controller;
 
+import com.example.manageruser.Dto.PostDTO;
 import com.example.manageruser.Model.Post;
 import com.example.manageruser.Model.User;
 import com.example.manageruser.Service.PostService;
@@ -22,6 +23,7 @@ import java.sql.Date;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import javax.sql.rowset.serial.SerialBlob;
 
 @Controller
@@ -94,5 +96,17 @@ public class PostController {
                     .body(Collections.singletonMap("message", "Post not found"));
         }
     }
+
+//    @PutMapping("/update/{id}")
+//    public ResponseEntity<?> updatePost(@PathVariable Long id, @RequestBody PostDTO postDTO) {
+//        Optional<Post> post = postService.findByPId(id);
+//        if (post.isPresent()) {
+//            Post updatedPost = postService.updatePost(id, postDTO);
+//            return ResponseEntity.ok(updatedPost);
+//        } else {
+//            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Post not found");
+//        }
+//    }
+
 
 }

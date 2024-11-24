@@ -26,6 +26,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
+import static org.springframework.http.RequestEntity.put;
+
 @RestController
 public class AuthController {
 
@@ -73,8 +75,10 @@ public class AuthController {
             Map<String, Object> response = new HashMap<>();
             response.put("username", user.getUsername());
             response.put("userId", user.getId());
+            response.put("isAdmin",user.isAdmin());
 
             return ResponseEntity.ok(response);
+
         } catch (Exception e) {
             System.out.println("Error during authentication: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid username or password");

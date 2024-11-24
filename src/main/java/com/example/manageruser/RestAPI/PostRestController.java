@@ -17,10 +17,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
 import java.time.LocalDateTime;
-import java.util.Base64;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.example.manageruser.Model.NotificationType.LIKE_COMMENT_SHARE;
@@ -129,9 +126,18 @@ public class PostRestController {
     }
 
     @PutMapping("/update/{id}")
-    public Post updatePost(@RequestBody PostDTO postDTO, @PathVariable Long id) {
-        return postService.updatePost(postDTO, id);
+    public ResponseEntity<?> updatePost(@PathVariable Long id, @RequestBody PostDTO postDTO) {
+        Optional<Post> post = postService.findByPId(id);
+        if (post.isPresent()) {
+            // Gọi updatePost và trả về bài viết đã cập nhật
+            Post updatedPost = postService.updatePost(post, postDTO);
+            return ResponseEntity.ok(updatedPost);
+        } else {
+            // Trả về lỗi 404 nếu bài viết không tồn tại
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Post not found");
+        }
     }
+
 
 
 }
