@@ -1,5 +1,7 @@
 package com.example.manageruser.Service;
 
+import com.example.manageruser.Dto.ChangePasswordRequest;
+import com.example.manageruser.Dto.Edit_pf_Request;
 import com.example.manageruser.Dto.UserDto;
 import com.example.manageruser.Dto.UserManageDto;
 import com.example.manageruser.Model.UserNotFoundException;
@@ -136,6 +138,30 @@ public class UserService {
         repo.save(user);
     }
 
+    // Cập nhật thông tin người dùng
+    public User updateUserProfile(Edit_pf_Request userProfileRequest) {
+        // Lấy thông tin người dùng từ security context
+        User currentUser = findByUsername(userProfileRequest.getUsername());
+
+        // Cập nhật email và địa chỉ nếu có
+        if (userProfileRequest.getEmail() != null && !userProfileRequest.getEmail().isEmpty()) {
+            currentUser.setEmail(userProfileRequest.getEmail());
+        }
+
+        if (userProfileRequest.getAddress() != null && !userProfileRequest.getAddress().isEmpty()) {
+            currentUser.setAddress(userProfileRequest.getAddress());
+        }
+
+        // Cập nhật mật khẩu nếu có và mã hóa mật khẩu trước khi lưu
+        if (userProfileRequest.getPassword() != null && !userProfileRequest.getPassword().isEmpty()) {
+            String encodedPassword = passwordEncoder.encode(userProfileRequest.getPassword());
+            currentUser.setPassword(encodedPassword);
+        }
+
+        // Lưu người dùng đã cập nhật
+        return repo.save(currentUser);
+    }
+
     private UserDto convertToDto(User user) {
         UserDto dto = new UserDto();
         dto.setUsername(user.getUsername());
@@ -164,5 +190,24 @@ public class UserService {
 
     public String getUsernameById(long id) {
        return repo.findById(id).get().getUsername();
+    }
+
+    public void changePassword(String username, ChangePasswordRequest request) {
+        User user = repo.findByUsername(username)
+                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+
+        // Kiểm tra mật khẩu hiện tại
+        if (!passwordEncoder.matches(request.getCurrentPassword(), user.getPassword())) {
+            throw new IllegalArgumentException("Current password is incorrect");
+        }
+
+        // Kiểm tra khớp mật khẩu mới và xác nhận
+        if (!request.getNewPassword().equals(request.getConfirmPassword())) {
+            throw new IllegalArgumentException("New password and confirm password do not match");
+        }
+
+        // Mã hóa và cập nhật mật khẩu mới
+        user.setPassword(passwordEncoder.encode(request.getNewPassword()));
+        repo.save(user);
     }
 }

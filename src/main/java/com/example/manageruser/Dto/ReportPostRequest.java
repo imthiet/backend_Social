@@ -1,6 +1,7 @@
 package com.example.manageruser.Dto;
 
 public class ReportPostRequest {
+    private Long reportId;
     private Long postId;
     private Long reportedBy;
     private String reason;
@@ -8,6 +9,15 @@ public class ReportPostRequest {
     private String postImage;    // Hình ảnh bài viết dưới dạng Base64
 
     // Getters and Setters
+
+
+    public Long getReportId() {
+        return reportId;
+    }
+
+    public void setReportId(Long reportId) {
+        this.reportId = reportId;
+    }
 
     public Long getPostId() {
         return postId;

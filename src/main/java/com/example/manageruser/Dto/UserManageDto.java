@@ -1,5 +1,7 @@
 package com.example.manageruser.Dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class UserManageDto {
 
     private Long id;
@@ -7,6 +9,8 @@ public class UserManageDto {
     private String verificationCode;
     private Boolean enabled;
     private String email;
+
+    @JsonProperty("isAdmin") // Đặt tên cho thuộc tính trong JSON
     private Boolean isAdmin;
 
     public UserManageDto(Long id, String username, String verificationCode, Boolean enabled, String email, Boolean isAdmin) {
@@ -19,17 +23,14 @@ public class UserManageDto {
     }
 
 
-
-
-
     // Getter và Setter
 
-    public Boolean getAdmin() {
+    public Boolean getisAdmin() {
         return isAdmin;
     }
 
-    public void setAdmin(Boolean admin) {
-        isAdmin = admin;
+    public void setisAdmin(Boolean isAdmin) {
+        isAdmin = isAdmin;
     }
 
     public Long getId() {

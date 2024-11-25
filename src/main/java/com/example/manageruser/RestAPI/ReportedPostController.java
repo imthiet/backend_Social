@@ -54,6 +54,25 @@ public class ReportedPostController {
         }
     }
 
+    @DeleteMapping("/ignore/{reportId}")
+    public ResponseEntity<String> ignorePost(@PathVariable Long reportId) {
+        try {
+            boolean isDeleted = reportedPostService.removeReport(reportId);
+            if (isDeleted) {
+                return ResponseEntity.ok("Post with ID " + reportId + " has been ignored successfully.");
+            } else {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body("Post with ID " + reportId + " was not found in the reported list.");
+            }
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("An error occurred while trying to ignore the post.");
+        }
+    }
+
+
+
+
 
 }
 

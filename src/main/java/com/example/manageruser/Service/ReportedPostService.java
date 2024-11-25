@@ -76,12 +76,21 @@ public class ReportedPostService {
         postRepository.deleteById(postId);
     }
 
+    public boolean removeReport(Long reportId) {
+        if (reportedPostRepository.existsById(reportId)) {
+            reportedPostRepository.deleteById(reportId);
+            return true;
+        }
+        return false;
+    }
+
 
     private ReportPostRequest convertToDTO(ReportedPost reportedPost) {
         ReportPostRequest dto = new ReportPostRequest();
         Post post = reportedPost.getPost();
 
         // Lấy thông tin từ Post
+        dto.setReportId(reportedPost.getId());
         dto.setPostId(post.getId());
         dto.setReportedBy(reportedPost.getReportedBy());
         dto.setReason(reportedPost.getReason());
