@@ -5,7 +5,9 @@ import com.example.manageruser.Model.Message;
 import com.example.manageruser.Model.User;
 import com.example.manageruser.Dto.UserWithLastMessageDTO;
 import com.example.manageruser.Repository.ChatRepository;
+import com.example.manageruser.Repository.ChatUserRepository;
 import com.example.manageruser.Repository.UserRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -20,6 +22,9 @@ public class ChatService {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private   ChatUserRepository chatUserRepository;
 
     // Fetch the latest message for the given chatId
     public Optional<Message> findLastMessageByChatId(Long chatId) {
@@ -60,5 +65,16 @@ public class ChatService {
     public Chat findById(Long chatId) {
         return chatRepository.findById(chatId).orElseThrow(() -> new RuntimeException("Chat not found"));
     }
+
+    @Transactional
+    public void deleteChat(Long chatId) {
+        // Xóa tất cả các bản ghi liên kết trong bảng chat_user
+
+        chatUserRepository.deleteByChatId(chatId);
+
+        // Xóa bản ghi trong bảng chat
+        chatRepository.deleteById(chatId);
+    }
+
 
 }

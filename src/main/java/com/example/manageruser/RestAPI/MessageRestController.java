@@ -87,8 +87,7 @@ public class MessageRestController {
 
     @PostMapping("/createChat/{receiverUsername}")
     public ResponseEntity<Long> createChat(@PathVariable String receiverUsername, Principal principal) {
-        // Lấy user hiện tại từ principal
-        // Lấy user hiện tại từ principal
+
         User sender = userRepository.findByUsername(principal.getName())
                 .orElseThrow(() -> new RuntimeException("Sender not found"));
 
@@ -156,32 +155,18 @@ public class MessageRestController {
         return ResponseEntity.ok(usersWithMessages); // Trả về danh sách người dùng và tin nhắn
     }
 
-//    @PostMapping("/api/chat/{chatId}/messages")
-//    public ResponseEntity<MessageDTO> sendMessage(
-//            @PathVariable Long chatId,
-//            @RequestBody MessageDTO messageDTO) {
-//        Chat chat = chatService.findById(chatId); // Sử dụng phương thức findById đã được sửa
-//        if (chat == null) {
-//            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null); // Trả về 404 nếu chat không tồn tại
-//        }
-//
-//        User sender = userService.findById(messageDTO.getSenderId());
-//        User receiver = userService.findById(messageDTO.getReceiverId());
-//
-//        if (sender == null || receiver == null) {
-//            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null); // Trả về 404 nếu sender hoặc receiver không tồn tại
-//        }
-//
-//        Message message = new Message();
-//        message.setContent(messageDTO.getContent());
-//        message.setTimestamp(LocalDateTime.now());
-//        message.setChat(chat);
-//        message.setSender(sender);
-//        message.setReceiver(receiver);
-//
-//        Message savedMessage = messageService.save(message); // Lưu và nhận lại Message đã được lưu
-//        return ResponseEntity.ok(MessageDTO.fromMessage(savedMessage)); // Trả về MessageDTO
-//    }
+    @DeleteMapping("/delete/{chatId}")
+    public ResponseEntity<String> deleteChat(@PathVariable Long chatId) {
+        try {
+            // Gọi service để xóa chat
+            chatService.deleteChat(chatId);
+            return ResponseEntity.ok("Chat deleted successfully");
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("Failed to delete chat: " + e.getMessage());
+        }
+    }
+
+
 
 
 

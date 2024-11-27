@@ -39,6 +39,12 @@ public interface FriendRepository extends JpaRepository<FriendShip, Long> {
     FriendShip findByUserAndFriendAndAcceptedFalse(User user, User friend);
 
 
+    @Query("SELECT f FROM FriendShip f " +
+            "WHERE (f.user.username = :currentUsername AND f.friend.username = :otherUsername) " +
+            "OR (f.user.username = :otherUsername AND f.friend.username = :currentUsername)")
+    Optional<FriendShip> findFriendShipBetweenUsers(@Param("currentUsername") String currentUsername,
+                                                    @Param("otherUsername") String otherUsername);
+
 
 }
 
