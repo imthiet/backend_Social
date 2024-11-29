@@ -42,38 +42,38 @@ public class newFeedController {
     NotificationService notificationService;
 
     // Hiển thị trang newsfeed
-    @GetMapping("/newsfeed")
-    public String showNewsFeed(Model model, HttpServletResponse response,
-                               Principal principal,
-                               @RequestParam(defaultValue = "0") int page,
-                               @RequestParam(defaultValue = "7") int size) {
-        response.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
-        response.setHeader("Pragma", "no-cache");
-        response.setDateHeader("Expires", 0);
-
-        String username = principal.getName();
-        User user = userService.findByUsername(username);
-        long uID = user.getId();
-
-        // Lấy danh sách bài post từ bạn bè của người dùng hiện tại
-        List<Post> posts = postService.getPostsByFriendShip(uID, page, size);
-
-        // Đếm like cho từng bài post và thêm vào model
-        Map<Long, Long> likeCounts = posts.stream()
-                .collect(Collectors.toMap(Post::getId, post -> likeService.countLikesByPostId(post.getId())));
-
-        // Kiểm tra xem từng bài post có được like bởi người dùng hay không
-        for (Post post : posts) {
-            boolean isLiked = likeService.existsByUserIdAndPostId(user.getId(), post.getId());
-            post.setLiked(isLiked); // Cần thêm phương thức setLiked vào class Post
-        }
-
-        model.addAttribute("posts", posts);
-        model.addAttribute("likeCounts", likeCounts);
-        model.addAttribute("currentPage", page);
-        model.addAttribute("usn", username);
-        return "newsfeed";
-    }
+//    @GetMapping("/newsfeed")
+//    public String showNewsFeed(Model model, HttpServletResponse response,
+//                               Principal principal,
+//                               @RequestParam(defaultValue = "0") int page,
+//                               @RequestParam(defaultValue = "7") int size) {
+//        response.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
+//        response.setHeader("Pragma", "no-cache");
+//        response.setDateHeader("Expires", 0);
+//
+//        String username = principal.getName();
+//        User user = userService.findByUsername(username);
+//        long uID = user.getId();
+//
+//        // Lấy danh sách bài post từ bạn bè của người dùng hiện tại
+//        List<Post> posts = postService.getPostsByFriendShip(uID, page, size);
+//
+//        // Đếm like cho từng bài post và thêm vào model
+//        Map<Long, Long> likeCounts = posts.stream()
+//                .collect(Collectors.toMap(Post::getId, post -> likeService.countLikesByPostId(post.getId())));
+//
+//        // Kiểm tra xem từng bài post có được like bởi người dùng hay không
+//        for (Post post : posts) {
+//            boolean isLiked = likeService.existsByUserIdAndPostId(user.getId(), post.getId());
+//            post.setLiked(isLiked); // Cần thêm phương thức setLiked vào class Post
+//        }
+//
+//        model.addAttribute("posts", posts);
+//        model.addAttribute("likeCounts", likeCounts);
+//        model.addAttribute("currentPage", page);
+//        model.addAttribute("usn", username);
+//        return "newsfeed";
+//    }
 
 
     // Hiển thị ảnh từ bài post

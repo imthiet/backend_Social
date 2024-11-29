@@ -41,11 +41,6 @@ private LikeService likeService;
 
 
 
-//    public List<Post> getAllPosts() {
-//        List<Post> posts = postRepository.findAll();
-//        return posts;
-//
-//    }
 
     public List<PostDTO> getAllPosts(Long userId) {
         List<Post> posts = postRepository.findAll();
@@ -109,10 +104,18 @@ private LikeService likeService;
         );
     }
 
-    public List<Post> getPostsByFriendShip(long userId, int page, int size) {
+    public List<PostDTO> getPostsByFriendShip(long userId, int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
-        return postRepository.findPostsByFriendship(userId, pageable).getContent();
+        // Lấy danh sách Post từ repository
+        List<Post> posts = postRepository.findPostsByFriendship(userId, pageable).getContent();
+
+        // Chuyển đổi từ Post sang PostDTO
+        return posts.stream()
+                .map(post -> convertToDTO(post, userId))
+                .collect(Collectors.toList());
     }
+
+
 
 
     public Post findPostById(Long id) {

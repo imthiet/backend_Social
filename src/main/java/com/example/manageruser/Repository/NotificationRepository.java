@@ -2,6 +2,7 @@ package com.example.manageruser.Repository;
 
 
 
+import com.example.manageruser.Dto.NotificationDTO;
 import com.example.manageruser.Model.Notification;
 import com.example.manageruser.Model.User;
 import org.springframework.data.domain.Page;

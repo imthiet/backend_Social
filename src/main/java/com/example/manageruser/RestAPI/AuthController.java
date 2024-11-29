@@ -77,6 +77,8 @@ public class AuthController {
             response.put("userId", user.getId());
             response.put("isAdmin",user.isAdmin());
 
+
+
             return ResponseEntity.ok(response);
 
         } catch (Exception e) {

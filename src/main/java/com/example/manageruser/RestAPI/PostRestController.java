@@ -7,6 +7,7 @@ import com.example.manageruser.Model.Like;
 import com.example.manageruser.Model.Notification;
 import com.example.manageruser.Model.Post;
 import com.example.manageruser.Model.User;
+import com.example.manageruser.Repository.PostRepository;
 import com.example.manageruser.Service.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,7 +17,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
+import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
+import java.time.Month;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -32,15 +35,17 @@ public class PostRestController {
     private final PostService postService;
     private final LikeService likeService;
     private final NotificationService notificationService;
+    private final PostRepository postRepository;
 
     private final CommentService commentService;
 
-    public PostRestController(UserService userService, PostService postService, LikeService likeService, NotificationService notificationService,CommentService commentService) {
+    public PostRestController(UserService userService, PostService postService, LikeService likeService, NotificationService notificationService,CommentService commentService, PostRepository postRepository) {
         this.userService = userService;
         this.postService = postService;
         this.likeService = likeService;
         this.notificationService = notificationService;
         this.commentService = commentService;
+        this.postRepository = postRepository;
     }
     @GetMapping("/all")
     public ResponseEntity<List<PostDTO>> getAllPost(Principal principal) {
@@ -69,6 +74,65 @@ public class PostRestController {
 
         return new ResponseEntity<>(postDTOs, HttpStatus.OK);
     }
+
+    @GetMapping("/all_p")
+    public ResponseEntity<Map<String, Long>> getPostCountByMonth(Principal principal) {
+        String username = principal.getName();
+        User user = userService.findByUsername(username);
+        long userId = user.getId();
+
+        // Lấy danh sách tất cả PostDTO
+        List<PostDTO> postDTOs = postService.getAllPosts(userId);
+
+        // Nhóm bài viết theo tháng từ trường createdAt trong PostDTO
+        Map<String, Long> postCountByMonth = postDTOs.stream()
+                .collect(Collectors.groupingBy(
+                        postDTO -> formatMonth(postDTO.getCreatedAt()), // Chuyển đổi LocalDateTime thành tên tháng
+                        Collectors.counting() // Đếm số lượng bài viết trong từng nhóm
+                ));
+
+        return new ResponseEntity<>(postCountByMonth, HttpStatus.OK);
+    }
+
+    // Hàm chuyển đổi LocalDateTime thành tên tháng
+    private String formatMonth(LocalDateTime dateTime) {
+        return dateTime.getMonth().toString(); // Trả về tên tháng (JANUARY, FEBRUARY, ...)
+    }
+
+
+
+    @GetMapping("/postByFriend")
+        public ResponseEntity<List<PostDTO>> getPostByFriend(
+                Principal principal,
+                @RequestParam(defaultValue = "0") int page,
+                @RequestParam(defaultValue = "7") int size) {
+            String username = principal.getName();
+            User user = userService.findByUsername(username);
+            long userId = user.getId();
+
+            // Gọi service để lấy danh sách PostDTO
+            List<PostDTO> postDTOs = postService.getPostsByFriendShip(userId,page,size).stream()
+                    .map(post -> {
+                        PostDTO postDTO = new PostDTO();
+                        postDTO.setId(post.getId());
+                        postDTO.setContent(post.getContent());
+                        postDTO.setImage(post.getImage());
+                        postDTO.setCreatedBy(post.getCreatedBy());
+                        postDTO.setCreatedAt(post.getCreatedAt());
+                        postDTO.setLikesCount(likeService.countLikesByPostId(post.getId()));
+                        postDTO.setLiked(likeService.existsByUserIdAndPostId(userId, post.getId())); // Set isLiked status
+
+                        // Sử dụng service để lấy danh sách comments phân trang và ánh xạ thành Page<CommentDTO>
+                        Page<CommentDTO> commentDTOs = commentService.getCommentsForPost(post.getId(), 0, 4); // Giả sử trang 0 và size 3
+                        postDTO.setComments(commentDTOs);
+
+                        return postDTO;
+                    })
+                    .collect(Collectors.toList());
+
+            return new ResponseEntity<>(postDTOs, HttpStatus.OK);
+        }
+
 
 
 

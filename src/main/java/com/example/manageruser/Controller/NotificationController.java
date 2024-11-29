@@ -29,14 +29,28 @@ public class NotificationController {
     private UserService userService;
 
 
-    // lay noti voi trang thai ủunread de thay doi icon tren navbar
-    @GetMapping("/unread")
-    public ResponseEntity<List<Notification>> getUnreadNotifications(Principal principal) {
-        User user = userService.findByUsername(principal.getName()); // Get the currently logged-in user
-        List<Notification> notifications = notificationService.getUnreadNotifications(user); // Fetch unread notifications
+    // lay noti voi trang thai unread de thay doi icon
+//    @GetMapping("/unread")
+//    public ResponseEntity<List<Notification>> getUnreadNotifications(Principal principal) {
+//        User user = userService.findByUsername(principal.getName()); // Get the currently logged-in user
+//        List<Notification> notifications = notificationService.getUnreadNotifications(user); // Fetch unread notifications
+//
+//        return ResponseEntity.ok(notifications); // Return the notifications as a response
+//    }
 
-        return ResponseEntity.ok(notifications); // Return the notifications as a response
+    @GetMapping("/unread")
+    public ResponseEntity<List<NotificationDTO>> getUnreadNotifications(Principal principal) {
+        User user = userService.findByUsername(principal.getName()); // Lấy người dùng hiện tại
+        List<Notification> notifications = notificationService.getUnreadNotifications(user); // Lấy danh sách thông báo
+
+        // Chuyển đổi danh sách Notification sang NotificationDTO
+        List<NotificationDTO> notificationDTOs = notifications.stream()
+                .map(NotificationDTO::new) // Sử dụng constructor của NotificationDTO
+                .toList();
+
+        return ResponseEntity.ok(notificationDTOs); // Trả về danh sách NotificationDTO
     }
+
     // Fetch all notifications for the current user
 
     // tra ra noti của nguoi dunùng hien tai
@@ -44,7 +58,7 @@ public class NotificationController {
     public ResponseEntity<List<NotificationDTO>> getNotifications(
             @AuthenticationPrincipal UserDetails userDetails,
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
+            @RequestParam(defaultValue = "5") int size) {
 
         String username = userDetails.getUsername();
         User currentUser = userService.findByUsername(username);

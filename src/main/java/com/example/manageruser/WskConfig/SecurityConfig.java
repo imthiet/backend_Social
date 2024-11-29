@@ -60,11 +60,11 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .cors(Customizer.withDefaults())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/login/**", "/register","/ws/**","/websocket/**").permitAll()
+                        .requestMatchers("/login/**", "/register","/ws/**","/websocket/**","/post/**").permitAll()
                         .anyRequest().authenticated()
                 )
 //                .authenticationProvider(authenticationProvider(userDetailsService(), passwordEncoder())) // Thêm AuthenticationProvider
-//                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)) // Cấu hình session
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)) // Cấu hình session
                 .httpBasic(Customizer.withDefaults())
                 .build();
     }
@@ -75,6 +75,7 @@ public class SecurityConfig {
         configuration.addAllowedOriginPattern("http://localhost:3000"); // Ensure this matches your React app's URL
         configuration.addAllowedMethod("*");
         configuration.addAllowedHeader("*");
+
         configuration.setAllowCredentials(true); // Allow credentials for cookies/session
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
