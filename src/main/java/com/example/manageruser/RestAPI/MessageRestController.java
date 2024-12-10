@@ -50,7 +50,6 @@ public class MessageRestController {
     private MessageService messageService;
 
 
-
     // Lấy danh sách các tin nhắn theo chatId
     @GetMapping("/{chatId}")
     public ResponseEntity<Page<MessageDTO>> getMessagesByChatId(
@@ -82,7 +81,6 @@ public class MessageRestController {
             return ResponseEntity.noContent().build();
         }
     }
-
 
 
     @PostMapping("/createChat/{receiverUsername}")
@@ -165,9 +163,6 @@ public class MessageRestController {
             return ResponseEntity.status(500).body("Failed to delete chat: " + e.getMessage());
         }
     }
-
-
-
 
 
 }

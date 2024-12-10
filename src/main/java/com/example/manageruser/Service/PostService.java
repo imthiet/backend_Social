@@ -37,11 +37,6 @@ public class PostService {
 private LikeService likeService;
 
 
-
-
-
-
-
     public List<PostDTO> getAllPosts(Long userId) {
         List<Post> posts = postRepository.findAll();
         return posts.stream().map(post -> convertToDTO(post, userId)).collect(Collectors.toList());

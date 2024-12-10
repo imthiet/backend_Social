@@ -14,6 +14,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -32,7 +34,7 @@ import static org.springframework.http.RequestEntity.put;
 public class AuthController {
 
     @Autowired
-    private  PasswordEncoder passwordEncoder;
+    private PasswordEncoder passwordEncoder;
 
     @Autowired
     private AuthenticationManager authenticationManager;
@@ -49,43 +51,35 @@ public class AuthController {
     @Autowired
     private EmailService emailService;
 
+    @CrossOrigin(origins = "http://localhost:3000")
     @PostMapping("/login")
-    @CrossOrigin(origins = "http://localhost:3000", allowCredentials = "true")
-    public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest) {
+    public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest, HttpServletRequest request) {
         try {
-            // Authenticate using authenticationManager
             Authentication authentication = authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(
-                            loginRequest.getUsername(),
-                            loginRequest.getPassword()
-                    )
+                    new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword())
             );
 
-            // Set the authenticated user in the SecurityContext
             SecurityContextHolder.getContext().setAuthentication(authentication);
 
-            // Get UserDetails from authentication
+            // Lấy thông tin người dùng
             UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-
-            // Retrieve User entity from the database using username
             User user = userRepository.findByUsername(userDetails.getUsername())
                     .orElseThrow(() -> new UsernameNotFoundException("User not found"));
 
-            // Return username and userId as JSON
+            // Lưu thông tin vào session
+            request.getSession().setAttribute("user", user);
+
+            // Trả về thông tin cần thiết cho client
             Map<String, Object> response = new HashMap<>();
-            response.put("username", user.getUsername());
             response.put("userId", user.getId());
-            response.put("isAdmin",user.isAdmin());
-
-
-
+            response.put("username", user.getUsername());
+            response.put("isAdmin", user.isAdmin());
             return ResponseEntity.ok(response);
-
         } catch (Exception e) {
-            System.out.println("Error during authentication: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid username or password");
         }
     }
+
 
     @PostMapping("/register")
     public ResponseEntity<?> newUser(@RequestBody User user, HttpServletRequest request) {
@@ -125,13 +119,6 @@ public class AuthController {
     private String getSiteURL(HttpServletRequest request) {
         return request.getRequestURL().toString().replace(request.getServletPath(), "");
     }
-
-
-
-
-
-
-
 
 
 }

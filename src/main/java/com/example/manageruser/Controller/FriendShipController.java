@@ -77,7 +77,7 @@ public class FriendShipController {
 
 
     private UserDto createUserDto(User user, User currentUser) {
-        UserDto userDTO = new UserDto(user.getUsername(), user.getEmail(), false, false, null,false);
+        UserDto userDTO = new UserDto(user.getUsername(), user.getEmail(), false, false, null, false);
 
         // Check friendship status
         boolean isFriendPending = friendShipService.isFriendPending(currentUser, user);
@@ -106,6 +106,7 @@ public class FriendShipController {
         }
         return null; // Return null if the image is not available
     }
+
     @PostMapping("/accept_friend")
     public ResponseEntity<String> acceptFriend(@RequestParam("username") String friendUsername, Principal principal) {
         String currentUsername = principal.getName();
@@ -150,7 +151,6 @@ public class FriendShipController {
         }
         return ResponseEntity.badRequest().body("User not found");
     }
-
 
 
 }

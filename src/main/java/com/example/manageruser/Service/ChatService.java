@@ -24,7 +24,7 @@ public class ChatService {
     private UserRepository userRepository;
 
     @Autowired
-    private   ChatUserRepository chatUserRepository;
+    private ChatUserRepository chatUserRepository;
 
     // Fetch the latest message for the given chatId
     public Optional<Message> findLastMessageByChatId(Long chatId) {
@@ -59,7 +59,6 @@ public class ChatService {
         }
         return userWithMessages;
     }
-
 
 
     public Chat findById(Long chatId) {

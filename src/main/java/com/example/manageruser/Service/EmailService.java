@@ -21,13 +21,13 @@ public class EmailService {
         String fromAddress = "thietquang04@gmail.com";
         String senderName = "Now Feed Email Verification";
         String subject = "Vui lòng xác minh đăng ký của bạn!";
-        String content = "Kính gửi [[name]],<br><br>"
-            + "Cảm ơn bạn đã đăng ký tài khoản tại Now Feed!<br>"
-            + "Để hoàn tất quá trình đăng ký và xác minh tài khoản của bạn, vui lòng nhấp vào liên kết dưới đây:<br><br>"
-            + "<h2><a href=\"[[URL]]\" target=\"_self\" style=\"text-decoration:none; color:#0056b3;\">Xác minh tài khoản</a></h2><br>"
-            + "Nếu bạn không thực hiện đăng ký này, xin vui lòng bỏ qua email này.<br><br>"
-            + "Trân trọng,<br>"
-            + "Đội ngũ Now Feed";
+        String content = "Dear [[name]],<br><br>"
+                + "Thank you for registering an account at Now Feed!<br>"
+                + "To complete your registration and verify your account, please click the link below:<br><br>"
+                + "<h2><a href=\"[[URL]]\" target=\"_self\" style=\"text-decoration:none; color:#0056b3;\">Verify Account</a></h2><br>"
+                + "If you did not initiate this registration, please disregard this email.<br><br>"
+                + "Best regards,<br>"
+                + "The Now Feed Team";
 
 
         MimeMessage message = mailSender.createMimeMessage();

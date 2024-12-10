@@ -11,8 +11,7 @@ public interface ReportedPostRepository extends JpaRepository<ReportedPost, Long
     List<ReportedPost> findByPostId(Long postId);
 
 
-
-
     boolean existsById(Long id); // Sử dụng đúng tên phương thức
+
     void deleteById(Long id); // Sử dụng đúng tên phương thức
 }

@@ -15,8 +15,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
     Optional<User> findByUsername(String username);
 
 
-
-
     List<User> findByUsernameContainingIgnoreCase(String username);
 
     User findByVerificationCode(String code);

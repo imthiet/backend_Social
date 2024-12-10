@@ -51,16 +51,13 @@ public class SecurityConfig {
     }
 
 
-
-
-
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
         return httpSecurity
                 .csrf(AbstractHttpConfigurer::disable)
                 .cors(Customizer.withDefaults())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/login/**", "/register","/ws/**","/websocket/**","/post/**").permitAll()
+                        .requestMatchers("/login/**", "/register", "/ws/**", "/websocket/**", "/post/**").permitAll()
                         .anyRequest().authenticated()
                 )
 //                .authenticationProvider(authenticationProvider(userDetailsService(), passwordEncoder())) // Thêm AuthenticationProvider

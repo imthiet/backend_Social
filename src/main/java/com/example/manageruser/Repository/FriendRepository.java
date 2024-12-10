@@ -24,7 +24,6 @@ public interface FriendRepository extends JpaRepository<FriendShip, Long> {
     List<User> findFriendsByUsername(@Param("username") String username);
 
 
-
     // Kiểm tra mối quan hệ bạn bè giữa hai người
     boolean existsByUserAndFriend(User user, User friend);
 
