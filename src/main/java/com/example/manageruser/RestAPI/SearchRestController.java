@@ -37,7 +37,7 @@ public class SearchRestController {
     @GetMapping("/search")
     public ResponseEntity<?> search(@RequestParam(value = "keyword", required = false) String keyword,
                                     @RequestParam(value = "page", defaultValue = "0") int page,
-                                    @RequestParam(value = "size", defaultValue = "10") int size,
+                                    @RequestParam(value = "size", defaultValue = "7") int size,
                                     Principal principal) {
         String currentUsername = principal.getName();
         User currentUser = userService.findByUsername(currentUsername);

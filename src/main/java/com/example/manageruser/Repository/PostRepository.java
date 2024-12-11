@@ -31,4 +31,13 @@ public interface PostRepository extends JpaRepository<Post, Long> {
 
     @Query("SELECT p FROM Post p WHERE p.user.id = ?1 ORDER BY p.createdAt DESC")
     Page<PostDTO> getPostsByUserId2(long userId, Pageable pageable);
+
+    @Query(value = "SELECT YEAR(p.created_at) AS year, MONTH(p.created_at) AS month, " +
+            "COUNT(DISTINCT c.id) AS comment_count, COUNT(DISTINCT pl.id) AS like_count " +
+            "FROM post p " +
+            "LEFT JOIN comment c ON c.post_id = p.id " +
+            "LEFT JOIN post_like pl ON pl.post_id = p.id " +
+            "GROUP BY YEAR(p.created_at), MONTH(p.created_at) " +
+            "ORDER BY year DESC, month DESC", nativeQuery = true)
+    List<Object[]> getInteractionStatistics();
 }
