@@ -109,7 +109,15 @@ public class AuthController {
             return ResponseEntity.status(HttpStatus.CREATED).body(newUser);
         } catch (DataIntegrityViolationException e) {
             // Handle unique constraint violations (e.g., duplicate username or email)
-            return ResponseEntity.status(HttpStatus.CONFLICT).body("Username or email already exists.");
+            String errorMessage = "Conflict: ";
+            if (e.getMessage().contains("email")) {
+                errorMessage += "Email already exists.";
+            } else if (e.getMessage().contains("username")) {
+                errorMessage += "Username already exists.";
+            } else {
+                errorMessage += "Username or email already exists.";
+            }
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(errorMessage);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error creating user.");
         }

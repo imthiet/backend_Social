@@ -165,7 +165,7 @@ public class PostRestController {
 
                 // Tạo thông báo
                 Notification notification = new Notification();
-                notification.setContentnoti(user.getUsername() + " đã thích bài đăng của bạn.");
+                notification.setContentnoti(user.getUsername() + " love your post");
                 notification.setType(LIKE_COMMENT_SHARE);
                 notification.setSender(user);
                 notification.setReceiver(post.getUser());
