@@ -12,8 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.authentication.*;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 
 import org.springframework.security.core.Authentication;
@@ -52,19 +51,27 @@ public class AuthController {
     private EmailService emailService;
 
     @CrossOrigin(origins = "http://localhost:3000")
+
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest, HttpServletRequest request) {
         try {
+            // Kiểm tra tài khoản có tồn tại trong DB hay không
+            User user = userRepository.findByUsername(loginRequest.getUsername())
+                    .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+
+            // Kiểm tra tài khoản đã được kích hoạt hay chưa
+            if (!user.isEnabled()) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                        .body("Account not enabled. Please verify your email.");
+            }
+
+            // Xác thực username và password
             Authentication authentication = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword())
             );
 
+            // Lưu thông tin authentication vào SecurityContext
             SecurityContextHolder.getContext().setAuthentication(authentication);
-
-            // Lấy thông tin người dùng
-            UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-            User user = userRepository.findByUsername(userDetails.getUsername())
-                    .orElseThrow(() -> new UsernameNotFoundException("User not found"));
 
             // Lưu thông tin vào session
             request.getSession().setAttribute("user", user);
@@ -74,11 +81,22 @@ public class AuthController {
             response.put("userId", user.getId());
             response.put("username", user.getUsername());
             response.put("isAdmin", user.isAdmin());
+            response.put("enabled", user.isEnabled());
             return ResponseEntity.ok(response);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid username or password");
+
+        } catch (BadCredentialsException ex) {
+            // Trường hợp username hoặc password không chính xác
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid password.");
+        } catch (UsernameNotFoundException ex) {
+            // Tài khoản không tồn tại
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Invalid username.");
+        } catch (Exception ex) {
+            // Các lỗi khác
+            ex.printStackTrace(); // Debug lỗi
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An unexpected error occurred.");
         }
     }
+
 
 
     @PostMapping("/register")
