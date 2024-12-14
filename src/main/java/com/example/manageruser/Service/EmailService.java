@@ -20,7 +20,7 @@ public class EmailService {
         String toAddress = user.getEmail();
         String fromAddress = "thietquang04@gmail.com";
         String senderName = "Now Feed Email Verification";
-        String subject = "Vui lòng xác minh đăng ký của bạn!";
+        String subject = "Please Visit Your Account!";
         String content = "Dear [[name]],<br><br>"
                 + "Thank you for registering an account at Now Feed!<br>"
                 + "To complete your registration and verify your account, please click the link below:<br><br>"

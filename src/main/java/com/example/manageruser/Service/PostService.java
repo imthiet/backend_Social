@@ -177,4 +177,8 @@ private LikeService likeService;
         }
         return false;                         // Trả về false nếu không tìm thấy bài viết
     }
+
+    public void deleteById(Long postId) {
+        postRepository.deleteById(postId);
+    }
 }

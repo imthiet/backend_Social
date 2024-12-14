@@ -107,6 +107,11 @@ public class ReportedPostService {
     }
 
 
+    public void deleteByPostId(Long postId) {
+        reportedPostRepository.deleteById(postId);
+    }
 
-
+    public List<ReportedPost> findByPostId(Long postId) {
+        return reportedPostRepository.findByPostId(postId);
+    }
 }
